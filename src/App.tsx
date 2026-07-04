@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, Shield, Sparkles, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Hero from './components/Hero';
 import Details from './components/Details';
 import RSVP from './components/RSVP';
 import Gifts from './components/Gifts';
 import MusicPlayer from './components/MusicPlayer';
+import AdminDashboard from './components/AdminDashboard';
+import CheckInPortal from './components/CheckInPortal';
+import { Guest } from './types';
 
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Custom Dynamic State Manager
+  const [guest, setGuest] = useState<Guest | null>(null);
+  const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao'>('invite');
+  const [loadingGuest, setLoadingGuest] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +30,36 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Parse URL routing triggers
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const guestId = params.get('i') || params.get('invite');
+    const isAdmin = params.get('admin') === 'true';
+    const isRecepcao = params.get('recepcao') === 'true' || params.get('checkin') === 'true';
+
+    if (isAdmin) {
+      setViewMode('admin');
+    } else if (isRecepcao) {
+      setViewMode('recepcao');
+    } else if (guestId) {
+      setLoadingGuest(true);
+      fetch(`/api/guests/${guestId}`)
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error('Convidado não encontrado');
+        })
+        .then((data) => {
+          setGuest(data);
+        })
+        .catch((err) => {
+          console.warn("Nenhum convite correspondente ao token ativo no banco.", err);
+        })
+        .finally(() => {
+          setLoadingGuest(false);
+        });
+    }
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -39,9 +77,31 @@ export default function App() {
     { name: 'Confirmar Presença', id: 'rsvp' },
   ];
 
+  if (viewMode === 'admin') {
+    return <AdminDashboard onClose={() => setViewMode('invite')} />;
+  }
+
+  if (viewMode === 'recepcao') {
+    return <CheckInPortal onClose={() => setViewMode('invite')} />;
+  }
+
   return (
     <div id="app-root" className="min-h-screen bg-stone-900 font-sans text-stone-800 antialiased selection:bg-gold-200 selection:text-stone-900">
       
+      {/* Personalized Greeting Banner */}
+      {guest && (
+        <div className="bg-gold-400 text-stone-950 text-center py-2 px-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md relative z-50">
+          <Sparkles size={14} className="animate-spin text-stone-950" />
+          <span>Olá, <strong>{guest.nome}</strong>! Você foi convidado para celebrar nosso amor!</span>
+          <button 
+            onClick={() => scrollToSection('rsvp')}
+            className="underline ml-2 hover:text-stone-800 font-extrabold cursor-pointer uppercase tracking-widest text-[10px]"
+          >
+            [ Responder RSVP ]
+          </button>
+        </div>
+      )}
+
       {/* Navigation Header */}
       <header
         id="main-navigation"
@@ -130,15 +190,34 @@ export default function App() {
         <Gifts />
 
         {/* RSVP Section */}
-        <RSVP />
+        <RSVP guest={guest} onRsvpSubmit={(updated) => setGuest(updated)} />
       </main>
 
       {/* Elegant, Sweet Footer */}
-      <footer id="app-footer" className="bg-stone-950 py-12 text-center border-t border-gold-300/5 px-4 font-sans text-xs">
+      <footer id="app-footer" className="bg-stone-950 py-16 text-center border-t border-gold-300/5 px-4 font-sans text-xs text-stone-500">
         <div className="max-w-md mx-auto flex flex-col items-center gap-4">
-          <Heart size={16} className="text-gold-400 fill-current animate-pulse" />
-          <p className="font-serif italic text-gold-200 text-base">Henderson & Alana</p>
-          <p className="text-stone-500 tracking-wider">Feito com amor • 10 de Outubro de 2026</p>
+          <Heart size={16} className="text-gold-400 fill-current animate-pulse mb-1" />
+          <p className="font-serif italic text-gold-200 text-lg">Henderson & Alana</p>
+          <p className="tracking-wider">Feito com amor • 10 de Outubro de 2026</p>
+          
+          {/* Admin and Reception Desk Shortcuts */}
+          <div className="flex gap-4 items-center justify-center pt-6 border-t border-stone-900 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-stone-600">
+            <button 
+              onClick={() => setViewMode('admin')} 
+              className="hover:text-gold-300 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <Shield size={12} />
+              Painel Noivos (Admin)
+            </button>
+            <span>•</span>
+            <button 
+              onClick={() => setViewMode('recepcao')} 
+              className="hover:text-gold-300 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <CheckSquare size={12} />
+              Portaria (Check-In)
+            </button>
+          </div>
         </div>
       </footer>
 

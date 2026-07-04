@@ -38,3 +38,30 @@ export interface EventDetails {
   pixName: string;
   pixBank: string;
 }
+
+export interface Guest {
+  id: string;
+  nome: string;
+  email: string;
+  telefone: string;
+  acompanhantes_limite: number;
+  confirmado: boolean | null;
+  acompanhantes: number;
+  acompanhantes_nomes: string[];
+  restricao_alimentar: string;
+  mensagem: string;
+  mesa: string;
+  check_in: boolean;
+  check_in_at: string | null;
+  created_at: string;
+}
+
+export interface AccessLog {
+  id: number;
+  guest_id: string;
+  data: string;
+  ip: string;
+  navegador: string;
+  celular: string;
+  cidade: string;
+}
