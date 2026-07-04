@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&family=Alex+Brush&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-handwriting: "Alex Brush", cursive;
+  
+  --color-gold-50: #fbf7f0;
+  --color-gold-100: #f5eae1;
+  --color-gold-200: #ead2bf;
+  --color-gold-300: #dcaf92;
+  --color-gold-400: #c98c68;
+  --color-gold-500: #b56c45;
+  --color-gold-600: #9e5332;
+  --color-gold-700: #813f26;
+  --color-gold-800: #65311e;
+  --color-gold-900: #4a2316;
+}
+
+/* Custom smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Elegant scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fbf7f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #dcaf92;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c98c68;
+}
+

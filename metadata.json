@@ -1,0 +1,6 @@
+{
+  "name": "Casamento de Henderson e Alana",
+  "description": "Convite digital de casamento elegante e interativo para Henderson e Alana, com cronômetro, confirmação de presença (RSVP) e lista de presentes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
