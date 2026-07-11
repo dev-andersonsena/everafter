@@ -6,16 +6,16 @@
   --font-serif: "Playfair Display", Georgia, serif;
   --font-handwriting: "Alex Brush", cursive;
   
-  --color-gold-50: #fbf7f0;
-  --color-gold-100: #f5eae1;
-  --color-gold-200: #ead2bf;
-  --color-gold-300: #dcaf92;
-  --color-gold-400: #c98c68;
-  --color-gold-500: #b56c45;
-  --color-gold-600: #9e5332;
-  --color-gold-700: #813f26;
-  --color-gold-800: #65311e;
-  --color-gold-900: #4a2316;
+  --color-gold-50: #fdfaf7;
+  --color-gold-100: #f7ede4;
+  --color-gold-200: #eccbb3;
+  --color-gold-300: #e0aa8b;
+  --color-gold-400: #d48563;
+  --color-gold-500: #c86840;
+  --color-gold-600: #b5502a;
+  --color-gold-700: #9c3f1e;
+  --color-gold-800: #7b2e14;
+  --color-gold-900: #5c200c;
 }
 
 /* Custom smooth scrolling */
@@ -28,13 +28,22 @@ html {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #fbf7f0;
+  background: #fdfaf7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #dcaf92;
+  background: #eccbb3;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #c98c68;
+  background: #d48563;
+}
+
+/* Elegant watercolor texture gradient from PDF */
+.bg-watercolor {
+  background: linear-gradient(180deg, #fdf8f4 0%, #f6e6da 40%, #eaa98c 80%, #df8d69 100%);
+}
+
+.bg-watercolor-soft {
+  background: linear-gradient(180deg, #fdfaf7 0%, #f7eae1 50%, #eed6c6 100%);
 }
 

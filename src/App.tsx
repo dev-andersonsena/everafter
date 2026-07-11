@@ -86,16 +86,16 @@ export default function App() {
   }
 
   return (
-    <div id="app-root" className="min-h-screen bg-stone-900 font-sans text-stone-800 antialiased selection:bg-gold-200 selection:text-stone-900">
+    <div id="app-root" className="min-h-screen bg-gold-50 font-sans text-gold-950 antialiased selection:bg-gold-200 selection:text-gold-950">
       
       {/* Personalized Greeting Banner */}
       {guest && (
-        <div className="bg-gold-400 text-stone-950 text-center py-2 px-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md relative z-50">
-          <Sparkles size={14} className="animate-spin text-stone-950" />
+        <div className="bg-gold-500 text-white text-center py-2 px-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md relative z-50">
+          <Sparkles size={14} className="animate-spin text-white" />
           <span>Olá, <strong>{guest.nome}</strong>! Você foi convidado para celebrar nosso amor!</span>
           <button 
             onClick={() => scrollToSection('rsvp')}
-            className="underline ml-2 hover:text-stone-800 font-extrabold cursor-pointer uppercase tracking-widest text-[10px]"
+            className="underline ml-2 hover:text-gold-100 font-extrabold cursor-pointer uppercase tracking-widest text-[10px]"
           >
             [ Responder RSVP ]
           </button>
@@ -107,7 +107,7 @@ export default function App() {
         id="main-navigation"
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
           isScrolled 
-            ? 'bg-white/85 backdrop-blur-md border-b border-gold-300/10 py-3 shadow-sm' 
+            ? 'bg-gold-50/95 backdrop-blur-md border-b border-gold-200/20 py-3 shadow-sm' 
             : 'bg-transparent py-5'
         }`}
       >
@@ -117,7 +117,7 @@ export default function App() {
           <button 
             onClick={() => scrollToSection('inicio')}
             className={`font-serif italic font-medium text-lg tracking-widest cursor-pointer select-none transition-colors duration-300 ${
-              isScrolled ? 'text-stone-900' : 'text-gold-200'
+              isScrolled ? 'text-gold-800' : 'text-gold-600'
             }`}
           >
             H <span className="text-xs">&</span> A
@@ -131,8 +131,8 @@ export default function App() {
                 onClick={() => scrollToSection(link.id)}
                 className={`font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer select-none relative py-1 transition-colors duration-300 ${
                   isScrolled 
-                    ? 'text-stone-600 hover:text-stone-900' 
-                    : 'text-stone-200/90 hover:text-white'
+                    ? 'text-gold-700 hover:text-gold-900' 
+                    : 'text-gold-600/90 hover:text-gold-800'
                 }`}
               >
                 {link.name}
@@ -144,7 +144,7 @@ export default function App() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className={`md:hidden p-1.5 rounded-lg cursor-pointer transition-colors ${
-              isScrolled ? 'text-stone-800' : 'text-gold-200'
+              isScrolled ? 'text-gold-800' : 'text-gold-600'
             }`}
             aria-label="Toggle menu"
           >
@@ -161,14 +161,14 @@ export default function App() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-[52px] left-0 right-0 z-35 bg-white border-b border-stone-100 shadow-xl overflow-hidden md:hidden font-sans"
+            className="fixed top-[52px] left-0 right-0 z-35 bg-gold-50 border-b border-gold-200/20 shadow-xl overflow-hidden md:hidden font-sans"
           >
             <nav className="flex flex-col p-6 space-y-4">
               {navLinks.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => scrollToSection(link.id)}
-                  className="text-left text-stone-700 hover:text-gold-600 font-semibold text-sm py-2 tracking-wider uppercase cursor-pointer"
+                  className="text-left text-gold-800 hover:text-gold-600 font-semibold text-sm py-2 tracking-wider uppercase cursor-pointer"
                 >
                   {link.name}
                 </button>
@@ -194,17 +194,17 @@ export default function App() {
       </main>
 
       {/* Elegant, Sweet Footer */}
-      <footer id="app-footer" className="bg-stone-950 py-16 text-center border-t border-gold-300/5 px-4 font-sans text-xs text-stone-500">
+      <footer id="app-footer" className="bg-gold-100/50 py-16 text-center border-t border-gold-200/30 px-4 font-sans text-xs text-gold-700">
         <div className="max-w-md mx-auto flex flex-col items-center gap-4">
-          <Heart size={16} className="text-gold-400 fill-current animate-pulse mb-1" />
-          <p className="font-serif italic text-gold-200 text-lg">Henderson & Alana</p>
-          <p className="tracking-wider">Feito com amor • 10 de Outubro de 2026</p>
+          <Heart size={16} className="text-gold-500 fill-current animate-pulse mb-1" />
+          <p className="font-serif italic text-gold-600 text-lg">Henderson & Alana</p>
+          <p className="tracking-wider">Feito com amor • 07 de Setembro de 2026</p>
           
           {/* Admin and Reception Desk Shortcuts */}
-          <div className="flex gap-4 items-center justify-center pt-6 border-t border-stone-900 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-stone-600">
+          <div className="flex gap-4 items-center justify-center pt-6 border-t border-gold-200/40 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-gold-600">
             <button 
               onClick={() => setViewMode('admin')} 
-              className="hover:text-gold-300 transition-colors flex items-center gap-1 cursor-pointer"
+              className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Shield size={12} />
               Painel Noivos (Admin)
@@ -212,7 +212,7 @@ export default function App() {
             <span>•</span>
             <button 
               onClick={() => setViewMode('recepcao')} 
-              className="hover:text-gold-300 transition-colors flex items-center gap-1 cursor-pointer"
+              className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
             >
               <CheckSquare size={12} />
               Portaria (Check-In)

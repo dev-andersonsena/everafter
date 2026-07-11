@@ -1,7 +1,7 @@
 import { EventDetails, GiftItem } from './types';
 
 export const weddingDetails: EventDetails = {
-  date: '2026-10-10T16:00:00-03:00', // October 10, 2026 at 16:00 (Brasilia Time)
+  date: '2026-09-07T16:00:00-03:00', // September 7, 2026 at 16:00 (Brasilia Time)
   ceremonyTime: '16:00',
   receptionTime: '17:30',
   ceremonyLocation: 'Capela das Hortênsias',
@@ -13,7 +13,7 @@ export const weddingDetails: EventDetails = {
   dressCode: 'Esporte Fino / Social',
   dressCodeDescription: 'Sugerimos que os homens usem calça social, camisa e blazer (gravata é opcional). Para as mulheres, vestidos longos ou midi em tons leves e elegantes (pedimos que evitem branco, off-white e cores muito próximas do branco).',
   pixKey: 'henderson.alana.casamento@gmail.com',
-  pixName: 'Henderson Silva e Alana Souza',
+  pixName: 'Henderson Venicius e Alana Letícia',
   pixBank: 'Banco Nu Pagamentos (Nubank)'
 };
 

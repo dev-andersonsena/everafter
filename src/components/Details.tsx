@@ -23,7 +23,7 @@ export default function Details() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-serif text-3xl sm:text-4xl md:text-5xl text-stone-900 tracking-tight"
+            className="font-serif text-3xl sm:text-4xl md:text-5xl text-gold-800 tracking-tight font-bold"
           >
             O Grande Dia
           </motion.h2>
@@ -39,7 +39,7 @@ export default function Details() {
             whileInView={{ opacity: 0.7 }}
             viewport={{ once: true }}
             transition={{ duration: 1.0, delay: 0.3 }}
-            className="text-stone-600 font-sans text-sm sm:text-base max-w-lg mx-auto mt-4"
+            className="text-gold-900/80 font-sans text-sm sm:text-base max-w-lg mx-auto mt-4 font-medium"
           >
             Tudo o que você precisa saber sobre o local, horários e recomendações para o nosso casamento.
           </motion.p>
@@ -54,29 +54,29 @@ export default function Details() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-stone-100 flex flex-col justify-between"
+            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-gold-100/50 flex flex-col justify-between"
           >
             <div>
-              <div className="inline-flex p-3 bg-gold-100/50 rounded-2xl text-gold-600 mb-6">
+              <div className="inline-flex p-3 bg-gold-100 rounded-2xl text-gold-600 mb-6">
                 <Clock size={24} />
               </div>
-              <h3 className="font-serif text-2xl text-stone-900 mb-4">A Cerimônia</h3>
+              <h3 className="font-serif text-2xl text-gold-800 font-bold mb-4">A Cerimônia</h3>
               
-              <div className="space-y-4 text-stone-600 mb-8">
+              <div className="space-y-4 text-gold-900/80 mb-8">
                 <div className="flex items-start gap-3">
-                  <Clock size={16} className="text-gold-400 mt-1 shrink-0" />
+                  <Clock size={16} className="text-gold-500 mt-1 shrink-0" />
                   <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-stone-400">Horário</p>
-                    <p className="font-serif text-stone-800 font-medium">Sábado, 10 de Outubro de 2026, às {weddingDetails.ceremonyTime}h</p>
+                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Horário</p>
+                    <p className="font-serif text-gold-900 font-semibold">Segunda-feira (Feriado), 07 de Setembro de 2026, às {weddingDetails.ceremonyTime}h</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <MapPin size={16} className="text-gold-400 mt-1 shrink-0" />
+                  <MapPin size={16} className="text-gold-500 mt-1 shrink-0" />
                   <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-stone-400">Local</p>
-                    <p className="font-serif text-stone-800 font-medium">{weddingDetails.ceremonyLocation}</p>
-                    <p className="font-sans text-xs text-stone-500 mt-0.5">{weddingDetails.ceremonyAddress}</p>
+                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Local</p>
+                    <p className="font-serif text-gold-900 font-semibold">{weddingDetails.ceremonyLocation}</p>
+                    <p className="font-sans text-xs text-gold-600 mt-0.5">{weddingDetails.ceremonyAddress}</p>
                   </div>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function Details() {
               rel="noreferrer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-stone-900 hover:bg-stone-800 text-gold-100 font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
+              className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-gold-600 hover:bg-gold-700 text-white font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
             >
               <MapPin size={16} className="mr-2" />
               Como Chegar à Capela
@@ -101,29 +101,29 @@ export default function Details() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-stone-100 flex flex-col justify-between"
+            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-gold-100/50 flex flex-col justify-between"
           >
             <div>
-              <div className="inline-flex p-3 bg-gold-100/50 rounded-2xl text-gold-600 mb-6">
+              <div className="inline-flex p-3 bg-gold-100 rounded-2xl text-gold-600 mb-6">
                 <CalendarHeart size={24} />
               </div>
-              <h3 className="font-serif text-2xl text-stone-900 mb-4">A Celebração</h3>
+              <h3 className="font-serif text-2xl text-gold-800 font-bold mb-4">A Celebração</h3>
               
-              <div className="space-y-4 text-stone-600 mb-8">
+              <div className="space-y-4 text-gold-900/80 mb-8">
                 <div className="flex items-start gap-3">
-                  <Clock size={16} className="text-gold-400 mt-1 shrink-0" />
+                  <Clock size={16} className="text-gold-500 mt-1 shrink-0" />
                   <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-stone-400">Horário</p>
-                    <p className="font-serif text-stone-800 font-medium">Sábado, 10 de Outubro de 2026, às {weddingDetails.receptionTime}h</p>
+                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Horário</p>
+                    <p className="font-serif text-gold-900 font-semibold">Segunda-feira (Feriado), 07 de Setembro de 2026, às {weddingDetails.receptionTime}h</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <MapPin size={16} className="text-gold-400 mt-1 shrink-0" />
+                  <MapPin size={16} className="text-gold-500 mt-1 shrink-0" />
                   <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-stone-400">Local</p>
-                    <p className="font-serif text-stone-800 font-medium">{weddingDetails.receptionLocation}</p>
-                    <p className="font-sans text-xs text-stone-500 mt-0.5">{weddingDetails.receptionAddress}</p>
+                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Local</p>
+                    <p className="font-serif text-gold-900 font-semibold">{weddingDetails.receptionLocation}</p>
+                    <p className="font-sans text-xs text-gold-600 mt-0.5">{weddingDetails.receptionAddress}</p>
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Details() {
               rel="noreferrer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-stone-900 hover:bg-stone-800 text-gold-100 font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
+              className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-gold-600 hover:bg-gold-700 text-white font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
             >
               <MapPin size={16} className="mr-2" />
               Como Chegar à Festa
@@ -153,23 +153,23 @@ export default function Details() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="md:col-span-2 bg-stone-900 text-stone-200 rounded-3xl p-8 shadow-md border border-stone-800 flex flex-col justify-between"
+            className="md:col-span-2 bg-watercolor-soft text-gold-950 rounded-3xl p-8 shadow-sm border border-gold-200/40 flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gold-400/20 rounded-xl text-gold-300">
+                <div className="p-2 bg-gold-500/10 rounded-xl text-gold-600">
                   <Shirt size={20} />
                 </div>
-                <h4 className="font-serif text-xl text-stone-100">Traje: {weddingDetails.dressCode}</h4>
+                <h4 className="font-serif text-xl text-gold-800 font-bold">Traje: {weddingDetails.dressCode}</h4>
               </div>
-              <p className="text-sm leading-relaxed text-stone-300 font-sans">
+              <p className="text-sm leading-relaxed text-gold-900/90 font-sans font-medium">
                 {weddingDetails.dressCodeDescription}
               </p>
             </div>
             
-            <div className="w-full h-[1px] bg-stone-800 my-6" />
+            <div className="w-full h-[1px] bg-gold-200/30 my-6" />
             
-            <p className="text-xs text-gold-300/80 italic font-serif">
+            <p className="text-xs text-gold-600 italic font-serif font-semibold">
               * Sua presença com um traje confortável e adequado ao nosso dia fará as fotos ainda mais belas!
             </p>
           </motion.div>

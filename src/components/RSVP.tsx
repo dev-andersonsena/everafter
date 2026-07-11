@@ -263,15 +263,15 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
   };
 
   return (
-    <section id="rsvp" className="py-20 sm:py-28 bg-stone-900 px-4 text-stone-200">
+    <section id="rsvp" className="py-20 sm:py-28 bg-gold-50 px-4 text-gold-900 border-t border-gold-200/25">
       <div className="max-w-3xl mx-auto">
         
         {/* Header section */}
         <div className="text-center mb-16">
-          <span className="text-gold-300 uppercase tracking-[0.2em] text-xs font-semibold block mb-3">RSVP</span>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-stone-100 tracking-tight">Confirmar Presença</h2>
-          <div className="w-16 h-[1px] bg-gold-400 mx-auto mt-4" />
-          <p className="text-stone-400 font-sans text-sm sm:text-base max-w-md mx-auto mt-4 leading-relaxed">
+          <span className="text-gold-600 uppercase tracking-[0.2em] text-xs font-bold block mb-3">RSVP</span>
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-gold-800 tracking-tight font-bold">Confirmar Presença</h2>
+          <div className="w-16 h-[1px] bg-gold-300 mx-auto mt-4" />
+          <p className="text-gold-900/80 font-sans text-sm sm:text-base max-w-md mx-auto mt-4 leading-relaxed font-medium">
             Confirme sua presença para que possamos organizar tudo com carinho.
           </p>
         </div>
@@ -289,20 +289,20 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -15 }}
                 transition={{ duration: 0.3 }}
-                className="bg-stone-950/30 border border-gold-300/10 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between"
+                className="bg-white border border-gold-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between text-gold-900"
               >
                 <div>
                   <div className="text-center mb-6">
-                    <div className="inline-flex p-3 bg-gold-400/5 text-gold-300 rounded-2xl border border-gold-400/10 mb-3">
-                      <Search size={22} />
+                    <div className="inline-flex p-3 bg-gold-50 text-gold-600 rounded-2xl border border-gold-200/50 mb-3">
+                      <Search size={22} className="text-gold-500" />
                     </div>
-                    <h3 className="font-serif text-lg text-stone-100 font-bold">Localize seu Convite</h3>
-                    <p className="text-stone-400 text-xs mt-1">Busque seu nome completo na lista de convidados pré-cadastrada pelos noivos.</p>
+                    <h3 className="font-serif text-lg text-gold-800 font-bold">Localize seu Convite</h3>
+                    <p className="text-gold-600/80 text-xs mt-1">Busque seu nome completo na lista de convidados pré-cadastrada pelos noivos.</p>
                   </div>
 
                   <form onSubmit={handleSearchInvite} className="space-y-4">
                     {searchError && (
-                      <div className="bg-red-500/10 border border-red-500/20 text-red-200 text-xs p-3 rounded-xl">
+                      <div className="bg-red-500/10 border border-red-500/20 text-red-700 text-xs p-3 rounded-xl">
                         {searchError}
                       </div>
                     )}
@@ -314,12 +314,12 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                         placeholder="Nome completo (ex: Carlos Henrique)"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
-                        className="flex-1 bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-xs focus:outline-none focus:border-gold-300 focus:ring-1 focus:ring-gold-300/10"
+                        className="flex-1 bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/10"
                       />
                       <button
                         type="submit"
                         disabled={searching}
-                        className="px-4 bg-gold-400 hover:bg-gold-500 text-stone-950 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-1"
+                        className="px-4 bg-gold-600 hover:bg-gold-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all flex items-center gap-1 shrink-0 shadow-sm"
                       >
                         {searching ? '...' : 'Buscar'}
                         <ArrowRight size={12} />
@@ -329,18 +329,18 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
 
                   {/* Search Results list */}
                   {searchResults.length > 0 && (
-                    <div className="mt-6 border-t border-stone-800/80 pt-4 space-y-2">
-                      <p className="text-xs text-stone-400 uppercase tracking-wider font-semibold mb-2">Selecione seu nome da lista:</p>
+                    <div className="mt-6 border-t border-gold-200 pt-4 space-y-2">
+                      <p className="text-xs text-gold-600 uppercase tracking-wider font-bold mb-2">Selecione seu nome da lista:</p>
                       <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                         {searchResults.map(result => (
                           <button
                             key={result.id}
                             onClick={() => selectSearchedGuest(result)}
-                            className="w-full text-left p-3 rounded-xl border border-stone-850 bg-stone-950/45 text-stone-200 text-xs hover:border-gold-400/35 hover:text-white transition-colors cursor-pointer flex justify-between items-center"
+                            className="w-full text-left p-3 rounded-xl border border-gold-100 bg-gold-50/20 text-gold-800 text-xs hover:border-gold-400/50 hover:text-gold-950 hover:bg-gold-50/50 transition-all cursor-pointer flex justify-between items-center"
                           >
-                            <span className="font-serif font-semibold">{result.nome}</span>
-                            <span className="text-[9px] text-stone-400 font-mono">
-                              {result.confirmado !== null ? 'Visualizar Confirmação' : 'Confirmar Presença'}
+                            <span className="font-serif font-bold">{result.nome}</span>
+                            <span className="text-[9px] text-gold-600 font-bold uppercase tracking-wider">
+                              {result.confirmado !== null ? 'Visualizar' : 'Confirmar'}
                             </span>
                           </button>
                         ))}
@@ -357,24 +357,24 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 15 }}
                 transition={{ duration: 0.3 }}
-                className="bg-stone-950/30 border border-gold-300/10 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col items-center justify-between text-center"
+                className="bg-white border border-gold-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center justify-between text-center text-gold-900"
               >
                 <div>
-                  <div className="inline-flex p-3 bg-gold-400/5 text-gold-300 rounded-2xl border border-gold-400/10 mb-3">
-                    <QrCode size={22} />
+                  <div className="inline-flex p-3 bg-gold-50 text-gold-600 rounded-2xl border border-gold-200/50 mb-3">
+                    <QrCode size={22} className="text-gold-500" />
                   </div>
-                  <h3 className="font-serif text-lg text-stone-100 font-bold">Confirmar via QR Code</h3>
-                  <p className="text-stone-400 text-xs mt-1 mb-5">Escaneie o QR Code abaixo com a câmera do seu celular para abrir o formulário geral de presença direta.</p>
+                  <h3 className="font-serif text-lg text-gold-800 font-bold">Confirmar via QR Code</h3>
+                  <p className="text-gold-600/80 text-xs mt-1 mb-5">Escaneie o QR Code abaixo com a câmera do seu celular para abrir o formulário geral de presença direta.</p>
                   
                   {/* Dynamic Interactive QR Code */}
-                  <div className="inline-block p-3.5 bg-white rounded-2xl border-2 border-gold-400/30 shadow-inner mb-4 transition-all duration-300 hover:scale-103 hover:border-gold-400/60">
+                  <div className="inline-block p-3.5 bg-white rounded-2xl border border-gold-200/60 shadow-sm mb-4 transition-all duration-300 hover:scale-103 hover:border-gold-400/60">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}?rsvp=new` : '')}&color=28-25-23&bgcolor=255-255-255`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}${window.location.pathname}?rsvp=new` : '')}&color=120-60-30&bgcolor=255-255-255`}
                       alt="QR Code RSVP"
                       className="w-32 h-32 select-none"
                     />
                   </div>
-                  <p className="text-[9px] text-gold-300/80 font-mono tracking-wider uppercase mb-5">Acesso Geral • ?rsvp=new</p>
+                  <p className="text-[9px] text-gold-500 font-bold font-mono tracking-wider uppercase mb-5">Acesso Geral • ?rsvp=new</p>
                 </div>
 
                 <div className="w-full">
@@ -386,9 +386,9 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       setSearchResults([]);
                       setSearchError('');
                     }}
-                    className="w-full py-3.5 bg-stone-900/60 hover:bg-stone-850 text-gold-300 hover:text-gold-200 border border-gold-300/10 hover:border-gold-300/30 rounded-xl text-xs font-bold uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2 shadow-sm"
+                    className="w-full py-3.5 bg-gold-50/50 hover:bg-gold-100/50 text-gold-700 hover:text-gold-800 border border-gold-200 rounded-xl text-xs font-bold uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2 shadow-sm"
                   >
-                    <Sparkles size={14} className="text-gold-300" />
+                    <Sparkles size={14} className="text-gold-500" />
                     <span>Preencher Formulário Direto</span>
                   </button>
                 </div>
@@ -405,30 +405,30 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="bg-stone-950/30 border border-gold-300/10 rounded-3xl p-6 sm:p-10 shadow-xl max-w-xl mx-auto font-sans"
+              className="bg-white border border-gold-200 rounded-3xl p-6 sm:p-10 shadow-sm max-w-xl mx-auto font-sans text-gold-900"
             >
               <div className="space-y-6">
                 
-                <div className="text-center pb-4 border-b border-stone-800/40">
-                  <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-gold-400/10 text-gold-300 text-[10px] font-semibold uppercase tracking-widest rounded-full mb-2">
-                    <Sparkles size={11} />
+                <div className="text-center pb-4 border-b border-gold-200">
+                  <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-gold-500/10 text-gold-600 text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
+                    <Sparkles size={11} className="text-gold-500" />
                     Confirmação Geral de Presença
                   </div>
-                  <h3 className="font-serif text-xl text-stone-100 font-bold">Preencha seus dados</h3>
-                  <p className="text-stone-400 text-xs mt-1">Insira suas informações abaixo para confirmar sua presença no nosso casamento.</p>
+                  <h3 className="font-serif text-xl text-gold-800 font-bold">Preencha seus dados</h3>
+                  <p className="text-gold-600/80 text-xs mt-1">Insira suas informações abaixo para confirmar sua presença no nosso casamento.</p>
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-200 text-xs p-4 rounded-xl">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 bg-red-500/5 border border-red-200 text-red-700 text-xs p-4 rounded-xl">
+                    <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-500" />
                     <span>{error}</span>
                   </div>
                 )}
 
                 {/* Name */}
                 <div>
-                  <label htmlFor="pub-name" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
-                    <User size={13} className="text-gold-300" />
+                  <label htmlFor="pub-name" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5">
+                    <User size={13} className="text-gold-500" />
                     Nome Completo *
                   </label>
                   <input
@@ -442,14 +442,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       setError('');
                     }}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="pub-email" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
-                    <Mail size={13} className="text-gold-300" />
+                  <label htmlFor="pub-email" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5">
+                    <Mail size={13} className="text-gold-500" />
                     E-mail *
                   </label>
                   <input
@@ -463,14 +463,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       setError('');
                     }}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
                   />
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="pub-phone" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
-                    <Phone size={13} className="text-gold-300" />
+                  <label htmlFor="pub-phone" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5">
+                    <Phone size={13} className="text-gold-500" />
                     Telefone *
                   </label>
                   <input
@@ -484,13 +484,13 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       setError('');
                     }}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
                   />
                 </div>
 
                 {/* Companion count (up to 5) */}
                 <div>
-                  <label className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-3">
+                  <label className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-3">
                     Quantidade de acompanhantes *
                   </label>
                   <div className="flex gap-2">
@@ -502,8 +502,8 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                         disabled={loading}
                         className={`flex-1 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
                           companionCount === num
-                            ? 'bg-stone-100 text-stone-950 border-white shadow-md'
-                            : 'bg-stone-900/30 border-stone-800/80 text-stone-400 hover:text-stone-300'
+                            ? 'bg-gold-600 text-white border-gold-600 shadow-sm'
+                            : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
                         }`}
                       >
                         {num}
@@ -514,14 +514,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
 
                 {/* Companion Names (dynamic fields) */}
                 {companionCount > 0 && (
-                  <div className="space-y-3 bg-stone-900/30 border border-stone-800/50 p-4 rounded-xl">
-                    <p className="text-xs text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-semibold">
-                      <Users size={14} className="text-gold-300" />
+                  <div className="space-y-3 bg-gold-50/30 border border-gold-200/50 p-4 rounded-xl">
+                    <p className="text-gold-700 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5 font-bold">
+                      <Users size={14} className="text-gold-500" />
                       Nome completo dos acompanhantes
                     </p>
                     {companions.map((companion, idx) => (
                       <div key={idx} className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500 text-xs font-semibold">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold-500 text-xs font-bold">
                           #{idx + 1}
                         </span>
                         <input
@@ -531,7 +531,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                           value={companion}
                           onChange={(e) => handleCompanionNameChange(idx, e.target.value)}
                           disabled={loading}
-                          className="w-full bg-stone-900/60 border border-stone-800 rounded-lg py-2.5 pl-10 pr-4 text-stone-100 text-xs focus:outline-none focus:border-gold-300"
+                          className="w-full bg-white border border-gold-200 rounded-lg py-2.5 pl-10 pr-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500"
                         />
                       </div>
                     ))}
@@ -540,7 +540,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
 
                 {/* Dietary restrictions */}
                 <div>
-                  <label htmlFor="pub-dietary" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2">
+                  <label htmlFor="pub-dietary" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2">
                     Restrições alimentares / Alergias (Opcional)
                   </label>
                   <input
@@ -550,14 +550,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     value={dietaryRestrictions}
                     onChange={(e) => setDietaryRestrictions(e.target.value)}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
                   />
                 </div>
 
                 {/* Message to couple */}
                 <div>
-                  <label htmlFor="pub-message" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
-                    <MessageSquare size={13} className="text-gold-300" />
+                  <label htmlFor="pub-message" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5">
+                    <MessageSquare size={13} className="text-gold-500" />
                     Recado especial para os noivos (Opcional)
                   </label>
                   <textarea
@@ -567,7 +567,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300 resize-none"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20 resize-none"
                   />
                 </div>
 
@@ -586,7 +586,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       setError('');
                     }}
                     disabled={loading}
-                    className="flex-1 py-4 px-6 rounded-xl border border-stone-850 hover:border-stone-800 text-stone-400 hover:text-stone-300 text-sm font-semibold cursor-pointer transition-all text-center"
+                    className="flex-1 py-4 px-6 rounded-xl border border-gold-200 hover:border-gold-300 text-gold-600 hover:text-gold-800 text-sm font-bold cursor-pointer transition-all text-center"
                   >
                     Voltar
                   </button>
@@ -596,16 +596,16 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     disabled={loading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-[2] py-4 px-6 rounded-xl bg-gold-400 hover:bg-gold-500 text-stone-950 font-serif font-medium text-sm tracking-wide shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="flex-[2] py-4 px-6 rounded-xl bg-gold-600 hover:bg-gold-700 text-white font-serif font-bold text-sm tracking-wide shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         <span>Salvando...</span>
                       </div>
                     ) : (
                       <>
-                        <Heart size={16} fill="currentColor" className="text-stone-950" />
+                        <Heart size={16} fill="currentColor" className="text-white" />
                         <span>Confirmar Presença</span>
                       </>
                     )}
@@ -623,73 +623,73 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-stone-950/50 border border-gold-300/10 rounded-3xl p-8 sm:p-12 text-center max-w-xl mx-auto shadow-2xl relative overflow-hidden"
+              className="bg-white border border-gold-200 rounded-3xl p-8 sm:p-12 text-center max-w-xl mx-auto shadow-sm relative overflow-hidden text-gold-900"
             >
-              <div className="absolute top-0 left-0 w-32 h-32 bg-gold-400/5 rounded-full filter blur-3xl" />
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gold-400/5 rounded-full filter blur-3xl" />
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gold-500/5 rounded-full filter blur-3xl" />
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full filter blur-3xl" />
 
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold-100/10 text-gold-300 mb-6 border border-gold-300/20">
-                <Heart size={28} className="fill-current animate-pulse text-gold-400" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold-50 text-gold-600 mb-6 border border-gold-200">
+                <Heart size={28} className="fill-current animate-pulse text-gold-500" />
               </div>
 
-              <h3 className="font-serif text-2xl text-stone-100 mb-1">Olá, {activeGuest.nome.split(' ')[0]}!</h3>
-              <p className="text-stone-400 text-xs mb-8 font-sans">
+              <h3 className="font-serif text-2xl text-gold-800 font-bold mb-1">Olá, {activeGuest.nome.split(' ')[0]}!</h3>
+              <p className="text-gold-600/80 text-xs mb-8 font-sans font-medium">
                 {activeGuest.confirmado === true 
                   ? 'Sua presença foi confirmada com sucesso!' 
                   : 'Registramos sua resposta. Sentiremos sua falta!'}
               </p>
 
-              <div className="bg-stone-900/60 border border-stone-800 rounded-2xl p-6 mb-8 text-left space-y-4 font-sans text-sm">
+              <div className="bg-gold-50/40 border border-gold-200/60 rounded-2xl p-6 mb-8 text-left space-y-4 font-sans text-sm">
                 <div>
-                  <p className="text-stone-500 text-[10px] uppercase tracking-widest font-semibold">Convidado Titular</p>
-                  <p className="font-serif text-lg text-gold-200 mt-0.5 font-bold">{activeGuest.nome}</p>
+                  <p className="text-gold-600 text-[10px] uppercase tracking-widest font-bold">Convidado Titular</p>
+                  <p className="font-serif text-lg text-gold-800 mt-0.5 font-bold">{activeGuest.nome}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-stone-800/60">
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gold-200/60">
                   <div>
-                    <p className="text-stone-500 text-[10px] uppercase tracking-widest font-semibold">Status de RSVP</p>
-                    <p className={`font-serif text-base mt-0.5 font-bold ${activeGuest.confirmado ? 'text-green-400' : 'text-red-400'}`}>
+                    <p className="text-gold-600 text-[10px] uppercase tracking-widest font-bold">Status de RSVP</p>
+                    <p className={`font-serif text-base mt-0.5 font-bold ${activeGuest.confirmado ? 'text-green-600' : 'text-red-500'}`}>
                       {activeGuest.confirmado ? 'Presença Confirmada' : 'Não Comparecerá'}
                     </p>
                   </div>
 
                   {activeGuest.confirmado && (
                     <div>
-                      <p className="text-stone-500 text-[10px] uppercase tracking-widest font-semibold">Acompanhantes</p>
-                      <p className="font-serif text-base mt-0.5 text-stone-200 font-bold">{activeGuest.acompanhantes}</p>
+                      <p className="text-gold-600 text-[10px] uppercase tracking-widest font-bold">Acompanhantes</p>
+                      <p className="font-serif text-base mt-0.5 text-gold-800 font-bold">{activeGuest.acompanhantes}</p>
                     </div>
                   )}
                 </div>
 
                 {activeGuest.confirmado && activeGuest.acompanhantes_nomes.length > 0 && (
-                  <div className="pt-3 border-t border-stone-800/60">
-                    <p className="text-stone-500 text-[10px] uppercase tracking-widest mb-1 font-semibold">Acompanhantes Confirmados</p>
-                    <ul className="list-disc pl-4 text-xs text-stone-300 space-y-1 font-serif">
+                  <div className="pt-3 border-t border-gold-200/60">
+                    <p className="text-gold-600 text-[10px] uppercase tracking-widest mb-1 font-bold">Acompanhantes Confirmados</p>
+                    <ul className="list-disc pl-4 text-xs text-gold-850 space-y-1 font-serif">
                       {activeGuest.acompanhantes_nomes.map((comp, idx) => (
-                        <li key={idx}>{comp}</li>
+                        <li key={idx} className="font-medium">{comp}</li>
                       ))}
                     </ul>
                   </div>
                 )}
                 
                 {activeGuest.restricao_alimentar && (
-                  <div className="pt-3 border-t border-stone-800/60 text-xs">
-                    <p className="text-stone-500 text-[10px] uppercase tracking-widest mb-1 font-semibold">Restrições alimentares</p>
-                    <p className="text-stone-300 font-serif">{activeGuest.restricao_alimentar}</p>
+                  <div className="pt-3 border-t border-gold-200/60 text-xs">
+                    <p className="text-gold-600 text-[10px] uppercase tracking-widest mb-1 font-bold">Restrições alimentares</p>
+                    <p className="text-gold-850 font-serif font-medium">{activeGuest.restricao_alimentar}</p>
                   </div>
                 )}
 
                 {activeGuest.mensagem && (
-                  <div className="pt-3 border-t border-stone-800/60">
-                    <p className="text-stone-500 text-[10px] uppercase tracking-widest mb-1 font-semibold">Sua mensagem aos noivos</p>
-                    <p className="text-stone-300 italic text-xs font-serif leading-relaxed">"{activeGuest.mensagem}"</p>
+                  <div className="pt-3 border-t border-gold-200/60">
+                    <p className="text-gold-600 text-[10px] uppercase tracking-widest mb-1 font-bold">Sua mensagem aos noivos</p>
+                    <p className="text-gold-700 italic text-xs font-serif leading-relaxed font-medium">"{activeGuest.mensagem}"</p>
                   </div>
                 )}
 
                 {activeGuest.mesa && (
-                  <div className="pt-3 border-t border-stone-800/60 flex items-center gap-1.5 text-xs text-gold-300">
+                  <div className="pt-3 border-t border-gold-200/60 flex items-center gap-1.5 text-xs text-gold-600 font-bold">
                     <span>📍 Mesa designada no evento:</span>
-                    <strong className="font-serif font-bold text-sm">{activeGuest.mesa}</strong>
+                    <strong className="font-serif font-bold text-sm text-gold-800">{activeGuest.mesa}</strong>
                   </div>
                 )}
               </div>
@@ -699,7 +699,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleDeclineOrDelete}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gold-300/20 hover:border-gold-300/40 text-gold-300 text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gold-300 hover:border-gold-400 text-gold-700 hover:text-gold-900 text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors shadow-sm"
                 >
                   <Edit2 size={12} />
                   Alterar Resposta
@@ -709,7 +709,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                 {!guest && (
                   <button
                     onClick={() => setActiveGuest(null)}
-                    className="text-stone-500 hover:text-stone-300 text-xs font-semibold cursor-pointer"
+                    className="text-gold-500 hover:text-gold-700 text-xs font-bold cursor-pointer"
                   >
                     Sair do Convite
                   </button>
@@ -727,29 +727,29 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="bg-stone-950/30 border border-gold-300/10 rounded-3xl p-6 sm:p-10 shadow-xl max-w-xl mx-auto font-sans"
+              className="bg-white border border-gold-200 rounded-3xl p-6 sm:p-10 shadow-sm max-w-xl mx-auto font-sans text-gold-900"
             >
               <div className="space-y-6">
                 
-                <div className="text-center pb-4 border-b border-stone-800/40">
-                  <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-gold-400/10 text-gold-300 text-[10px] font-semibold uppercase tracking-widest rounded-full mb-2">
-                    <Sparkles size={11} />
+                <div className="text-center pb-4 border-b border-gold-200">
+                  <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-gold-500/10 text-gold-600 text-[10px] font-bold uppercase tracking-widest rounded-full mb-2">
+                    <Sparkles size={11} className="text-gold-500" />
                     Convite Personalizado
                   </div>
-                  <h3 className="font-serif text-xl text-stone-100 font-bold">Olá, {activeGuest.nome}!</h3>
-                  <p className="text-stone-400 text-xs mt-1">Você foi convidado para o casamento de Henderson & Alana.</p>
+                  <h3 className="font-serif text-xl text-gold-800 font-bold">Olá, {activeGuest.nome}!</h3>
+                  <p className="text-gold-600/80 text-xs mt-1">Você foi convidado para o casamento de Henderson & Alana.</p>
                 </div>
 
                 {error && (
-                  <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-200 text-xs p-4 rounded-xl">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 bg-red-500/5 border border-red-200 text-red-700 text-xs p-4 rounded-xl">
+                    <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-500" />
                     <span>{error}</span>
                   </div>
                 )}
 
                 {/* Presence buttons */}
                 <div>
-                  <label className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-3">
+                  <label className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-3">
                     Você comparecerá?
                   </label>
                   <div className="grid grid-cols-2 gap-4">
@@ -760,10 +760,10 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                         setError('');
                       }}
                       disabled={loading}
-                      className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border text-sm font-medium tracking-wide transition-all duration-300 cursor-pointer ${
+                      className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer ${
                         isAttending === true
-                          ? 'bg-gold-500 text-white border-gold-400 shadow-md'
-                          : 'bg-stone-900/40 border-stone-800 text-stone-400 hover:text-stone-300 hover:border-stone-700'
+                          ? 'bg-gold-600 text-white border-gold-600 shadow-md'
+                          : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
                       }`}
                     >
                       <Check size={16} />
@@ -777,10 +777,10 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                         setError('');
                       }}
                       disabled={loading}
-                      className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border text-sm font-medium tracking-wide transition-all duration-300 cursor-pointer ${
+                      className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl border text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer ${
                         isAttending === false
-                          ? 'bg-stone-800 text-stone-200 border-stone-700 shadow-md'
-                          : 'bg-stone-900/40 border-stone-800 text-stone-400 hover:text-stone-300 hover:border-stone-700'
+                          ? 'bg-stone-600 text-white border-stone-600 shadow-md'
+                          : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
                       }`}
                     >
                       Não poderei ir
@@ -800,7 +800,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                       {/* Companion Selector - DYNAMIC BASED ON GUEST LIMIT */}
                       {activeGuest.acompanhantes_limite > 0 ? (
                         <div>
-                          <label className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-3">
+                          <label className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-3">
                             Confirmar acompanhantes (Máximo de {activeGuest.acompanhantes_limite})
                           </label>
                           <div className="flex gap-2">
@@ -812,8 +812,8 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                                 disabled={loading}
                                 className={`flex-1 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
                                   companionCount === num
-                                    ? 'bg-stone-100 text-stone-950 border-white'
-                                    : 'bg-stone-900/30 border-stone-800/80 text-stone-400 hover:text-stone-300'
+                                    ? 'bg-gold-600 text-white border-gold-600'
+                                    : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
                                 }`}
                               >
                                 {num}
@@ -822,21 +822,21 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-stone-900/45 p-3.5 rounded-xl border border-stone-800 text-stone-400 text-xs leading-relaxed">
+                        <div className="bg-gold-50/40 p-3.5 rounded-xl border border-gold-200/50 text-gold-700/80 text-xs leading-relaxed font-semibold">
                           ℹ️ Este convite é individual e intransferível (0 acompanhantes adicionais).
                         </div>
                       )}
 
                       {/* Companion Names input fields */}
                       {companionCount > 0 && (
-                        <div className="space-y-3 bg-stone-900/30 border border-stone-800/50 p-4 rounded-xl">
-                          <p className="text-xs text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-semibold">
-                            <Users size={14} className="text-gold-300" />
+                        <div className="space-y-3 bg-gold-50/30 border border-gold-200/50 p-4 rounded-xl">
+                          <p className="text-gold-750 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5 font-bold">
+                            <Users size={14} className="text-gold-500" />
                             Nome dos acompanhantes na lista
                           </p>
                           {companions.map((companion, idx) => (
                             <div key={idx} className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500 text-xs font-semibold">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold-500 text-xs font-bold">
                                 #{idx + 1}
                               </span>
                               <input
@@ -846,7 +846,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                                 value={companion}
                                 onChange={(e) => handleCompanionNameChange(idx, e.target.value)}
                                 disabled={loading}
-                                className="w-full bg-stone-900/60 border border-stone-800 rounded-lg py-2.5 pl-10 pr-4 text-stone-100 text-xs focus:outline-none focus:border-gold-300"
+                                className="w-full bg-white border border-gold-200 rounded-lg py-2.5 pl-10 pr-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500"
                               />
                             </div>
                           ))}
@@ -855,7 +855,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
 
                       {/* Dietary restrictions */}
                       <div>
-                        <label htmlFor="dietary" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2">
+                        <label htmlFor="dietary" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2">
                           Restrições alimentares / Alergias (Opcional)
                         </label>
                         <input
@@ -865,7 +865,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                           value={dietaryRestrictions}
                           onChange={(e) => setDietaryRestrictions(e.target.value)}
                           disabled={loading}
-                          className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300"
+                          className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
                         />
                       </div>
 
@@ -875,8 +875,8 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
 
                 {/* Message to couple */}
                 <div>
-                  <label htmlFor="message" className="block text-stone-300 text-xs uppercase tracking-widest font-semibold mb-2 flex items-center gap-1">
-                    <MessageSquare size={13} className="text-gold-300" />
+                  <label htmlFor="message" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1">
+                    <MessageSquare size={13} className="text-gold-500" />
                     Recado especial para os noivos (Opcional)
                   </label>
                   <textarea
@@ -886,7 +886,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={loading}
-                    className="w-full bg-stone-900/60 border border-stone-800 rounded-xl py-3 px-4 text-stone-100 text-sm focus:outline-none focus:border-gold-300 resize-none"
+                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20 resize-none"
                   />
                 </div>
 
@@ -896,16 +896,16 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     disabled={loading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 px-6 rounded-xl bg-gold-400 hover:bg-gold-500 text-stone-950 font-serif font-medium text-sm tracking-wide shadow-lg cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 px-6 rounded-xl bg-gold-600 hover:bg-gold-700 text-white font-serif font-bold text-sm tracking-wide shadow-md cursor-pointer transition-all flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         <span>Enviando confirmação...</span>
                       </div>
                     ) : (
                       <>
-                        <Heart size={16} fill="currentColor" className="text-stone-950" />
+                        <Heart size={16} fill="currentColor" className="text-white" />
                         <span>Confirmar no Banco de Dados</span>
                       </>
                     )}
@@ -918,7 +918,7 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     type="button"
                     onClick={() => setIsEditing(false)}
                     disabled={loading}
-                    className="w-full py-2.5 text-stone-400 hover:text-stone-300 text-xs uppercase tracking-wider font-semibold cursor-pointer text-center"
+                    className="w-full py-2.5 text-gold-500 hover:text-gold-700 text-xs uppercase tracking-wider font-bold cursor-pointer text-center"
                   >
                     Cancelar Alteração
                   </button>
