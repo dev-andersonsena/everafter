@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
@@ -12,10 +12,23 @@ export default defineConfig(() => {
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Permite acesso externo
+      host: '0.0.0.0',
+
+      // Porta utilizada pelo Vite
+      port: 3000,
+
+      // Permite acesso pelo DNS público da EC2 e pelo IP
+      allowedHosts: [
+        'ec2-100-31-210-13.compute-1.amazonaws.com',
+        '100.31.210.13',
+        'localhost',
+      ],
+
+      // HMR
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
+
+      // Watch
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
