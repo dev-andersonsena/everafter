@@ -6,17 +6,3 @@ coverage/
 *.log
 .env*
 !.env.example
-
-# Dependências
-node_modules/
-
-# Build
-dist/
-
-# Configurações e segredos
-.env
-.env.*
-
-# Arquivos de execução
-*.log
-*.pid

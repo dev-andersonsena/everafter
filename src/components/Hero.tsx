@@ -208,18 +208,7 @@ export default function Hero() {
           <span>26</span>
         </motion.div>
 
-        {/* Elegant Quote */}
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
-          transition={{ duration: 1.2, delay: 0.9 }}
-          className="font-serif italic text-gold-700/90 text-xs sm:text-sm max-w-md mx-auto mt-6 px-4 leading-relaxed tracking-wide"
-        >
-          "Assim, eles já não são dois, mas uma só carne. Portanto, o que Deus uniu, ninguém o separe."
-          <span className="block text-[10px] uppercase tracking-widest text-gold-500 mt-2 font-sans not-italic font-bold">
-            Mateus 19:6
-          </span>
-        </motion.p>
+
       </div>
 
       {/* Countdown and Details row */}
