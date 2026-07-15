@@ -9,9 +9,10 @@ import { Guest, AccessLog } from '../types';
 
 interface AdminDashboardProps {
   onClose: () => void;
+  onLogout: () => void;
 }
 
-export default function AdminDashboard({ onClose }: AdminDashboardProps) {
+export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProps) {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,6 +216,15 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
             >
               <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
               Atualizar
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem('admin_authenticated');
+                onLogout();
+              }}
+              className="px-4 py-2.5 rounded-xl bg-red-600/90 hover:bg-red-700 text-white flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider cursor-pointer transition-all shadow-md border border-red-500/20"
+            >
+              Sair (Logout)
             </button>
             <button
               onClick={onClose}

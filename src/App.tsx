@@ -7,7 +7,9 @@ import RSVP from './components/RSVP';
 import Gifts from './components/Gifts';
 import MusicPlayer from './components/MusicPlayer';
 import AdminDashboard from './components/AdminDashboard';
+import AdminLogin from './components/AdminLogin';
 import CheckInPortal from './components/CheckInPortal';
+import StandaloneRSVP from './components/StandaloneRSVP';
 import { Guest } from './types';
 
 export default function App() {
@@ -16,8 +18,11 @@ export default function App() {
   
   // Custom Dynamic State Manager
   const [guest, setGuest] = useState<Guest | null>(null);
-  const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao'>('invite');
+  const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp'>('invite');
   const [loadingGuest, setLoadingGuest] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem('admin_authenticated') === 'true' : false;
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,11 +43,14 @@ export default function App() {
     const guestId = params.get('i') || params.get('invite');
     const isAdmin = params.get('admin') === 'true';
     const isRecepcao = params.get('recepcao') === 'true' || params.get('checkin') === 'true';
+    const isRsvp = params.get('rsvp') === 'new';
 
     if (isAdmin) {
       setViewMode('admin');
     } else if (isRecepcao) {
       setViewMode('recepcao');
+    } else if (isRsvp) {
+      setViewMode('rsvp');
     } else if (guestId) {
       setLoadingGuest(true);
       fetch(`/api/guests/${guestId}`)
@@ -78,11 +86,50 @@ export default function App() {
   ];
 
   if (viewMode === 'admin') {
-    return <AdminDashboard onClose={() => setViewMode('invite')} />;
+    if (!isAdminLoggedIn) {
+      return (
+        <AdminLogin 
+          onLoginSuccess={() => setIsAdminLoggedIn(true)} 
+          onClose={() => setViewMode('invite')} 
+        />
+      );
+    }
+    return (
+      <AdminDashboard 
+        onClose={() => setViewMode('invite')} 
+        onLogout={() => {
+          setIsAdminLoggedIn(false);
+          setViewMode('invite');
+        }}
+      />
+    );
   }
 
   if (viewMode === 'recepcao') {
     return <CheckInPortal onClose={() => setViewMode('invite')} />;
+  }
+
+  if (viewMode === 'rsvp') {
+    return (
+      <StandaloneRSVP 
+        onClose={() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setViewMode('invite');
+        }} 
+        onSuccess={(newGuest) => {
+          setGuest(newGuest);
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setViewMode('invite');
+          // Smooth scroll to the bottom/RSVP section to show success details card
+          setTimeout(() => {
+            const rsvpSec = document.getElementById('rsvp');
+            if (rsvpSec) {
+              rsvpSec.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 350);
+        }}
+      />
+    );
   }
 
   return (
