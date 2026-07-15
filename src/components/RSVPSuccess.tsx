@@ -10,10 +10,10 @@ interface RSVPSuccessProps {
 }
 
 export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
-    // Start 10 seconds countdown as requested by the user
+    // Start 30 seconds countdown as requested by the user
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -192,12 +192,17 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
 
           {/* Add to Calendar / Lembretes */}
           <div className="w-full bg-stone-50 border border-stone-200/40 rounded-2xl p-4 mb-6 text-center shadow-sm">
-            <p className="text-stone-800 font-serif text-xs font-semibold mb-2">
-              📅 Adicione à sua agenda para alertas automáticos:
+            <span className="text-[10px] font-sans uppercase tracking-widest text-gold-600 font-extrabold mb-1.5 block">
+              🔔 ALERTAS
+            </span>
+            <p className="text-stone-800 font-serif text-xs font-semibold mb-1">
+              LISTA DE DIAS INCLUSO:
             </p>
             <p className="text-[10px] font-sans text-stone-500 mb-3 leading-relaxed">
-              Alertas configurados: <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia</strong>.<br />
-              <span className="text-amber-600 font-bold">📲 Teste rápido:</span> Incluímos um aviso para disparar em <strong>2 minutos</strong> hoje para você testar no seu celular!
+              <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia exato</strong>.<br />
+              <span className="text-amber-600 font-bold block mt-1.5">
+                observação: retire apos o download para testar o funcionamento no seu celular!
+              </span>
             </p>
             <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">
               <a
@@ -231,7 +236,7 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
               <motion.div 
                 initial={{ width: '100%' }}
                 animate={{ width: '0%' }}
-                transition={{ duration: 10, ease: 'linear' }}
+                transition={{ duration: 30, ease: 'linear' }}
                 className="h-full bg-gold-500 rounded-full"
               />
             </div>

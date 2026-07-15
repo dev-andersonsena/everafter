@@ -1,7 +1,6 @@
 import { MapPin, Clock, Shirt, Info, Car, CalendarHeart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { weddingDetails } from '../data';
-import { getGoogleCalendarUrl, downloadIcsFile } from '../utils/calendar';
 
 export default function Details() {
   return (
@@ -45,61 +44,6 @@ export default function Details() {
             Tudo o que você precisa saber sobre o local, horários e recomendações para o nosso casamento.
           </motion.p>
         </div>
-
-        {/* Add to Calendar Shortcut Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-md mx-auto mb-14 bg-white rounded-3xl p-6 border border-gold-200/50 shadow-md flex flex-col items-center text-center relative overflow-hidden"
-        >
-          {/* Card subtle background */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gold-100/30 rounded-full blur-xl pointer-events-none" />
-          
-          <span className="text-[10px] font-sans uppercase tracking-widest text-gold-500 font-extrabold mb-2.5 flex items-center gap-1">
-            🔔 Multi-Alertas Programados
-          </span>
-          <h4 className="font-serif text-gold-900 text-sm font-semibold mb-2">
-            Adicione à sua agenda e receba alertas automáticos
-          </h4>
-          
-          <div className="text-left w-full bg-stone-50/75 rounded-2xl p-3.5 mb-4 border border-stone-100 text-stone-700 space-y-1.5">
-            <p className="text-[11px] font-sans text-stone-500 font-semibold uppercase tracking-wider text-center border-b border-stone-200/60 pb-1.5 mb-1.5">
-              Alertas inclusos no arquivo (.ics):
-            </p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] font-sans">
-              <span className="flex items-center gap-1">⏱️ 45 dias antes</span>
-              <span className="flex items-center gap-1">⏱️ 30 dias antes</span>
-              <span className="flex items-center gap-1">⏱️ 7 dias antes</span>
-              <span className="flex items-center gap-1">⏱️ 5 dias antes</span>
-              <span className="flex items-center gap-1">⏱️ 2 dias antes</span>
-              <span className="flex items-center gap-1">🎉 No dia exato</span>
-            </div>
-            <div className="pt-2 border-t border-stone-200/60 text-[11px] text-stone-600 font-sans">
-              <span className="text-amber-600 font-bold">📲 Teste para hoje:</span> Ao importar (Apple, Outlook ou Google via arquivo), um alarme teste disparará **2 minutos** após o download para testar o funcionamento no seu celular!
-            </div>
-          </div>
-
-          <div className="flex gap-2.5 w-full justify-center flex-wrap sm:flex-nowrap">
-            <a
-              href={getGoogleCalendarUrl()}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 py-2.5 px-3 bg-gold-50/50 hover:bg-gold-100/70 border border-gold-200 text-gold-900 hover:text-gold-950 rounded-xl text-xs font-sans font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <CalendarHeart size={14} className="text-gold-600" />
-              Google Agenda
-            </a>
-            <button
-              onClick={downloadIcsFile}
-              className="flex-1 py-2.5 px-3 bg-gold-50/50 hover:bg-gold-100/70 border border-gold-200 text-gold-900 hover:text-gold-950 rounded-xl text-xs font-sans font-bold shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <CalendarHeart size={14} className="text-gold-600" />
-              Apple / Outlook
-            </button>
-          </div>
-        </motion.div>
 
         {/* Ceremony and Celebration grid */}
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 mb-16">
