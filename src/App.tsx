@@ -11,6 +11,7 @@ import AdminLogin from './components/AdminLogin';
 import CheckInPortal from './components/CheckInPortal';
 import StandaloneRSVP from './components/StandaloneRSVP';
 import RSVPSuccess from './components/RSVPSuccess';
+import VoiceChatbot from './components/VoiceChatbot';
 import { Guest } from './types';
 
 export default function App() {
@@ -73,6 +74,52 @@ export default function App() {
           setLoadingGuest(false);
         });
     }
+  }, []);
+
+  // Orchestrate floating MusicPlayer and VoiceChatbot
+  const [musicState, setMusicState] = useState<'initial' | 'hidden' | 'beside'>('initial');
+  const [chatbotVisible, setChatbotVisible] = useState<boolean>(false);
+
+  useEffect(() => {
+    let t1: NodeJS.Timeout;
+    let t2: NodeJS.Timeout;
+    let loopTimeout: NodeJS.Timeout;
+
+    // Phase 1: MusicPlayer is initially visible for 5s (0s-5s). Chatbot is hidden.
+    
+    // Phase 2: At 5s, MusicPlayer disappears, and VoiceChatbot appears in its place.
+    t1 = setTimeout(() => {
+      setMusicState('hidden');
+      setChatbotVisible(true);
+
+      // Phase 3: At 7s (after a 2s gap), MusicPlayer appears beside the Chatbot for 5s.
+      t2 = setTimeout(() => {
+        setMusicState('beside');
+        let isMusicCurrentlyVisible = true;
+
+        // Loop: Keep appearing beside Chatbot for 5s, then hide for 30s, and repeat.
+        const runLoop = () => {
+          if (isMusicCurrentlyVisible) {
+            setMusicState('hidden');
+            isMusicCurrentlyVisible = false;
+            loopTimeout = setTimeout(runLoop, 30000); // Hide for 30s
+          } else {
+            setMusicState('beside');
+            isMusicCurrentlyVisible = true;
+            loopTimeout = setTimeout(runLoop, 5000); // Show beside for 5s
+          }
+        };
+
+        // Schedule next change (hide) in 5s
+        loopTimeout = setTimeout(runLoop, 5000);
+      }, 2000);
+    }, 5000);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(loopTimeout);
+    };
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -294,7 +341,10 @@ export default function App() {
       </footer>
 
       {/* Floating Music Controller */}
-      <MusicPlayer />
+      <MusicPlayer displayState={musicState} />
+
+      {/* Floating Voice Assistant Chatbot */}
+      <VoiceChatbot visible={chatbotVisible} />
 
     </div>
   );

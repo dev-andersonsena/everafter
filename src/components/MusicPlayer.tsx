@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Music, Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function MusicPlayer() {
+interface MusicPlayerProps {
+  displayState: 'initial' | 'hidden' | 'beside';
+}
+
+export default function MusicPlayer({ displayState }: MusicPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
@@ -49,8 +53,21 @@ export default function MusicPlayer() {
     setIsMuted(!isMuted);
   };
 
+  const isHidden = displayState === 'hidden';
+  const isBeside = displayState === 'beside';
+
   return (
-    <div id="music-player-container" className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <motion.div
+      id="music-player-container"
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end"
+      animate={{
+        opacity: isHidden ? 0 : 1,
+        scale: isHidden ? 0.8 : 1,
+        x: isBeside ? -76 : 0, // Shift left by 76px when beside to make room for chatbot
+        pointerEvents: isHidden ? 'none' : 'auto'
+      }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
+    >
       {/* Tooltip */}
       <AnimatePresence>
         {showTooltip && (
@@ -125,6 +142,6 @@ export default function MusicPlayer() {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }

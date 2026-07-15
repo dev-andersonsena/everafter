@@ -3,11 +3,30 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+// Initialize Google Gen AI client with safety
+const geminiApiKey = process.env.GEMINI_API_KEY;
+let aiClient: any = null;
+
+if (geminiApiKey) {
+  aiClient = new GoogleGenAI({
+    apiKey: geminiApiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      }
+    }
+  });
+  console.log("🟢 Gemini AI Client inicializado com sucesso!");
+} else {
+  console.warn("⚠️ GEMINI_API_KEY não foi encontrada nas variáveis de ambiente. O chatbot usará respostas simplificadas.");
+}
 
 app.use(express.json());
 
@@ -610,6 +629,71 @@ app.get("/api/access-logs", async (req, res) => {
     const logs = await getAccessLogs();
     res.json(logs);
   } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 9. Chatbot Virtual Concierge (Gemini-powered)
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { message, history } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: "Mensagem é obrigatória." });
+    }
+
+    if (!aiClient) {
+      // Friendly, smart fallback when GEMINI_API_KEY is not defined or in early dev stages
+      let reply = "Olá! Eu sou o Assessor Virtual da Alana e do Henderson. O serviço de IA inteligente está sendo iniciado, mas posso te adiantar que o casamento será no dia 7 de setembro de 2026, às 16:00, na Capela das Hortênsias em Gramado, RS! Teremos grande alegria em ter você conosco.";
+      
+      const lower = message.toLowerCase();
+      if (lower.includes("traje") || lower.includes("vestir") || lower.includes("roupa") || lower.includes("vestido") || lower.includes("terno")) {
+        reply = "O traje indicado é Esporte Fino ou Social! Sugerimos calça social, camisa e blazer para homens, e vestidos midi ou longos elegantes para mulheres, lembrando de evitar a cor branca e tons muito próximos.";
+      } else if (lower.includes("presente") || lower.includes("pix") || lower.includes("lista") || lower.includes("ajudar") || lower.includes("dinheiro")) {
+        reply = "Nossa chave Pix oficial é o e-mail: henderson.alana.casamento@gmail.com (Nubank, em nome de Henderson Venicius e Alana Letícia). Há também cotas virtuais super divertidas na nossa lista de presentes no site!";
+      } else if (lower.includes("confirmar") || lower.includes("rsvp") || lower.includes("presença") || lower.includes("vou")) {
+        reply = "Para confirmar sua presença, basta clicar em 'Confirmar Presença' no menu do site e preencher o formulário simples. É rápido e nos ajuda muito no planejamento!";
+      } else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("capela") || lower.includes("festa") || lower.includes("salão")) {
+        reply = "A cerimônia será às 16h na Capela das Hortênsias (Av. das Hortênsias, 1450) e a festa às 17h30 no Salão de Festas Imperial (Rua Bela Vista, 320), ambos na linda cidade de Gramado, RS!";
+      }
+      
+      return res.json({ text: reply });
+    }
+
+    const systemInstruction = `Você é o "Assessor Virtual", o concierge e planejador de casamentos inteligente da Alana Letícia e do Henderson Venicius. Seu papel é receber os convidados com muito carinho, elegância e entusiasmo, e tirar todas as suas dúvidas sobre o casamento. Responda sempre em português do Brasil, de forma amigável, clara e extremamente concisa (máximo de 2 ou 3 frases curtas por resposta, para que a leitura por voz humana fique excelente e fluida).
+
+Informações Oficiais do Casamento:
+- Noivos: Alana Letícia e Henderson Venicius.
+- Data e Horários: 7 de Setembro de 2026. A Cerimônia religiosa começará pontualmente às 16:00. A Recepção (festa) começará às 17:30.
+- Locais em Gramado, RS:
+  - Cerimônia: Capela das Hortênsias (Endereço: Av. das Hortênsias, 1450 - Gramado, RS).
+  - Recepção/Festa: Salão de Festas Imperial (Endereço: Rua Bela Vista, 320 - Gramado, RS).
+- Traje (Dress Code): Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi em tons leves e elegantes (evitar branco, off-white ou tons muito próximos do branco).
+- Presentes / Chave Pix: A chave Pix oficial dos noivos é o e-mail: "henderson.alana.casamento@gmail.com" (Banco Nubank, nome dos noivos: Henderson Venicius e Alana Letícia). Há também presentes e cotas virtuais divertidas no site.
+- RSVP / Confirmação: Os convidados devem confirmar presença pelo formulário no site clicando no botão "Confirmar Presença" da página inicial.
+
+Diga apenas respostas curtas, afetuosas e simpáticas. Evite textos longos para que a leitura falada fique maravilhosa.`;
+
+    const chatHistory = history ? history.map((h: any) => ({
+      role: h.role === "user" ? "user" : "model",
+      parts: [{ text: h.content }]
+    })) : [];
+
+    const contents = [...chatHistory, { role: "user", parts: [{ text: message }] }];
+
+    const response = await aiClient.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents,
+      config: {
+        systemInstruction,
+        temperature: 0.7,
+      },
+    });
+
+    const replyText = response.text || "Desculpe, não consegui processar a mensagem no momento.";
+    res.json({ text: replyText });
+
+  } catch (error: any) {
+    console.error("Erro no chat do Gemini:", error);
     res.status(500).json({ error: error.message });
   }
 });
