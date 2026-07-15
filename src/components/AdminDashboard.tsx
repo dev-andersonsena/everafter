@@ -409,7 +409,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                     type="submit"
                     className="w-full py-3 mt-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-gold-300/40 hover:text-gold-300 text-stone-200 text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
                   >
-                    Salvar no Banco (Postgres)
+                    Salvar
                   </button>
                 </form>
               </div>

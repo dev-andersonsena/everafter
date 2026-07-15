@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, CheckCircle2, Clock, ArrowLeft, Sparkles, AlertCircle } from 'lucide-react';
+import { Heart, CheckCircle2, Clock, ArrowLeft, Sparkles, AlertCircle, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Guest } from '../types';
+import { getGoogleCalendarUrl, downloadIcsFile } from '../utils/calendar';
 
 interface RSVPSuccessProps {
   guest: Guest;
@@ -187,6 +188,35 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
                 <strong className="font-serif font-bold text-sm text-gold-800">{guest.mesa}</strong>
               </div>
             )}
+          </div>
+
+          {/* Add to Calendar / Lembretes */}
+          <div className="w-full bg-stone-50 border border-stone-200/40 rounded-2xl p-4 mb-6 text-center shadow-sm">
+            <p className="text-stone-800 font-serif text-xs font-semibold mb-2">
+              📅 Adicione à sua agenda para alertas automáticos:
+            </p>
+            <p className="text-[10px] font-sans text-stone-500 mb-3 leading-relaxed">
+              Alertas configurados: <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia</strong>.<br />
+              <span className="text-amber-600 font-bold">📲 Teste rápido:</span> Incluímos um aviso para disparar em <strong>2 minutos</strong> hoje para você testar no seu celular!
+            </p>
+            <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">
+              <a
+                href={getGoogleCalendarUrl()}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 py-2 px-3 bg-white hover:bg-gold-50/50 border border-stone-200 text-stone-800 hover:text-gold-900 hover:border-gold-300 rounded-xl text-[11px] font-sans font-bold shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Calendar size={13} className="text-gold-600" />
+                Google Agenda
+              </a>
+              <button
+                onClick={downloadIcsFile}
+                className="flex-1 py-2 px-3 bg-white hover:bg-gold-50/50 border border-stone-200 text-stone-800 hover:text-gold-900 hover:border-gold-300 rounded-xl text-[11px] font-sans font-bold shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Calendar size={13} className="text-gold-600" />
+                Apple / Outlook
+              </button>
+            </div>
           </div>
 
           {/* Countdown indicator with animated progress */}
