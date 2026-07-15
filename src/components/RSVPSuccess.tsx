@@ -200,8 +200,8 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
             </p>
             <p className="text-[10px] font-sans text-stone-500 mb-3 leading-relaxed">
               <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia exato</strong>.<br />
-              <span className="text-amber-600 font-bold block mt-1.5 text-center">
-                agende
+              <span className="text-amber-600 font-bold block mt-1.5">
+                observação: retire apos o download para testar o funcionamento no seu celular!
               </span>
             </p>
             <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">
