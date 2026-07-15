@@ -25,6 +25,9 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return typeof window !== 'undefined' ? localStorage.getItem('admin_authenticated') === 'true' : false;
   });
+  const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem('recepcao_authenticated') === 'true' : false;
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,7 +111,25 @@ export default function App() {
   }
 
   if (viewMode === 'recepcao') {
-    return <CheckInPortal onClose={() => setViewMode('invite')} />;
+    if (!isRecepcaoLoggedIn) {
+      return (
+        <AdminLogin 
+          onLoginSuccess={() => setIsRecepcaoLoggedIn(true)} 
+          onClose={() => setViewMode('invite')} 
+          isRecepcao={true}
+        />
+      );
+    }
+    return (
+      <CheckInPortal 
+        onClose={() => setViewMode('invite')} 
+        onLogout={() => {
+          setIsRecepcaoLoggedIn(false);
+          localStorage.removeItem('recepcao_authenticated');
+          setViewMode('invite');
+        }}
+      />
+    );
   }
 
   if (viewMode === 'rsvp') {

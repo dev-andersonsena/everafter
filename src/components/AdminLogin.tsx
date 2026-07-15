@@ -5,9 +5,10 @@ import { motion } from 'motion/react';
 interface AdminLoginProps {
   onLoginSuccess: () => void;
   onClose: () => void;
+  isRecepcao?: boolean;
 }
 
-export default function AdminLogin({ onLoginSuccess, onClose }: AdminLoginProps) {
+export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false }: AdminLoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +32,11 @@ export default function AdminLogin({ onLoginSuccess, onClose }: AdminLoginProps)
     // Simulate small aesthetic loading transition
     setTimeout(() => {
       if (username.trim() === 'admin' && password === 'guim123') {
-        localStorage.setItem('admin_authenticated', 'true');
+        if (isRecepcao) {
+          localStorage.setItem('recepcao_authenticated', 'true');
+        } else {
+          localStorage.setItem('admin_authenticated', 'true');
+        }
         onLoginSuccess();
       } else {
         setError('Usuário ou senha incorretos.');
@@ -121,10 +126,10 @@ export default function AdminLogin({ onLoginSuccess, onClose }: AdminLoginProps)
           </svg>
           
           <h2 className="font-serif text-2xl text-gold-900 mt-2 tracking-wide font-semibold">
-            Painel dos Noivos
+            {isRecepcao ? 'Controle de Portaria' : 'Painel dos Noivos'}
           </h2>
           <p className="text-gold-600/80 text-xs mt-1 uppercase tracking-widest font-semibold font-sans">
-            Acesso Restrito
+            {isRecepcao ? 'Acesso Restrito - Recepção' : 'Acesso Restrito'}
           </p>
         </div>
 
@@ -201,7 +206,7 @@ export default function AdminLogin({ onLoginSuccess, onClose }: AdminLoginProps)
               </div>
             ) : (
               <>
-                <span>Acessar Painel</span>
+                <span>{isRecepcao ? 'Acessar Portaria' : 'Acessar Painel'}</span>
               </>
             )}
           </motion.button>

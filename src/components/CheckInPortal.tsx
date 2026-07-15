@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, Check, Search, ShieldCheck, MapPin, Smartphone, Calendar, Clock, ArrowLeft, RefreshCw, AlertTriangle, Sparkles
+  Users, Check, Search, ShieldCheck, MapPin, Smartphone, Calendar, Clock, ArrowLeft, RefreshCw, AlertTriangle, Sparkles, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Guest } from '../types';
 
 interface CheckInPortalProps {
   onClose: () => void;
+  onLogout?: () => void;
 }
 
-export default function CheckInPortal({ onClose }: CheckInPortalProps) {
+export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps) {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,11 +149,20 @@ export default function CheckInPortal({ onClose }: CheckInPortalProps) {
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-gold-400 hover:bg-gold-500 text-stone-950 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all shadow-md"
+              className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-200 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all shadow-md"
             >
               <ArrowLeft size={14} />
               Voltar ao Convite
             </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all shadow-md border border-red-500/20"
+              >
+                <LogOut size={14} />
+                Sair
+              </button>
+            )}
           </div>
         </div>
 
