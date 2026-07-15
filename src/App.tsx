@@ -10,6 +10,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 import CheckInPortal from './components/CheckInPortal';
 import StandaloneRSVP from './components/StandaloneRSVP';
+import RSVPSuccess from './components/RSVPSuccess';
 import { Guest } from './types';
 
 export default function App() {
@@ -18,7 +19,8 @@ export default function App() {
   
   // Custom Dynamic State Manager
   const [guest, setGuest] = useState<Guest | null>(null);
-  const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp'>('invite');
+  const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
+  const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
   const [loadingGuest, setLoadingGuest] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return typeof window !== 'undefined' ? localStorage.getItem('admin_authenticated') === 'true' : false;
@@ -118,16 +120,22 @@ export default function App() {
         }} 
         onSuccess={(newGuest) => {
           setGuest(newGuest);
-          window.history.replaceState({}, document.title, window.location.pathname);
-          setViewMode('invite');
-          // Smooth scroll to the bottom/RSVP section to show success details card
-          setTimeout(() => {
-            const rsvpSec = document.getElementById('rsvp');
-            if (rsvpSec) {
-              rsvpSec.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 350);
+          setRsvpSuccessGuest(newGuest);
+          setViewMode('rsvp_success');
         }}
+      />
+    );
+  }
+
+  if (viewMode === 'rsvp_success' && rsvpSuccessGuest) {
+    return (
+      <RSVPSuccess 
+        guest={rsvpSuccessGuest} 
+        onClose={() => {
+          setRsvpSuccessGuest(null);
+          setViewMode('invite');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }} 
       />
     );
   }
@@ -237,7 +245,16 @@ export default function App() {
         <Gifts />
 
         {/* RSVP Section */}
-        <RSVP guest={guest} onRsvpSubmit={(updated) => setGuest(updated)} />
+        <RSVP 
+          guest={guest} 
+          onRsvpSubmit={(updated) => {
+            setGuest(updated);
+            if (updated && updated.confirmado === true) {
+              setRsvpSuccessGuest(updated);
+              setViewMode('rsvp_success');
+            }
+          }} 
+        />
       </main>
 
       {/* Elegant, Sweet Footer */}
