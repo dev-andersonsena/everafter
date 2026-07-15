@@ -143,19 +143,6 @@ export default function App() {
   return (
     <div id="app-root" className="min-h-screen bg-gold-50 font-sans text-gold-950 antialiased selection:bg-gold-200 selection:text-gold-950">
       
-      {/* Personalized Greeting Banner */}
-      {guest && (
-        <div className="bg-gold-500 text-white text-center py-2 px-4 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md relative z-50">
-          <Sparkles size={14} className="animate-spin text-white" />
-          <span>Olá, <strong>{guest.nome}</strong>! Você foi convidado para celebrar nosso amor!</span>
-          <button 
-            onClick={() => scrollToSection('rsvp')}
-            className="underline ml-2 hover:text-gold-100 font-extrabold cursor-pointer uppercase tracking-widest text-[10px]"
-          >
-            [ Responder RSVP ]
-          </button>
-        </div>
-      )}
 
       {/* Navigation Header */}
       <header

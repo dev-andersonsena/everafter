@@ -9,10 +9,10 @@ export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Create the audio element
-    const audio = new Audio('https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3');
+    // Create the audio element with downloaded Tenerife Sea mp3
+    const audio = new Audio('/tenerife_sea.mp3');
     audio.loop = true;
-    audio.volume = 0.4;
+    audio.volume = 0.35; // slightly softer default volume for an elegant ambient feel
     audioRef.current = audio;
 
     // Remove tooltip after 6 seconds
