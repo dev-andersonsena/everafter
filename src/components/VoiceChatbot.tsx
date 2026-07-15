@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 interface Message {
   role: 'user' | 'model';
   content: string;
+  action?: string;
 }
 
 interface VoiceChatbotProps {
@@ -232,9 +233,25 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
       if (!res.ok) throw new Error('Erro na requisição do chat');
       const data = await res.json();
 
-      const botMessage: Message = { role: 'model', content: data.text };
+      const botMessage: Message = { 
+        role: 'model', 
+        content: data.text,
+        action: data.action
+      };
       setMessages(prev => [...prev, botMessage]);
       
+      // Auto open maps if they explicitly ask to open/show/navigate
+      const lowerInput = messageText.toLowerCase();
+      const wishesToOpen = lowerInput.includes("abrir") || lowerInput.includes("abre") || lowerInput.includes("ir para") || lowerInput.includes("navegar") || lowerInput.includes("como chegar") || lowerInput.includes("maps") || lowerInput.includes("direção") || lowerInput.includes("direcao") || lowerInput.includes("link");
+      
+      if (wishesToOpen) {
+        if (data.action === 'open_map_cerimonia') {
+          window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank');
+        } else if (data.action === 'open_map_celebracao') {
+          window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank');
+        }
+      }
+
       // Voice feedback
       if (isVoiceEnabled) {
         speakText(data.text);
@@ -531,6 +548,63 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
+                    
+                    {msg.role === 'model' && msg.action && (
+                      <div className="mt-3 pt-2.5 border-t border-stone-100/70 flex flex-col gap-2">
+                        {msg.action === 'ask_location_type' && (
+                          <>
+                            <p className="text-[10px] text-stone-500 font-sans font-medium mb-1">Selecione uma opção para ver detalhes e mapa:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              <button
+                                onClick={() => handleSendMessage('Quero a localização da Cerimônia')}
+                                className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg text-[10px] font-sans font-semibold text-amber-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                              >
+                                ⛪ Cerimônia (Capela)
+                              </button>
+                              <button
+                                onClick={() => handleSendMessage('Quero a localização da Celebração')}
+                                className="px-2.5 py-1.5 bg-gold-50 hover:bg-gold-100 border border-gold-200 rounded-lg text-[10px] font-sans font-semibold text-gold-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                              >
+                                🎉 Celebração (Festa)
+                              </button>
+                            </div>
+                          </>
+                        )}
+                        {msg.action === 'open_map_cerimonia' && (
+                          <button
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank')}
+                            className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                          >
+                            🗺️ Abrir no Google Maps (Cerimônia) ↗
+                          </button>
+                        )}
+                        {msg.action === 'open_map_celebracao' && (
+                          <button
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank')}
+                            className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                          >
+                            🗺️ Abrir no Google Maps (Celebração) ↗
+                          </button>
+                        )}
+                        {msg.action === 'show_both_maps' && (
+                          <div className="flex flex-col gap-1.5">
+                            <button
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank')}
+                              className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                            >
+                              ⛪ Mapa da Cerimônia ↗
+                            </button>
+                            <button
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank')}
+                              className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                            >
+                              🎉 Mapa da Celebração ↗
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {msg.role === 'model' && isVoiceEnabled && index === messages.length - 1 && !isSpeaking && (
                       <button
                         onClick={() => speakText(msg.content)}

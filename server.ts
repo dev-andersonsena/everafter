@@ -641,37 +641,120 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "Mensagem é obrigatória." });
     }
 
+    // Base de Conhecimento Escaneada do Site (Scan de Palavras e Fatos Oficiais)
+    const weddingKnowledge = {
+      noiva: "Alana Letícia (Filha de Eva Ferreira e Francisco Matos)",
+      noivo: "Henderson Venicius (Filho de Fátima Brasil e Anderson Brasil)",
+      paisNoiva: "Mãe da Noiva: Eva Ferreira | Pai da Noiva: Francisco Matos",
+      paisNoivo: "Mãe do Noivo: Fátima Brasil | Pai do Noivo: Anderson Brasil",
+      data: "Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A Cerimônia religiosa começa pontualmente às 16:00 e a Recepção/Festa às 17:30.",
+      cerimonia: "Capela das Hortênsias, localizada na Av. das Hortênsias, 1450 - Gramado, RS. A cerimônia começa às 16:00.",
+      recepcao: "Salão de Festas Imperial, localizado na Rua Bela Vista, 320 - Gramado, RS. A comemoração e festa começam às 17:30.",
+      traje: "Traje Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi em tons leves e elegantes (evitar branco, off-white ou tons muito próximos ao branco).",
+      presentes: "Chave Pix oficial para presentes é o e-mail: henderson.alana.casamento@gmail.com (Banco Nu Pagamentos / Nubank, em nome de Henderson Venicius e Alana Letícia). No site você também encontra cotas virtuais divertidas na lista de presentes!",
+      rsvp: "A confirmação de presença (RSVP) deve ser feita diretamente no site, preenchendo o formulário simples clicando em 'Confirmar Presença'.",
+      dicas: "O casamento ocorre na linda cidade de Gramado, na Serra Gaúcha. Como costuma esfriar no final da tarde, recomendamos trazer um bom agasalho. O local da festa possui estacionamento privativo gratuito. Sugerimos reservar hospedagem com antecedência."
+    };
+
+    let action: string | null = null;
+
     if (!aiClient) {
-      // Friendly, smart fallback when GEMINI_API_KEY is not defined or in early dev stages
-      let reply = "Olá! Eu sou o Assessor Virtual da Alana e do Henderson. O serviço de IA inteligente está sendo iniciado, mas posso te adiantar que o casamento será no dia 7 de setembro de 2026, às 16:00, na Capela das Hortênsias em Gramado, RS! Teremos grande alegria em ter você conosco.";
-      
+      // Friendly, highly precise scanned fallback matching engine
       const lower = message.toLowerCase();
-      if (lower.includes("traje") || lower.includes("vestir") || lower.includes("roupa") || lower.includes("vestido") || lower.includes("terno")) {
-        reply = "O traje indicado é Esporte Fino ou Social! Sugerimos calça social, camisa e blazer para homens, e vestidos midi ou longos elegantes para mulheres, lembrando de evitar a cor branca e tons muito próximos.";
-      } else if (lower.includes("presente") || lower.includes("pix") || lower.includes("lista") || lower.includes("ajudar") || lower.includes("dinheiro")) {
-        reply = "Nossa chave Pix oficial é o e-mail: henderson.alana.casamento@gmail.com (Nubank, em nome de Henderson Venicius e Alana Letícia). Há também cotas virtuais super divertidas na nossa lista de presentes no site!";
-      } else if (lower.includes("confirmar") || lower.includes("rsvp") || lower.includes("presença") || lower.includes("vou")) {
-        reply = "Para confirmar sua presença, basta clicar em 'Confirmar Presença' no menu do site e preencher o formulário simples. É rápido e nos ajuda muito no planejamento!";
-      } else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("capela") || lower.includes("festa") || lower.includes("salão")) {
-        reply = "A cerimônia será às 16h na Capela das Hortênsias (Av. das Hortênsias, 1450) e a festa às 17h30 no Salão de Festas Imperial (Rua Bela Vista, 320), ambos na linda cidade de Gramado, RS!";
+      let reply = "Olá! Eu sou o Assessor Virtual da Alana e do Henderson. Como estamos em modo de inicialização rápida, posso te ajudar com as principais dúvidas oficiais do site! Me pergunte sobre o local, traje, padrinhos, pais, presentes ou confirmação.";
+
+      // 1. Mother/Father/Parents queries
+      if (lower.includes("mãe") || lower.includes("mae") || lower.includes("pai") || lower.includes("pais") || lower.includes("sogro") || lower.includes("sogra") || lower.includes("família") || lower.includes("familia")) {
+        if (lower.includes("noivo") || lower.includes("henderson")) {
+          reply = `Os pais do noivo Henderson são Fátima Brasil (mãe) e Anderson Brasil (pai). Eles enviam um grande abraço!`;
+        } else if (lower.includes("noiva") || lower.includes("alana")) {
+          reply = `Os pais da noiva Alana são Eva Ferreira (mãe) e Francisco Matos (pai). Eles estão muito felizes com o casamento!`;
+        } else if (lower.includes("fátima") || lower.includes("fatima") || lower.includes("anderson")) {
+          reply = `Fátima Brasil e Anderson Brasil são os queridos pais do noivo, Henderson.`;
+        } else if (lower.includes("eva") || lower.includes("francisco")) {
+          reply = `Eva Ferreira e Francisco Matos são os queridos pais da noiva, Alana.`;
+        } else {
+          reply = `Com a benção de Deus e dos pais dos noivos: Eva Ferreira e Francisco Matos (pais da Alana) junto com Fátima Brasil e Anderson Brasil (pais do Henderson).`;
+        }
       }
-      
-      return res.json({ text: reply });
+      // 2. Groom & Bride Queries
+      else if (lower.includes("noivo") || lower.includes("noiva") || lower.includes("noivos") || lower.includes("casal") || lower.includes("quem está casando") || lower.includes("alana") || lower.includes("henderson")) {
+        reply = `O lindo casal é formado por Alana Letícia (filha de Eva Ferreira e Francisco Matos) e Henderson Venicius (filho de Fátima Brasil e Anderson Brasil).`;
+      }
+      // 3. Dress Code
+      else if (lower.includes("traje") || lower.includes("vestir") || lower.includes("roupa") || lower.includes("vestido") || lower.includes("terno") || lower.includes("cores") || lower.includes("esporte")) {
+        reply = `O traje é Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi elegantes, evitando branco ou off-white.`;
+      }
+      // 4. Gifts / Pix
+      else if (lower.includes("presente") || lower.includes("pix") || lower.includes("lista") || lower.includes("ajudar") || lower.includes("dinheiro") || lower.includes("banco") || lower.includes("chave") || lower.includes("cota")) {
+        reply = `Para presentear os noivos via Pix, use o e-mail: henderson.alana.casamento@gmail.com (Nubank, em nome de Henderson Venicius e Alana Letícia). Há também cotas divertidas na aba de presentes do site!`;
+      }
+      // 5. Confirm / RSVP
+      else if (lower.includes("confirmar") || lower.includes("rsvp") || lower.includes("presença") || lower.includes("presenca") || lower.includes("vou")) {
+        reply = `Confirme sua presença facilmente acessando a aba "Confirmar Presença" aqui no site e preenchendo o formulário de confirmação de forma rápida.`;
+      }
+      // 6. Location / Address / maps
+      else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("capela") || lower.includes("festa") || lower.includes("salão") || lower.includes("mapa") || lower.includes("gramado") || lower.includes("como chegar") || lower.includes("fica")) {
+        const isCeremony = lower.includes("cerimônia") || lower.includes("cerimonia") || lower.includes("capela") || lower.includes("igreja");
+        const isParty = lower.includes("festa") || lower.includes("salão") || lower.includes("salao") || lower.includes("recepção") || lower.includes("recepcao") || lower.includes("celebração") || lower.includes("celebracao");
+        
+        if (isCeremony && !isParty) {
+          reply = `A Cerimônia será na Capela das Hortênsias (Av. das Hortênsias, 1450 - Gramado, RS) às 16:00.`;
+          action = "open_map_cerimonia";
+        } else if (isParty && !isCeremony) {
+          reply = `A Festa será no Salão de Festas Imperial (Rua Bela Vista, 320 - Gramado, RS) às 17:30.`;
+          action = "open_map_celebracao";
+        } else {
+          // Vague question! Ask the user which location they want to know
+          reply = `Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?`;
+          action = "ask_location_type";
+        }
+      }
+      // 7. Date / Time / schedule
+      else if (lower.includes("dia") || lower.includes("data") || lower.includes("quando") || lower.includes("hora") || lower.includes("horário") || lower.includes("horario") || lower.includes("setembro") || lower.includes("ano") || lower.includes("feriado")) {
+        reply = `Marque na agenda: Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A cerimônia começa pontualmente às 16:00.`;
+      }
+      // 8. Gramado tips / climate
+      else if (lower.includes("dicas") || lower.includes("serra") || lower.includes("clima") || lower.includes("frio") || lower.includes("hospedar") || lower.includes("estacionamento")) {
+        reply = `O casamento será na linda Gramado, RS. Lembre-se de trazer agasalho, pois costuma esfriar no final da tarde. Há estacionamento gratuito na festa!`;
+      }
+
+      return res.json({ text: reply, action });
     }
 
+    // High Precision Prompt loaded with the entire scanned words/facts
     const systemInstruction = `Você é o "Assessor Virtual", o concierge e planejador de casamentos inteligente da Alana Letícia e do Henderson Venicius. Seu papel é receber os convidados com muito carinho, elegância e entusiasmo, e tirar todas as suas dúvidas sobre o casamento. Responda sempre em português do Brasil, de forma amigável, clara e extremamente concisa (máximo de 2 ou 3 frases curtas por resposta, para que a leitura por voz humana fique excelente e fluida).
 
-Informações Oficiais do Casamento:
-- Noivos: Alana Letícia e Henderson Venicius.
-- Data e Horários: 7 de Setembro de 2026. A Cerimônia religiosa começará pontualmente às 16:00. A Recepção (festa) começará às 17:30.
-- Locais em Gramado, RS:
-  - Cerimônia: Capela das Hortênsias (Endereço: Av. das Hortênsias, 1450 - Gramado, RS).
-  - Recepção/Festa: Salão de Festas Imperial (Endereço: Rua Bela Vista, 320 - Gramado, RS).
-- Traje (Dress Code): Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi em tons leves e elegantes (evitar branco, off-white ou tons muito próximos do branco).
-- Presentes / Chave Pix: A chave Pix oficial dos noivos é o e-mail: "henderson.alana.casamento@gmail.com" (Banco Nubank, nome dos noivos: Henderson Venicius e Alana Letícia). Há também presentes e cotas virtuais divertidas no site.
-- RSVP / Confirmação: Os convidados devem confirmar presença pelo formulário no site clicando no botão "Confirmar Presença" da página inicial.
+BASE DE CONHECIMENTO COMPLETA DO CASAMENTO (DADOS ESCANEADOS E REGISTRADOS DO SITE):
+- Noivos Oficiais: Alana Letícia (Noiva) e Henderson Venicius (Noivo).
+- Pais da Noiva (Alana): Eva Ferreira (Mãe) e Francisco Matos (Pai).
+- Pais do Noivo (Henderson): Fátima Brasil (Mãe) e Anderson Brasil (Pai).
+- Data Oficial: 7 de Setembro de 2026 (uma segunda-feira, Feriado Nacional da Independência do Brasil).
+- Horários Oficiais:
+  - Início da Cerimônia Religiosa: 16:00 horas (pontual).
+  - Início da Recepção/Festa: 17:30 horas.
+- Locais do Evento (em Gramado - RS):
+  - Cerimônia Religiosa: Capela das Hortênsias (Endereço: Av. das Hortênsias, 1450 - Gramado, RS).
+  - Recepção e Festa: Salão de Festas Imperial (Endereço: Rua Bela Vista, 320 - Gramado, RS).
+- Traje Indicado (Dress Code): Esporte Fino ou Social.
+  - Para Homens: Calça social, camisa e blazer. O uso de gravata é opcional.
+  - Para Mulheres: Vestidos midi ou longos em tons leves e elegantes. É estritamente proibido ou indelicado vestir branco, off-white ou tons muito próximos ao branco.
+- Lista de Presentes & Chave Pix:
+  - Chave Pix oficial dos noivos: e-mail "henderson.alana.casamento@gmail.com".
+  - Banco: Nubank (Banco Nu Pagamentos S.A.), registrado sob o nome dos noivos "Henderson Venicius e Alana Letícia".
+  - O convidado também pode comprar itens virtuais divertidos e cotas diretamente na aba de presentes do site.
+- RSVP / Confirmação de Presença:
+  - Deve ser feita diretamente na página principal do site, acessando o formulário simples do botão "Confirmar Presença".
+- Dicas e Informações Gerais sobre Gramado:
+  - O clima na Serra Gaúcha costuma esfriar consideravelmente ao final da tarde e noite. Recomendamos que os convidados tragam casacos e agasalhos.
+  - O estacionamento no local da recepção (Salão Imperial) é privativo e totalmente gratuito para os convidados.
+  - Como o casamento é em feriado nacional (alta temporada), reserve hospedagem com o máximo de antecedência.
 
-Diga apenas respostas curtas, afetuosas e simpáticas. Evite textos longos para que a leitura falada fique maravilhosa.`;
+REGRAS DE OURO DA RESPOSTA:
+1. Se a pergunta for sobre os pais de um dos noivos, responda precisamente com os nomes cadastrados acima!
+2. Se a pergunta for vaga sobre a localização (por exemplo, "onde fica?", "qual o local?", "me passa o endereço", "como chegar?"), você DEVE responder perguntando amigavelmente se o convidado deseja saber a localização da cerimônia na Capela ou da celebração no Salão de Festas! Exemplo: "Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?"
+3. Seja sempre caloroso, prestativo e educado.
+4. Diga apenas respostas muito curtas, diretas e agradáveis para que a pronúncia em voz sintetizada seja perfeita!`;
 
     const chatHistory = history ? history.map((h: any) => ({
       role: h.role === "user" ? "user" : "model",
@@ -689,8 +772,42 @@ Diga apenas respostas curtas, afetuosas e simpáticas. Evite textos longos para 
       },
     });
 
-    const replyText = response.text || "Desculpe, não consegui processar a mensagem no momento.";
-    res.json({ text: replyText });
+    let replyText = response.text || "Desculpe, não consegui processar a mensagem no momento.";
+
+    // Parse action from reply or message
+    const lowerReply = replyText.toLowerCase();
+    const lowerMsg = message.toLowerCase();
+
+    if (
+      lowerReply.includes("cerimônia ou da celebração") ||
+      lowerReply.includes("cerimônia ou da festa") ||
+      lowerReply.includes("localização da cerimônia ou") ||
+      ((lowerMsg.includes("local") || lowerMsg.includes("onde") || lowerMsg.includes("endereço") || lowerMsg.includes("mapa") || lowerMsg.includes("como chegar") || lowerMsg.includes("fica")) &&
+        !lowerMsg.includes("cerimônia") && !lowerMsg.includes("cerimonia") && !lowerMsg.includes("capela") && !lowerMsg.includes("igreja") &&
+        !lowerMsg.includes("festa") && !lowerMsg.includes("salão") && !lowerMsg.includes("salao") && !lowerMsg.includes("recepção") && !lowerMsg.includes("recepcao") && !lowerMsg.includes("celebração") && !lowerMsg.includes("celebracao"))
+    ) {
+      action = "ask_location_type";
+      if (!lowerReply.includes("cerimônia") || !lowerReply.includes("celebração")) {
+        replyText = "Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?";
+      }
+    } else if (
+      (lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias")) &&
+      !(lowerReply.includes("salão de festas") || lowerReply.includes("salão imperial") || lowerReply.includes("salao imperial"))
+    ) {
+      action = "open_map_cerimonia";
+    } else if (
+      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("imperial") || lowerReply.includes("bela vista")) &&
+      !(lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias"))
+    ) {
+      action = "open_map_celebracao";
+    } else if (
+      (lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias")) &&
+      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("imperial") || lowerReply.includes("bela vista"))
+    ) {
+      action = "show_both_maps";
+    }
+
+    res.json({ text: replyText, action });
 
   } catch (error: any) {
     console.error("Erro no chat do Gemini:", error);
