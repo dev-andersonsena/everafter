@@ -193,7 +193,7 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
           {/* Add to Calendar / Lembretes */}
           <div className="w-full bg-stone-50 border border-stone-200/40 rounded-2xl p-4 mb-6 text-center shadow-sm">
             <span className="text-[10px] font-sans uppercase tracking-widest text-gold-600 font-extrabold mb-1.5 block">
-              🔔 ALERTAS
+              🔔 ALERTAS NA AGENDA
             </span>
             <p className="text-stone-800 font-serif text-xs font-semibold mb-1">
               LISTA DE DIAS INCLUSO:
@@ -201,7 +201,7 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
             <p className="text-[10px] font-sans text-stone-500 mb-3 leading-relaxed">
               <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia exato</strong>.<br />
               <span className="text-amber-600 font-bold block mt-1.5 text-center">
-                agende
+                Agende no seu calendário.
               </span>
             </p>
             <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">
