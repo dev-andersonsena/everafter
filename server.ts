@@ -647,13 +647,12 @@ app.post("/api/chat", async (req, res) => {
       noivo: "Henderson Venicius (Filho de Fátima Brasil e Anderson Brasil)",
       paisNoiva: "Mãe da Noiva: Eva Ferreira | Pai da Noiva: Francisco Matos",
       paisNoivo: "Mãe do Noivo: Fátima Brasil | Pai do Noivo: Anderson Brasil",
-      data: "Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A Cerimônia religiosa começa pontualmente às 15:00 e a Recepção/Festa às 16:30.",
-      cerimonia: "Prime Eventos, localizada em Planalto, Teresina - PI. A cerimônia começa às 15:00.",
-      recepcao: "Prime Eventos (Salão de Festas), localizado em Planalto, Teresina - PI. A comemoração e festa começam às 16:30.",
+      data: "Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A Cerimônia começa pontualmente às 15:00.",
+      cerimonia: "Prime Eventos, localizada em R. Deoclécio Brito, 3399 - Planalto. A cerimônia começa às 15:00.",
       traje: "Traje Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi em tons leves e elegantes (evitar branco, off-white ou tons muito próximos ao branco).",
       presentes: "Chave Pix oficial para presentes é o e-mail: henderson.alana.casamento@gmail.com (Banco Nu Pagamentos / Nubank, em nome de Henderson Venicius e Alana Letícia). No site você também encontra cotas virtuais divertidas na lista de presentes!",
       rsvp: "A confirmação de presença (RSVP) deve ser feita diretamente no site, preenchendo o formulário simples clicando em 'Confirmar Presença'.",
-      dicas: "O casamento ocorre no elegante espaço Prime Eventos, em Teresina - PI. O local do evento possui estacionamento privativo gratuito. Como o casamento é em feriado nacional, planeje seu deslocamento e hospedagem com antecedência."
+      dicas: "O casamento ocorre no elegante espaço Prime Eventos, em R. Deoclécio Brito, 3399 - Planalto. O local do evento possui estacionamento privativo gratuito. Como o casamento é em feriado nacional, planeje seu deslocamento e hospedagem com antecedência."
     };
 
     let action: string | null = null;
@@ -695,20 +694,8 @@ app.post("/api/chat", async (req, res) => {
       }
       // 6. Location / Address / maps
       else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("prime") || lower.includes("festa") || lower.includes("salão") || lower.includes("mapa") || lower.includes("teresina") || lower.includes("como chegar") || lower.includes("fica")) {
-        const isCeremony = lower.includes("cerimônia") || lower.includes("cerimonia");
-        const isParty = lower.includes("festa") || lower.includes("salão") || lower.includes("salao") || lower.includes("recepção") || lower.includes("recepcao") || lower.includes("celebração") || lower.includes("celebracao");
-        
-        if (isCeremony && !isParty) {
-          reply = `A Cerimônia será no Prime Eventos (Planalto, Teresina - PI) às 15:00.`;
-          action = "open_map_cerimonia";
-        } else if (isParty && !isCeremony) {
-          reply = `A Festa será no Prime Eventos (Salão de Festas) (Planalto, Teresina - PI) às 16:30.`;
-          action = "open_map_celebracao";
-        } else {
-          // Vague question! Ask the user which location they want to know
-          reply = `Você gostaria de saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas?`;
-          action = "ask_location_type";
-        }
+        reply = `A Cerimônia será no Prime Eventos, localizado na R. Deoclécio Brito, 3399 - Planalto, às 15:00.`;
+        action = "open_map_cerimonia";
       }
       // 7. Date / Time / schedule
       else if (lower.includes("dia") || lower.includes("data") || lower.includes("quando") || lower.includes("hora") || lower.includes("horário") || lower.includes("horario") || lower.includes("setembro") || lower.includes("ano") || lower.includes("feriado")) {
@@ -731,11 +718,9 @@ BASE DE CONHECIMENTO COMPLETA DO CASAMENTO (DADOS ESCANEADOS E REGISTRADOS DO SI
 - Pais do Noivo (Henderson): Fátima Brasil (Mãe) e Anderson Brasil (Pai).
 - Data Oficial: 7 de Setembro de 2026 (uma segunda-feira, Feriado Nacional da Independência do Brasil).
 - Horários Oficiais:
-  - Início da Cerimônia Religiosa: 15:00 horas (pontual).
-  - Início da Recepção/Festa: 16:30 horas.
-- Locais do Evento (em Teresina - PI):
-  - Cerimônia Religiosa: Prime Eventos (Endereço: Planalto, Teresina - PI).
-  - Recepção e Festa: Prime Eventos (Salão de Festas) (Endereço: Planalto, Teresina - PI).
+  - Início da Cerimônia: 15:00 horas (pontual).
+- Local do Evento (em Teresina - PI):
+  - Cerimônia: Prime Eventos (Endereço: R. Deoclécio Brito, 3399 - Planalto).
 - Traje Indicado (Dress Code): Esporte Fino ou Social.
   - Para Homens: Calça social, camisa e blazer. O uso de gravata é opcional.
   - Para Mulheres: Vestidos midi ou longos em tons leves e elegantes. É estritamente proibido ou indelicado vestir branco, off-white ou tons muito próximos ao branco.
@@ -745,13 +730,13 @@ BASE DE CONHECIMENTO COMPLETA DO CASAMENTO (DADOS ESCANEADOS E REGISTRADOS DO SI
   - O convidado também pode comprar itens virtuais divertidos e cotas diretamente na aba de presentes do site.
 - RSVP / Confirmação de Presença:
   - Deve ser feita diretamente na página principal do site, acessando o formulário simples do botão "Confirmar Presença".
-- Dicas e Informações Gerais sobre Teresina:
-  - O estacionamento no local da recepção (Prime Eventos) é privativo e totalmente gratuito para os convidados.
+- Dicas e Informações Gerais:
+  - O estacionamento no local (Prime Eventos) é privativo e totalmente gratuito para os convidados.
   - Como o casamento é em feriado nacional, planeje seu deslocamento e hospedagem com antecedência.
 
 REGRAS DE OURO DA RESPOSTA:
 1. Se a pergunta for sobre os pais de um dos noivos, responda precisamente com os nomes cadastrados acima!
-2. Se a pergunta for vaga sobre a localização (por exemplo, "onde fica?", "qual o local?", "me passa o endereço", "como chegar?"), você DEVE responder perguntando amigavelmente se o convidado deseja saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas! Exemplo: "Você gostaria de saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas?"
+2. Se a pergunta for sobre a localização (por exemplo, "onde fica?", "qual o local?", "me passa o endereço", "como chegar?"), responda que a cerimônia será no Prime Eventos, localizado na R. Deoclécio Brito, 3399 - Planalto.
 3. Seja sempre caloroso, prestativo e educado.
 4. Diga apenas respostas muito curtas, diretas e agradáveis para que a pronúncia em voz sintetizada seja perfeita!`;
 

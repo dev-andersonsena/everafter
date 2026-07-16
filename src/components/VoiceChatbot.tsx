@@ -537,9 +537,9 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
       
       if (wishesToOpen) {
         if (data.action === 'open_map_cerimonia') {
-          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank');
+          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank');
         } else if (data.action === 'open_map_celebracao') {
-          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank');
+          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank');
         }
       }
 
@@ -980,7 +980,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                             <div className="flex flex-col gap-1.5">
                               <button
                                 onClick={() => {
-                                  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Casamento+de+Alana+%26+Henderson&dates=20260907T180000Z/20260908T010000Z&details=Casamento+de+Alana+Leticia+%26+Henderson+Venicius.+Confirmado+com+sucesso+pelo+assessor+virtual!&location=Prime+Eventos,+Planalto,+Teresina+-+PI`;
+                                  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Casamento+de+Alana+%26+Henderson&dates=20260907T180000Z/20260908T010000Z&details=Casamento+de+Alana+Leticia+%26+Henderson+Venicius.+Confirmado+com+sucesso+pelo+assessor+virtual!&location=Prime+Eventos,+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto`;
                                   window.open(googleCalendarUrl, '_blank');
                                   
                                   const text = "Lembrete aberto! Você será direcionado para salvar o compromisso no seu calendário Google. Estaremos esperando você com muito carinho!";
@@ -1026,7 +1026,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         )}
                         {msg.action === 'open_map_cerimonia' && (
                           <button
-                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank')}
                             className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                           >
                             🗺️ Abrir no Google Maps (Cerimônia) ↗
@@ -1034,7 +1034,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         )}
                         {msg.action === 'open_map_celebracao' && (
                           <button
-                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank')}
                             className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                           >
                             🗺️ Abrir no Google Maps (Celebração) ↗
@@ -1043,13 +1043,13 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         {msg.action === 'show_both_maps' && (
                           <div className="flex flex-col gap-1.5">
                             <button
-                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank')}
                               className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                             >
                               ⛪ Mapa da Cerimônia ↗
                             </button>
                             <button
-                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto', '_blank')}
                               className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                             >
                               🎉 Mapa da Celebração ↗

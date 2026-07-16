@@ -45,13 +45,13 @@ export default function Details() {
           </motion.p>
         </div>
 
-        {/* Ceremony and Celebration grid */}
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 mb-16">
+        {/* Ceremony container (centered, single card) */}
+        <div className="max-w-xl mx-auto mb-16">
           
           {/* Ceremony Card */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
             className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-gold-100/50 flex flex-col justify-between"
@@ -95,53 +95,6 @@ export default function Details() {
             </motion.a>
           </motion.div>
 
-          {/* Reception Card */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-gold-100/50 flex flex-col justify-between"
-          >
-            <div>
-              <div className="inline-flex p-3 bg-gold-100 rounded-2xl text-gold-600 mb-6">
-                <CalendarHeart size={24} />
-              </div>
-              <h3 className="font-serif text-2xl text-gold-800 font-bold mb-4">A Celebração</h3>
-              
-              <div className="space-y-4 text-gold-900/80 mb-8">
-                <div className="flex items-start gap-3">
-                  <Clock size={16} className="text-gold-500 mt-1 shrink-0" />
-                  <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Horário</p>
-                    <p className="font-serif text-gold-900 font-semibold">Segunda-feira (Feriado), 07 de Setembro de 2026, às {weddingDetails.receptionTime}h</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <MapPin size={16} className="text-gold-500 mt-1 shrink-0" />
-                  <div>
-                    <p className="font-sans text-xs uppercase tracking-wider text-gold-400 font-bold">Local</p>
-                    <p className="font-serif text-gold-900 font-semibold">{weddingDetails.receptionLocation}</p>
-                    <p className="font-sans text-xs text-gold-600 mt-0.5">{weddingDetails.receptionAddress}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <motion.a 
-              href={weddingDetails.receptionMapsLink}
-              target="_blank"
-              rel="noreferrer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-gold-600 hover:bg-gold-700 text-white font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
-            >
-              <MapPin size={16} className="mr-2" />
-              Como Chegar à Celebração
-            </motion.a>
-          </motion.div>
-
         </div>
 
         {/* Additional info rows */}
@@ -170,7 +123,7 @@ export default function Details() {
                 </li>
                 <li className="flex gap-3 items-start">
                   <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
-                  <span>Recomendamos chegar com alguns minutos de antecedência para desfrutar da recepção com tranquilidade.</span>
+                  <span>Recomendamos chegar com alguns minutos de antecedência para desfrutar da cerimônia com tranquilidade.</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
