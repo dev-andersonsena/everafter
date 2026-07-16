@@ -225,7 +225,7 @@ export default function Hero() {
             <Calendar className="text-gold-500 shrink-0" size={18} />
             <div className="text-left">
               <p className="text-[10px] uppercase tracking-widest text-gold-500 font-semibold">Quando</p>
-              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Domingo, 07 de Setembro de 2026 às 16:00</p>
+              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Domingo, 07 de Setembro de 2026 às 15:00</p>
             </div>
           </div>
           
@@ -235,7 +235,7 @@ export default function Hero() {
             <MapPin className="text-gold-500 shrink-0" size={18} />
             <div className="text-left">
               <p className="text-[10px] uppercase tracking-widest text-gold-500 font-semibold">Onde</p>
-              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Capela das Hortênsias • Gramado, RS</p>
+              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Prime Eventos • Planalto, Teresina-PI</p>
             </div>
           </div>
         </motion.div>

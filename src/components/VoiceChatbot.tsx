@@ -246,9 +246,9 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
       
       if (wishesToOpen) {
         if (data.action === 'open_map_cerimonia') {
-          window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank');
+          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank');
         } else if (data.action === 'open_map_celebracao') {
-          window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank');
+          window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank');
         }
       }
 
@@ -559,7 +559,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                                 onClick={() => handleSendMessage('Quero a localização da Cerimônia')}
                                 className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg text-[10px] font-sans font-semibold text-amber-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                               >
-                                ⛪ Cerimônia (Capela)
+                                ⛪ Cerimônia (Prime Eventos)
                               </button>
                               <button
                                 onClick={() => handleSendMessage('Quero a localização da Celebração')}
@@ -572,7 +572,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         )}
                         {msg.action === 'open_map_cerimonia' && (
                           <button
-                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank')}
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
                             className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                           >
                             🗺️ Abrir no Google Maps (Cerimônia) ↗
@@ -580,7 +580,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         )}
                         {msg.action === 'open_map_celebracao' && (
                           <button
-                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank')}
+                            onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
                             className="w-full justify-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                           >
                             🗺️ Abrir no Google Maps (Celebração) ↗
@@ -589,13 +589,13 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                         {msg.action === 'show_both_maps' && (
                           <div className="flex flex-col gap-1.5">
                             <button
-                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Capela+das+Hortensias+Av.+das+Hortensias+1450+Gramado+RS', '_blank')}
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
                               className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                             >
                               ⛪ Mapa da Cerimônia ↗
                             </button>
                             <button
-                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Sal%C3%A3o+de+Festas+Imperial+Rua+Bela+Vista+320+Gramado+RS', '_blank')}
+                              onClick={() => window.open('https://www.google.com/maps/search/?api=1&query=Prime+Eventos+Planalto+Teresina+PI', '_blank')}
                               className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-[10px] font-sans font-bold text-emerald-800 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                             >
                               🎉 Mapa da Celebração ↗

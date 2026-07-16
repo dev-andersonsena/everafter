@@ -91,7 +91,7 @@ export default function Details() {
               className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-gold-600 hover:bg-gold-700 text-white font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
             >
               <MapPin size={16} className="mr-2" />
-              Como Chegar à Capela
+              Como Chegar ao Evento
             </motion.a>
           </motion.div>
 
@@ -138,7 +138,7 @@ export default function Details() {
               className="inline-flex items-center justify-center w-full py-3.5 px-6 rounded-2xl bg-gold-600 hover:bg-gold-700 text-white font-sans text-sm font-medium tracking-wide transition-colors duration-300 shadow-md cursor-pointer text-center"
             >
               <MapPin size={16} className="mr-2" />
-              Como Chegar à Festa
+              Como Chegar à Celebração
             </motion.a>
           </motion.div>
 
@@ -160,27 +160,27 @@ export default function Details() {
                 <div className="p-2.5 bg-gold-100 rounded-xl text-gold-600">
                   <Info size={22} />
                 </div>
-                <h4 className="font-serif text-2xl text-gold-800 font-bold">Dicas da Serra</h4>
+                <h4 className="font-serif text-2xl text-gold-800 font-bold">Dicas do Evento</h4>
               </div>
               
               <ul className="space-y-4 text-sm text-gold-900/80 font-sans font-medium">
                 <li className="flex gap-3 items-start">
                   <Car size={18} className="text-gold-500 shrink-0 mt-0.5" />
-                  <span>Estacionamento privativo gratuito no local da recepção (Salão Imperial).</span>
+                  <span>Estacionamento privativo gratuito no local do evento (Prime Eventos).</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
-                  <span>Gramado costuma esfriar no final da tarde. Sugerimos trazer um bom agasalho para seu conforto.</span>
+                  <span>Recomendamos chegar com alguns minutos de antecedência para desfrutar da recepção com tranquilidade.</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
-                  <span>Como o casamento é em feriado nacional (alta temporada), recomendamos reservar sua hospedagem com antecedência.</span>
+                  <span>Como o casamento é em feriado nacional, recomendamos planejar seu deslocamento com antecedência.</span>
                 </li>
               </ul>
             </div>
             
             <div className="mt-8 pt-6 border-t border-gold-100 text-xs text-gold-500 text-center uppercase tracking-widest font-sans font-semibold">
-              Gramado • RS
+              Teresina • PI
             </div>
           </motion.div>
 

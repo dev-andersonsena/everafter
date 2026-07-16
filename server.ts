@@ -647,13 +647,13 @@ app.post("/api/chat", async (req, res) => {
       noivo: "Henderson Venicius (Filho de Fátima Brasil e Anderson Brasil)",
       paisNoiva: "Mãe da Noiva: Eva Ferreira | Pai da Noiva: Francisco Matos",
       paisNoivo: "Mãe do Noivo: Fátima Brasil | Pai do Noivo: Anderson Brasil",
-      data: "Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A Cerimônia religiosa começa pontualmente às 16:00 e a Recepção/Festa às 17:30.",
-      cerimonia: "Capela das Hortênsias, localizada na Av. das Hortênsias, 1450 - Gramado, RS. A cerimônia começa às 16:00.",
-      recepcao: "Salão de Festas Imperial, localizado na Rua Bela Vista, 320 - Gramado, RS. A comemoração e festa começam às 17:30.",
+      data: "Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A Cerimônia religiosa começa pontualmente às 15:00 e a Recepção/Festa às 16:30.",
+      cerimonia: "Prime Eventos, localizada em Planalto, Teresina - PI. A cerimônia começa às 15:00.",
+      recepcao: "Prime Eventos (Salão de Festas), localizado em Planalto, Teresina - PI. A comemoração e festa começam às 16:30.",
       traje: "Traje Esporte Fino / Social. Homens: calça social, camisa e blazer (gravata opcional). Mulheres: vestidos longos ou midi em tons leves e elegantes (evitar branco, off-white ou tons muito próximos ao branco).",
       presentes: "Chave Pix oficial para presentes é o e-mail: henderson.alana.casamento@gmail.com (Banco Nu Pagamentos / Nubank, em nome de Henderson Venicius e Alana Letícia). No site você também encontra cotas virtuais divertidas na lista de presentes!",
       rsvp: "A confirmação de presença (RSVP) deve ser feita diretamente no site, preenchendo o formulário simples clicando em 'Confirmar Presença'.",
-      dicas: "O casamento ocorre na linda cidade de Gramado, na Serra Gaúcha. Como costuma esfriar no final da tarde, recomendamos trazer um bom agasalho. O local da festa possui estacionamento privativo gratuito. Sugerimos reservar hospedagem com antecedência."
+      dicas: "O casamento ocorre no elegante espaço Prime Eventos, em Teresina - PI. O local do evento possui estacionamento privativo gratuito. Como o casamento é em feriado nacional, planeje seu deslocamento e hospedagem com antecedência."
     };
 
     let action: string | null = null;
@@ -694,29 +694,29 @@ app.post("/api/chat", async (req, res) => {
         reply = `Confirme sua presença facilmente acessando a aba "Confirmar Presença" aqui no site e preenchendo o formulário de confirmação de forma rápida.`;
       }
       // 6. Location / Address / maps
-      else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("capela") || lower.includes("festa") || lower.includes("salão") || lower.includes("mapa") || lower.includes("gramado") || lower.includes("como chegar") || lower.includes("fica")) {
-        const isCeremony = lower.includes("cerimônia") || lower.includes("cerimonia") || lower.includes("capela") || lower.includes("igreja");
+      else if (lower.includes("local") || lower.includes("onde") || lower.includes("endereço") || lower.includes("prime") || lower.includes("festa") || lower.includes("salão") || lower.includes("mapa") || lower.includes("teresina") || lower.includes("como chegar") || lower.includes("fica")) {
+        const isCeremony = lower.includes("cerimônia") || lower.includes("cerimonia");
         const isParty = lower.includes("festa") || lower.includes("salão") || lower.includes("salao") || lower.includes("recepção") || lower.includes("recepcao") || lower.includes("celebração") || lower.includes("celebracao");
         
         if (isCeremony && !isParty) {
-          reply = `A Cerimônia será na Capela das Hortênsias (Av. das Hortênsias, 1450 - Gramado, RS) às 16:00.`;
+          reply = `A Cerimônia será no Prime Eventos (Planalto, Teresina - PI) às 15:00.`;
           action = "open_map_cerimonia";
         } else if (isParty && !isCeremony) {
-          reply = `A Festa será no Salão de Festas Imperial (Rua Bela Vista, 320 - Gramado, RS) às 17:30.`;
+          reply = `A Festa será no Prime Eventos (Salão de Festas) (Planalto, Teresina - PI) às 16:30.`;
           action = "open_map_celebracao";
         } else {
           // Vague question! Ask the user which location they want to know
-          reply = `Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?`;
+          reply = `Você gostaria de saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas?`;
           action = "ask_location_type";
         }
       }
       // 7. Date / Time / schedule
       else if (lower.includes("dia") || lower.includes("data") || lower.includes("quando") || lower.includes("hora") || lower.includes("horário") || lower.includes("horario") || lower.includes("setembro") || lower.includes("ano") || lower.includes("feriado")) {
-        reply = `Marque na agenda: Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A cerimônia começa pontualmente às 16:00.`;
+        reply = `Marque na agenda: Segunda-feira (Feriado Nacional), 07 de Setembro de 2026. A cerimônia começa pontualmente às 15:00.`;
       }
-      // 8. Gramado tips / climate
-      else if (lower.includes("dicas") || lower.includes("serra") || lower.includes("clima") || lower.includes("frio") || lower.includes("hospedar") || lower.includes("estacionamento")) {
-        reply = `O casamento será na linda Gramado, RS. Lembre-se de trazer agasalho, pois costuma esfriar no final da tarde. Há estacionamento gratuito na festa!`;
+      // 8. Teresina tips / climate
+      else if (lower.includes("dicas") || lower.includes("clima") || lower.includes("hospedar") || lower.includes("estacionamento")) {
+        reply = `O casamento será no elegante Prime Eventos em Teresina, PI. O local conta com estacionamento gratuito para os convidados!`;
       }
 
       return res.json({ text: reply, action });
@@ -731,11 +731,11 @@ BASE DE CONHECIMENTO COMPLETA DO CASAMENTO (DADOS ESCANEADOS E REGISTRADOS DO SI
 - Pais do Noivo (Henderson): Fátima Brasil (Mãe) e Anderson Brasil (Pai).
 - Data Oficial: 7 de Setembro de 2026 (uma segunda-feira, Feriado Nacional da Independência do Brasil).
 - Horários Oficiais:
-  - Início da Cerimônia Religiosa: 16:00 horas (pontual).
-  - Início da Recepção/Festa: 17:30 horas.
-- Locais do Evento (em Gramado - RS):
-  - Cerimônia Religiosa: Capela das Hortênsias (Endereço: Av. das Hortênsias, 1450 - Gramado, RS).
-  - Recepção e Festa: Salão de Festas Imperial (Endereço: Rua Bela Vista, 320 - Gramado, RS).
+  - Início da Cerimônia Religiosa: 15:00 horas (pontual).
+  - Início da Recepção/Festa: 16:30 horas.
+- Locais do Evento (em Teresina - PI):
+  - Cerimônia Religiosa: Prime Eventos (Endereço: Planalto, Teresina - PI).
+  - Recepção e Festa: Prime Eventos (Salão de Festas) (Endereço: Planalto, Teresina - PI).
 - Traje Indicado (Dress Code): Esporte Fino ou Social.
   - Para Homens: Calça social, camisa e blazer. O uso de gravata é opcional.
   - Para Mulheres: Vestidos midi ou longos em tons leves e elegantes. É estritamente proibido ou indelicado vestir branco, off-white ou tons muito próximos ao branco.
@@ -745,14 +745,13 @@ BASE DE CONHECIMENTO COMPLETA DO CASAMENTO (DADOS ESCANEADOS E REGISTRADOS DO SI
   - O convidado também pode comprar itens virtuais divertidos e cotas diretamente na aba de presentes do site.
 - RSVP / Confirmação de Presença:
   - Deve ser feita diretamente na página principal do site, acessando o formulário simples do botão "Confirmar Presença".
-- Dicas e Informações Gerais sobre Gramado:
-  - O clima na Serra Gaúcha costuma esfriar consideravelmente ao final da tarde e noite. Recomendamos que os convidados tragam casacos e agasalhos.
-  - O estacionamento no local da recepção (Salão Imperial) é privativo e totalmente gratuito para os convidados.
-  - Como o casamento é em feriado nacional (alta temporada), reserve hospedagem com o máximo de antecedência.
+- Dicas e Informações Gerais sobre Teresina:
+  - O estacionamento no local da recepção (Prime Eventos) é privativo e totalmente gratuito para os convidados.
+  - Como o casamento é em feriado nacional, planeje seu deslocamento e hospedagem com antecedência.
 
 REGRAS DE OURO DA RESPOSTA:
 1. Se a pergunta for sobre os pais de um dos noivos, responda precisamente com os nomes cadastrados acima!
-2. Se a pergunta for vaga sobre a localização (por exemplo, "onde fica?", "qual o local?", "me passa o endereço", "como chegar?"), você DEVE responder perguntando amigavelmente se o convidado deseja saber a localização da cerimônia na Capela ou da celebração no Salão de Festas! Exemplo: "Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?"
+2. Se a pergunta for vaga sobre a localização (por exemplo, "onde fica?", "qual o local?", "me passa o endereço", "como chegar?"), você DEVE responder perguntando amigavelmente se o convidado deseja saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas! Exemplo: "Você gostaria de saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas?"
 3. Seja sempre caloroso, prestativo e educado.
 4. Diga apenas respostas muito curtas, diretas e agradáveis para que a pronúncia em voz sintetizada seja perfeita!`;
 
@@ -779,30 +778,31 @@ REGRAS DE OURO DA RESPOSTA:
     const lowerMsg = message.toLowerCase();
 
     if (
+      lowerReply.includes("cerimônia no prime eventos") ||
       lowerReply.includes("cerimônia ou da celebração") ||
       lowerReply.includes("cerimônia ou da festa") ||
       lowerReply.includes("localização da cerimônia ou") ||
       ((lowerMsg.includes("local") || lowerMsg.includes("onde") || lowerMsg.includes("endereço") || lowerMsg.includes("mapa") || lowerMsg.includes("como chegar") || lowerMsg.includes("fica")) &&
-        !lowerMsg.includes("cerimônia") && !lowerMsg.includes("cerimonia") && !lowerMsg.includes("capela") && !lowerMsg.includes("igreja") &&
+        !lowerMsg.includes("cerimônia") && !lowerMsg.includes("cerimonia") && !lowerMsg.includes("prime") &&
         !lowerMsg.includes("festa") && !lowerMsg.includes("salão") && !lowerMsg.includes("salao") && !lowerMsg.includes("recepção") && !lowerMsg.includes("recepcao") && !lowerMsg.includes("celebração") && !lowerMsg.includes("celebracao"))
     ) {
       action = "ask_location_type";
       if (!lowerReply.includes("cerimônia") || !lowerReply.includes("celebração")) {
-        replyText = "Você gostaria de saber a localização da cerimônia na Capela ou da celebração no Salão de Festas?";
+        replyText = "Você gostaria de saber a localização da cerimônia no Prime Eventos ou da celebração no Salão de Festas?";
       }
     } else if (
-      (lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias")) &&
-      !(lowerReply.includes("salão de festas") || lowerReply.includes("salão imperial") || lowerReply.includes("salao imperial"))
+      (lowerReply.includes("prime eventos") || lowerReply.includes("prime") || lowerReply.includes("cerimônia") || lowerReply.includes("cerimonia")) &&
+      !(lowerReply.includes("salão de festas") || lowerReply.includes("festa") || lowerReply.includes("recepção") || lowerReply.includes("recepcao"))
     ) {
       action = "open_map_cerimonia";
     } else if (
-      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("imperial") || lowerReply.includes("bela vista")) &&
-      !(lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias"))
+      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("festa") || lowerReply.includes("recepção") || lowerReply.includes("recepcao") || lowerReply.includes("celebrar")) &&
+      !(lowerReply.includes("prime") || lowerReply.includes("cerimônia") || lowerReply.includes("cerimonia"))
     ) {
       action = "open_map_celebracao";
     } else if (
-      (lowerReply.includes("capela") || lowerReply.includes("hortênsias") || lowerReply.includes("hortensias")) &&
-      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("imperial") || lowerReply.includes("bela vista"))
+      (lowerReply.includes("prime") || lowerReply.includes("cerimônia") || lowerReply.includes("cerimonia")) &&
+      (lowerReply.includes("salão") || lowerReply.includes("salao") || lowerReply.includes("festa") || lowerReply.includes("recepção") || lowerReply.includes("recepcao"))
     ) {
       action = "show_both_maps";
     }
