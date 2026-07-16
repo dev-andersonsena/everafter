@@ -226,11 +226,11 @@ export default function App() {
           {/* Initials Logo */}
           <button 
             onClick={() => scrollToSection('inicio')}
-            className={`font-serif italic font-medium text-lg tracking-widest cursor-pointer select-none transition-colors duration-300 ${
-              isScrolled ? 'text-gold-800' : 'text-gold-600'
+            className={`font-serif font-medium text-sm tracking-[0.25em] uppercase cursor-pointer select-none transition-colors duration-300 ${
+              isScrolled ? 'text-gold-800 hover:text-gold-950' : 'text-gold-700 hover:text-gold-900'
             }`}
           >
-            H <span className="text-xs">&</span> A
+            A <span className="font-handwriting text-base text-gold-500 lowercase font-normal normal-case italic">e</span> H
           </button>
 
           {/* Desktop Navigation */}
@@ -316,7 +316,7 @@ export default function App() {
       <footer id="app-footer" className="bg-gold-100/50 py-16 text-center border-t border-gold-200/30 px-4 font-sans text-xs text-gold-700">
         <div className="max-w-md mx-auto flex flex-col items-center gap-4">
           <Heart size={16} className="text-gold-500 fill-current animate-pulse mb-1" />
-          <p className="font-serif italic text-gold-600 text-lg">Henderson & Alana</p>
+          <p className="font-serif uppercase tracking-[0.18em] text-gold-800 text-sm font-medium">Alana &amp; Henderson</p>
           <p className="tracking-wider">Feito com amor • 07 de Setembro de 2026</p>
           
           {/* Admin and Reception Desk Shortcuts */}

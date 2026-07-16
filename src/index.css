@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&family=Alex+Brush&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&family=Alex+Brush&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-handwriting: "Alex Brush", cursive;
+  --font-serif: "Cinzel", "Playfair Display", Georgia, serif;
+  --font-handwriting: "Pinyon Script", "Alex Brush", cursive;
   
   --color-gold-50: #fdfaf7;
   --color-gold-100: #f7ede4;

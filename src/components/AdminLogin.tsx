@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, ArrowLeft, Eye, EyeOff, ShieldAlert, Heart } from 'lucide-react';
 import { motion } from 'motion/react';
+import Logo from './Logo';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -99,33 +100,10 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
         className="relative z-20 w-full max-w-[420px] bg-white/70 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-white/50 shadow-2xl flex flex-col items-center"
       >
         {/* Monogram Section (The requested logo background) */}
-        <div className="w-full text-center mb-6">
-          <svg viewBox="0 0 200 200" className="w-32 h-32 text-gold-500 fill-none stroke-current mx-auto -mt-4">
-            {/* Elegant oval border */}
-            <ellipse cx="100" cy="95" rx="58" ry="68" strokeWidth="1" strokeDasharray="3 2" className="text-gold-400/40" />
-            <ellipse cx="100" cy="95" rx="55" ry="65" strokeWidth="1" className="text-gold-500/70" />
-            
-            {/* Initials */}
-            <text x="68" y="105" fontFamily="var(--font-serif)" fontSize="42" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">A</text>
-            <text x="96" y="112" fontFamily="var(--font-serif)" fontSize="28" fill="currentColor" stroke="none" fontWeight="300" fontStyle="italic" className="text-gold-500">&amp;</text>
-            <text x="112" y="122" fontFamily="var(--font-serif)" fontSize="42" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">H</text>
-            
-            {/* Fine branches decoration */}
-            <path d="M 52,110 Q 40,100 38,85" strokeWidth="0.8" className="text-gold-400/60" />
-            <path d="M 38,85 Q 42,65 52,55" strokeWidth="0.6" className="text-gold-400/60" />
-            <circle cx="38" cy="85" r="1.5" fill="currentColor" stroke="none" className="text-gold-500" />
-            
-            <path d="M 148,110 Q 160,100 162,85" strokeWidth="0.8" className="text-gold-400/60" />
-            <path d="M 162,85 Q 158,65 148,55" strokeWidth="0.6" className="text-gold-400/60" />
-            <circle cx="162" cy="85" r="1.5" fill="currentColor" stroke="none" className="text-gold-500" />
-            
-            {/* Small floral emblem at bottom */}
-            <circle cx="100" cy="160" r="2" fill="currentColor" stroke="none" className="text-gold-600" />
-            <path d="M 100,160 Q 94,155 96,151 Q 100,154 100,160" fill="currentColor" stroke="none" className="text-gold-500/70" />
-            <path d="M 100,160 Q 106,155 104,151 Q 100,154 100,160" fill="currentColor" stroke="none" className="text-gold-500/70" />
-          </svg>
+        <div className="w-full flex flex-col items-center mb-4">
+          <Logo size="md" className="-mt-2" />
           
-          <h2 className="font-serif text-2xl text-gold-900 mt-2 tracking-wide font-semibold">
+          <h2 className="font-serif text-2xl text-gold-900 mt-1 tracking-wide font-semibold">
             {isRecepcao ? 'Controle de Portaria' : 'Painel dos Noivos'}
           </h2>
           <p className="text-gold-600/80 text-xs mt-1 uppercase tracking-widest font-semibold font-sans">

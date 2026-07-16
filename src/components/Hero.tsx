@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, Calendar, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
 import { weddingDetails } from '../data';
+import Logo from './Logo';
 
 interface TimeLeft {
   days: number;
@@ -99,38 +100,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
-          className="mb-6"
+          className="mb-6 flex flex-col items-center"
         >
-          <svg viewBox="0 0 200 200" className="w-36 h-36 sm:w-44 sm:h-44 text-gold-500 fill-none stroke-current mx-auto">
-            {/* Elegant oval border */}
-            <ellipse cx="100" cy="95" rx="58" ry="68" strokeWidth="1" strokeDasharray="3 2" className="text-gold-400/40" />
-            <ellipse cx="100" cy="95" rx="55" ry="65" strokeWidth="1" className="text-gold-500/70" />
-            
-            {/* Initials */}
-            <text x="68" y="105" fontFamily="var(--font-serif)" fontSize="42" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">A</text>
-            <text x="96" y="112" fontFamily="var(--font-serif)" fontSize="28" fill="currentColor" stroke="none" fontWeight="300" fontStyle="italic" className="text-gold-500">&</text>
-            <text x="112" y="122" fontFamily="var(--font-serif)" fontSize="42" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">H</text>
-            
-            {/* Fine branches decoration */}
-            <path d="M 52,110 Q 40,100 38,85" strokeWidth="0.8" className="text-gold-400/60" />
-            <path d="M 38,85 Q 42,65 52,55" strokeWidth="0.6" className="text-gold-400/60" />
-            <circle cx="38" cy="85" r="1.5" fill="currentColor" stroke="none" className="text-gold-500" />
-            
-            <path d="M 148,110 Q 160,100 162,85" strokeWidth="0.8" className="text-gold-400/60" />
-            <path d="M 162,85 Q 158,65 148,55" strokeWidth="0.6" className="text-gold-400/60" />
-            <circle cx="162" cy="85" r="1.5" fill="currentColor" stroke="none" className="text-gold-500" />
-            
-            {/* Small floral emblem at bottom */}
-            <circle cx="100" cy="160" r="2" fill="currentColor" stroke="none" className="text-gold-600" />
-            <path d="M 100,160 Q 94,155 96,151 Q 100,154 100,160" fill="currentColor" stroke="none" className="text-gold-500/70" />
-            <path d="M 100,160 Q 106,155 104,151 Q 100,154 100,160" fill="currentColor" stroke="none" className="text-gold-500/70" />
-          </svg>
-          <div className="text-[10px] uppercase tracking-[0.25em] text-gold-600 font-semibold -mt-2">
-            Alana & Henderson
-          </div>
-          <div className="text-[8px] uppercase tracking-[0.3em] text-gold-400 mt-0.5">
-            Para Sempre
-          </div>
+          <Logo size="xl" />
         </motion.div>
 
         {/* Parents Blessing */}
@@ -138,9 +110,9 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.2, delay: 0.3 }}
-          className="mb-6 px-4"
+          className="mb-8 px-4"
         >
-          <p className="font-serif italic text-gold-600 text-base md:text-lg">
+          <p className="font-handwriting text-gold-600 text-3xl md:text-4xl">
             Com a Benção de Deus e de nossos pais;
           </p>
         </motion.div>
@@ -150,21 +122,21 @@ export default function Hero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5 }}
-          className="grid grid-cols-2 gap-8 sm:gap-16 w-full max-w-lg mb-8 px-4"
+          className="grid grid-cols-2 gap-8 sm:gap-16 w-full max-w-lg mb-10 px-4"
         >
           <div className="text-center">
-            <p className="font-serif text-xs uppercase tracking-[0.18em] font-medium text-gold-800 leading-relaxed">
+            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed">
               Eva Ferreira
             </p>
-            <p className="font-serif text-xs uppercase tracking-[0.18em] font-medium text-gold-800 leading-relaxed mt-1">
+            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed mt-1.5">
               Francisco Matos
             </p>
           </div>
           <div className="text-center">
-            <p className="font-serif text-xs uppercase tracking-[0.18em] font-medium text-gold-800 leading-relaxed">
+            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed">
               Fátima Brasil
             </p>
-            <p className="font-serif text-xs uppercase tracking-[0.18em] font-medium text-gold-800 leading-relaxed mt-1">
+            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed mt-1.5">
               Anderson Brasil
             </p>
           </div>
@@ -175,12 +147,12 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="mb-4 px-4"
+          className="mb-6 px-4"
         >
-          <h1 className="font-serif text-gold-800 uppercase tracking-[0.12em] leading-tight">
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light">Alana Letícia</span>
-            <span className="block text-lg italic my-2 font-serif text-gold-500">&amp;</span>
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light">Henderson Venicius</span>
+          <h1 className="font-serif text-gold-800 uppercase leading-none">
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.18em]">Alana Letícia</span>
+            <span className="block text-4xl sm:text-5xl font-handwriting my-5 text-gold-500 normal-case">e</span>
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.18em]">Henderson Venicius</span>
           </h1>
         </motion.div>
 

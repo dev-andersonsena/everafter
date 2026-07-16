@@ -3,6 +3,7 @@ import { Heart, CheckCircle2, Clock, ArrowLeft, Sparkles, AlertCircle, Calendar 
 import { motion } from 'motion/react';
 import { Guest } from '../types';
 import { getGoogleCalendarUrl, downloadIcsFile } from '../utils/calendar';
+import Logo from './Logo';
 
 interface RSVPSuccessProps {
   guest: Guest;
@@ -33,38 +34,7 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
       
       {/* High-fidelity Vector Representation of the custom Alana & Henderson Monogram Logo in the Background */}
       <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] sm:opacity-[0.08] pointer-events-none select-none z-0 overflow-hidden">
-        <svg viewBox="0 0 500 500" className="w-[85vw] h-[85vw] max-w-[550px] max-h-[550px] text-gold-700 stroke-current fill-none">
-          {/* Inner dashed ellipse */}
-          <ellipse cx="250" cy="235" rx="145" ry="175" strokeWidth="1.5" strokeDasharray="4 3" />
-          {/* Outer elegant solid ellipse */}
-          <ellipse cx="250" cy="235" rx="153" ry="183" strokeWidth="2" />
-          
-          {/* Top/Bottom Leafy branch motifs mirroring the uploaded image */}
-          <g strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gold-600">
-            {/* Top accent */}
-            <path d="M 250 40 C 255 45, 262 45, 265 40 C 262 35, 255 35, 250 40 Z" fill="currentColor" />
-            <path d="M 250 40 C 245 45, 238 45, 235 40 C 238 35, 245 35, 250 40 Z" fill="currentColor" />
-            
-            {/* Left accent leaf */}
-            <path d="M 85 235 C 80 230, 80 223, 85 220 C 90 223, 90 230, 85 235 Z" fill="currentColor" />
-            
-            {/* Right accent leaf */}
-            <path d="M 415 235 C 420 230, 420 223, 415 220 C 410 223, 410 230, 415 235 Z" fill="currentColor" />
-
-            {/* Bottom beautiful petal loop */}
-            <path d="M 250 425 C 247 433, 240 435, 236 430 C 240 423, 247 421, 250 425" fill="currentColor" />
-            <path d="M 250 425 C 253 433, 260 435, 264 430 C 260 423, 253 421, 250 425" fill="currentColor" />
-          </g>
-
-          {/* Centered Serif Logo letters "A & H" */}
-          <text x="175" y="260" fontFamily="'Playfair Display', 'Didot', 'Georgia', serif" fontSize="105" fill="currentColor" stroke="none" fontWeight="300">A</text>
-          <text x="238" y="278" fontFamily="'Playfair Display', 'Didot', 'Georgia', serif" fontSize="62" fill="currentColor" stroke="none" fontWeight="300" fontStyle="italic" className="opacity-80">&amp;</text>
-          <text x="278" y="302" fontFamily="'Playfair Display', 'Didot', 'Georgia', serif" fontSize="105" fill="currentColor" stroke="none" fontWeight="300">H</text>
-
-          {/* Subtexts under the logo frame */}
-          <text x="250" y="455" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="14" fill="currentColor" stroke="none" letterSpacing="6" fontWeight="600" className="uppercase">Alana &amp; Henderson</text>
-          <text x="250" y="478" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="10" fill="currentColor" stroke="none" letterSpacing="4" fontWeight="500" className="uppercase opacity-75">Para Sempre</text>
-        </svg>
+        <Logo className="w-[85vw] h-[85vw] max-w-[550px] max-h-[550px]" />
       </div>
 
       {/* Floating floral/peachy leaf particles */}
@@ -122,15 +92,8 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
           </motion.div>
 
           {/* Monogram Logo in the Header of the Card itself */}
-          <div className="mb-4">
-            <svg viewBox="0 0 200 200" className="w-16 h-16 text-gold-500 fill-none stroke-current mx-auto">
-              <ellipse cx="100" cy="95" rx="55" ry="65" strokeWidth="1" strokeDasharray="3 2" className="text-gold-400/30" />
-              <ellipse cx="100" cy="95" rx="52" ry="62" strokeWidth="1" className="text-gold-500/60" />
-              
-              <text x="69" y="105" fontFamily="var(--font-serif)" fontSize="40" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">A</text>
-              <text x="96" y="112" fontFamily="var(--font-serif)" fontSize="26" fill="currentColor" stroke="none" fontWeight="300" fontStyle="italic" className="text-gold-500">&amp;</text>
-              <text x="111" y="122" fontFamily="var(--font-serif)" fontSize="40" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">H</text>
-            </svg>
+          <div className="mb-2 flex justify-center">
+            <Logo size="sm" />
           </div>
 
           <h3 className="font-serif text-2xl sm:text-3xl text-gold-900 font-bold mb-2">

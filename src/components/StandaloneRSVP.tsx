@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, User, Users, Mail, Phone, MessageSquare, ArrowLeft, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Guest } from '../types';
+import Logo from './Logo';
 
 interface StandaloneRSVPProps {
   onClose: () => void;
@@ -152,18 +153,8 @@ export default function StandaloneRSVP({ onClose, onSuccess }: StandaloneRSVPPro
             className="relative z-20 w-full max-w-[550px] bg-white/70 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-white/60 shadow-2xl flex flex-col"
           >
             {/* Elegant Emblem & Monogram header */}
-            <div className="w-full text-center mb-6">
-              <svg viewBox="0 0 200 200" className="w-24 h-24 text-gold-500 fill-none stroke-current mx-auto -mt-2">
-                <ellipse cx="100" cy="95" rx="55" ry="65" strokeWidth="1" strokeDasharray="3 2" className="text-gold-400/30" />
-                <ellipse cx="100" cy="95" rx="52" ry="62" strokeWidth="1" className="text-gold-500/60" />
-                
-                <text x="69" y="105" fontFamily="var(--font-serif)" fontSize="40" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">A</text>
-                <text x="96" y="112" fontFamily="var(--font-serif)" fontSize="26" fill="currentColor" stroke="none" fontWeight="300" fontStyle="italic" className="text-gold-500">&amp;</text>
-                <text x="111" y="122" fontFamily="var(--font-serif)" fontSize="40" fill="currentColor" stroke="none" fontWeight="300" className="text-gold-700">H</text>
-                
-                {/* Petal designs */}
-                <circle cx="100" cy="155" r="2" fill="currentColor" stroke="none" className="text-gold-600" />
-              </svg>
+            <div className="w-full flex flex-col items-center mb-4">
+              <Logo size="md" className="-mt-2" />
               
               <h2 className="font-serif text-2xl sm:text-3xl text-gold-900 mt-2 tracking-wide font-bold">
                 Confirmar Presença
