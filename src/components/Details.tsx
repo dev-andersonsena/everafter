@@ -1,4 +1,4 @@
-import { MapPin, Clock, Shirt, Info, Car, CalendarHeart } from 'lucide-react';
+import { MapPin, Clock, Info, Car, CalendarHeart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { weddingDetails } from '../data';
 
@@ -144,69 +144,42 @@ export default function Details() {
 
         </div>
 
-        {/* Dress code and additional info rows */}
-        <div className="grid md:grid-cols-3 gap-6">
+        {/* Additional info rows */}
+        <div className="max-w-2xl mx-auto">
           
-          {/* Dress Code Card */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="md:col-span-2 bg-watercolor-soft text-gold-950 rounded-3xl p-8 shadow-sm border border-gold-200/40 flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gold-500/10 rounded-xl text-gold-600">
-                  <Shirt size={20} />
-                </div>
-                <h4 className="font-serif text-xl text-gold-800 font-bold">Traje: {weddingDetails.dressCode}</h4>
-              </div>
-              <p className="text-sm leading-relaxed text-gold-900/90 font-sans font-medium">
-                {weddingDetails.dressCodeDescription}
-              </p>
-            </div>
-            
-            <div className="w-full h-[1px] bg-gold-200/30 my-6" />
-            
-            <p className="text-xs text-gold-600 italic font-serif font-semibold">
-              * Sua presença com um traje confortável e adequado ao nosso dia fará as fotos ainda mais belas!
-            </p>
-          </motion.div>
-
           {/* Tips / Recs Card */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-white rounded-3xl p-8 border border-stone-100 flex flex-col justify-between"
+            transition={{ duration: 0.8 }}
+            className="bg-white rounded-3xl p-8 sm:p-10 border border-gold-100/50 shadow-sm flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gold-100/80 rounded-xl text-gold-600">
-                  <Info size={20} />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 bg-gold-100 rounded-xl text-gold-600">
+                  <Info size={22} />
                 </div>
-                <h4 className="font-serif text-lg text-stone-900">Dicas da Serra</h4>
+                <h4 className="font-serif text-2xl text-gold-800 font-bold">Dicas da Serra</h4>
               </div>
               
-              <ul className="space-y-3 text-xs text-stone-600 font-sans">
-                <li className="flex gap-2">
-                  <Car size={14} className="text-gold-400 shrink-0 mt-0.5" />
-                  <span>Estacionamento privativo gratuito no local da recepção.</span>
+              <ul className="space-y-4 text-sm text-gold-900/80 font-sans font-medium">
+                <li className="flex gap-3 items-start">
+                  <Car size={18} className="text-gold-500 shrink-0 mt-0.5" />
+                  <span>Estacionamento privativo gratuito no local da recepção (Salão Imperial).</span>
                 </li>
-                <li className="flex gap-2">
-                  <Info size={14} className="text-gold-400 shrink-0 mt-0.5" />
-                  <span>Gramado costuma esfriar no final da tarde. Sugerimos trazer agasalho.</span>
+                <li className="flex gap-3 items-start">
+                  <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
+                  <span>Gramado costuma esfriar no final da tarde. Sugerimos trazer um bom agasalho para seu conforto.</span>
                 </li>
-                <li className="flex gap-2">
-                  <Info size={14} className="text-gold-400 shrink-0 mt-0.5" />
-                  <span>Recomendamos reservar hospedagem com antecedência devido à alta temporada.</span>
+                <li className="flex gap-3 items-start">
+                  <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
+                  <span>Como o casamento é em feriado nacional (alta temporada), recomendamos reservar sua hospedagem com antecedência.</span>
                 </li>
               </ul>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-stone-100 text-[11px] text-stone-400 text-center uppercase tracking-widest font-sans">
+            <div className="mt-8 pt-6 border-t border-gold-100 text-xs text-gold-500 text-center uppercase tracking-widest font-sans font-semibold">
               Gramado • RS
             </div>
           </motion.div>
