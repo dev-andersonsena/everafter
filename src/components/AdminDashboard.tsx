@@ -383,28 +383,6 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-stone-400 text-[10px] uppercase tracking-wider mb-1.5 font-semibold">
-                      Limite de Acompanhantes
-                    </label>
-                    <div className="flex gap-2">
-                      {[0, 1, 2, 3, 4, 5].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => setAcompanhantesLimite(num)}
-                          className={`flex-1 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
-                            acompanhantesLimite === num
-                              ? 'bg-gold-400 text-stone-950 border-gold-300'
-                              : 'bg-stone-950 border-stone-800 text-stone-400 hover:text-stone-300'
-                          }`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <button
                     type="submit"
                     className="w-full py-3 mt-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-gold-300/40 hover:text-gold-300 text-stone-200 text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
@@ -483,7 +461,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                               {/* Confirmed Badge */}
                               {guest.confirmado === true && (
                                 <span className="bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                  Confirmado ({1 + guest.acompanhantes})
+                                  Confirmado
                                 </span>
                               )}
                               {guest.confirmado === false && (
@@ -509,28 +487,12 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-stone-400">
                               {guest.telefone && <span>📞 {guest.telefone}</span>}
                               {guest.email && <span className="text-stone-500">✉️ {guest.email}</span>}
-                              <span>Acomp. Perm.: {guest.acompanhantes_limite}</span>
                             </div>
 
-                            {/* Show actual companions if confirmed */}
-                            {guest.confirmado === true && guest.acompanhantes_nomes.length > 0 && (
-                              <div className="pt-1">
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest font-semibold">Acompanhantes confirmados:</p>
-                                <p className="text-xs text-stone-300 italic font-serif mt-0.5">
-                                  {guest.acompanhantes_nomes.join(', ')}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Show dietary restriction or message */}
-                            {guest.confirmado === true && (guest.restricao_alimentar || guest.mensagem) && (
+                            {/* Show message if exists */}
+                            {guest.confirmado === true && guest.mensagem && (
                               <div className="mt-1 pt-1 border-t border-stone-800/40 text-[11px] space-y-0.5">
-                                {guest.restricao_alimentar && (
-                                  <p className="text-stone-400"><strong className="text-gold-200">Restrição:</strong> {guest.restricao_alimentar}</p>
-                                )}
-                                {guest.mensagem && (
-                                  <p className="text-stone-500 italic">"{guest.mensagem}"</p>
-                                )}
+                                <p className="text-stone-500 italic">"{guest.mensagem}"</p>
                               </div>
                             )}
 

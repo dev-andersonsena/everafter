@@ -170,9 +170,6 @@ async function initDb() {
         telefone VARCHAR(50),
         acompanhantes_limite INTEGER DEFAULT 0,
         confirmado BOOLEAN,
-        acompanhantes INTEGER DEFAULT 0,
-        acompanhantes_nomes TEXT,
-        restricao_alimentar TEXT,
         mensagem TEXT,
         mesa VARCHAR(50),
         check_in BOOLEAN DEFAULT FALSE,
@@ -180,6 +177,16 @@ async function initDb() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Auto-migrate: Drop columns that are no longer needed
+    try {
+      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS acompanhantes;`);
+      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS acompanhantes_nomes;`);
+      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS restricao_alimentar;`);
+      console.log("🟢 Colunas desnecessárias removidas com sucesso (se existiam).");
+    } catch (migError) {
+      console.warn("⚠️ Nota sobre migração de colunas:", migError);
+    }
     
     // Create 'invitation_access' table for Analytics
     await client.query(`
@@ -213,11 +220,11 @@ async function getGuests(): Promise<Guest[]> {
       nome: row.nome,
       email: row.email,
       telefone: row.telefone,
-      acompanhantes_limite: row.acompanhantes_limite,
+      acompanhantes_limite: row.acompanhantes_limite || 0,
       confirmado: row.confirmado,
-      acompanhantes: row.acompanhantes,
-      acompanhantes_nomes: row.acompanhantes_nomes ? JSON.parse(row.acompanhantes_nomes) : [],
-      restricao_alimentar: row.restricao_alimentar || '',
+      acompanhantes: 0,
+      acompanhantes_nomes: [],
+      restricao_alimentar: '',
       mensagem: row.mensagem || '',
       mesa: row.mesa || '',
       check_in: row.check_in || false,
@@ -238,11 +245,11 @@ async function getGuestById(id: string): Promise<Guest | null> {
       nome: row.nome,
       email: row.email,
       telefone: row.telefone,
-      acompanhantes_limite: row.acompanhantes_limite,
+      acompanhantes_limite: row.acompanhantes_limite || 0,
       confirmado: row.confirmado,
-      acompanhantes: row.acompanhantes,
-      acompanhantes_nomes: row.acompanhantes_nomes ? JSON.parse(row.acompanhantes_nomes) : [],
-      restricao_alimentar: row.restricao_alimentar || '',
+      acompanhantes: 0,
+      acompanhantes_nomes: [],
+      restricao_alimentar: '',
       mensagem: row.mensagem || '',
       mesa: row.mesa || '',
       check_in: row.check_in || false,
@@ -293,11 +300,11 @@ async function addPublicGuestRSVP(g: {
     nome: g.nome,
     email: g.email || "",
     telefone: g.telefone || "",
-    acompanhantes_limite: g.acompanhantes,
+    acompanhantes_limite: 0,
     confirmado: true,
-    acompanhantes: g.acompanhantes,
-    acompanhantes_nomes: g.acompanhantes_nomes || [],
-    restricao_alimentar: g.restricao_alimentar || '',
+    acompanhantes: 0,
+    acompanhantes_nomes: [],
+    restricao_alimentar: '',
     mensagem: g.mensagem || '',
     mesa: '',
     check_in: false,
@@ -308,20 +315,15 @@ async function addPublicGuestRSVP(g: {
   if (usePostgres) {
     await pool.query(`
       INSERT INTO dados.registro (
-        id, nome, email, telefone, acompanhantes_limite, confirmado, 
-        acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem
+        id, nome, email, telefone, confirmado, mensagem
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6)
     `, [
       newGuest.id,
       newGuest.nome,
       newGuest.email,
       newGuest.telefone,
-      newGuest.acompanhantes_limite,
       newGuest.confirmado,
-      newGuest.acompanhantes,
-      JSON.stringify(newGuest.acompanhantes_nomes),
-      newGuest.restricao_alimentar,
       newGuest.mensagem
     ]);
   } else {
@@ -349,17 +351,17 @@ async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: n
   if (usePostgres) {
     const res = await pool.query(`
       UPDATE dados.registro
-      SET confirmado = $1, acompanhantes = $2, acompanhantes_nomes = $3, restricao_alimentar = $4, mensagem = $5
-      WHERE id = $6
-    `, [confirmado, acompanhantes, JSON.stringify(acompanhantes_nomes), restricao, mensagem, id]);
+      SET confirmado = $1, mensagem = $2
+      WHERE id = $3
+    `, [confirmado, mensagem, id]);
     return (res.rowCount ?? 0) > 0;
   } else {
     const g = memoryGuests.find(g => g.id === id);
     if (g) {
       g.confirmado = confirmado;
-      g.acompanhantes = acompanhantes;
-      g.acompanhantes_nomes = acompanhantes_nomes;
-      g.restricao_alimentar = restricao;
+      g.acompanhantes = 0;
+      g.acompanhantes_nomes = [];
+      g.restricao_alimentar = '';
       g.mensagem = mensagem;
       return true;
     }

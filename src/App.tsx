@@ -124,6 +124,11 @@ export default function App() {
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
+    if (id === 'rsvp') {
+      setViewMode('rsvp');
+      window.history.pushState({}, '', '?rsvp=new');
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -309,6 +314,10 @@ export default function App() {
               setViewMode('rsvp_success');
             }
           }} 
+          onRequestStandaloneRSVP={() => {
+            setViewMode('rsvp');
+            window.history.pushState({}, '', '?rsvp=new');
+          }}
         />
       </main>
 

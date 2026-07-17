@@ -6,9 +6,10 @@ import { Guest } from '../types';
 interface RSVPProps {
   guest?: Guest | null;
   onRsvpSubmit?: (updatedGuest: Guest) => void;
+  onRequestStandaloneRSVP?: () => void;
 }
 
-export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
+export default function RSVP({ guest, onRsvpSubmit, onRequestStandaloneRSVP }: RSVPProps) {
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -381,10 +382,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsPublicRegister(true);
-                      setSearchName('');
-                      setSearchResults([]);
-                      setSearchError('');
+                      if (onRequestStandaloneRSVP) {
+                        onRequestStandaloneRSVP();
+                      } else {
+                        setIsPublicRegister(true);
+                        setSearchName('');
+                        setSearchResults([]);
+                        setSearchError('');
+                      }
                     }}
                     className="w-full py-3.5 bg-gold-50/50 hover:bg-gold-100/50 text-gold-700 hover:text-gold-800 border border-gold-200 rounded-xl text-xs font-bold uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2 shadow-sm"
                   >
@@ -488,72 +493,6 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                   />
                 </div>
 
-                {/* Companion count (up to 5) */}
-                <div>
-                  <label className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-3">
-                    Quantidade de acompanhantes *
-                  </label>
-                  <div className="flex gap-2">
-                    {[0, 1, 2, 3, 4, 5].map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => handleCompanionCountChange(num)}
-                        disabled={loading}
-                        className={`flex-1 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
-                          companionCount === num
-                            ? 'bg-gold-600 text-white border-gold-600 shadow-sm'
-                            : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
-                        }`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Companion Names (dynamic fields) */}
-                {companionCount > 0 && (
-                  <div className="space-y-3 bg-gold-50/30 border border-gold-200/50 p-4 rounded-xl">
-                    <p className="text-gold-700 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5 font-bold">
-                      <Users size={14} className="text-gold-500" />
-                      Nome completo dos acompanhantes
-                    </p>
-                    {companions.map((companion, idx) => (
-                      <div key={idx} className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold-500 text-xs font-bold">
-                          #{idx + 1}
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          placeholder={`Nome do acompanhante ${idx + 1}`}
-                          value={companion}
-                          onChange={(e) => handleCompanionNameChange(idx, e.target.value)}
-                          disabled={loading}
-                          className="w-full bg-white border border-gold-200 rounded-lg py-2.5 pl-10 pr-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Dietary restrictions */}
-                <div>
-                  <label htmlFor="pub-dietary" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2">
-                    Restrições alimentares / Alergias (Opcional)
-                  </label>
-                  <input
-                    id="pub-dietary"
-                    type="text"
-                    placeholder="Vegetariano, Vegano, Sem glúten, Lactose, etc."
-                    value={dietaryRestrictions}
-                    onChange={(e) => setDietaryRestrictions(e.target.value)}
-                    disabled={loading}
-                    className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
-                  />
-                </div>
-
                 {/* Message to couple */}
                 <div>
                   <label htmlFor="pub-message" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5">
@@ -645,39 +584,14 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                   <p className="font-serif text-lg text-gold-800 mt-0.5 font-bold">{activeGuest.nome}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gold-200/60">
+                <div className="pt-2 border-t border-gold-200/60">
                   <div>
                     <p className="text-gold-600 text-[10px] uppercase tracking-widest font-bold">Status de RSVP</p>
                     <p className={`font-serif text-base mt-0.5 font-bold ${activeGuest.confirmado ? 'text-green-600' : 'text-red-500'}`}>
                       {activeGuest.confirmado ? 'Presença Confirmada' : 'Não Comparecerá'}
                     </p>
                   </div>
-
-                  {activeGuest.confirmado && (
-                    <div>
-                      <p className="text-gold-600 text-[10px] uppercase tracking-widest font-bold">Acompanhantes</p>
-                      <p className="font-serif text-base mt-0.5 text-gold-800 font-bold">{activeGuest.acompanhantes}</p>
-                    </div>
-                  )}
                 </div>
-
-                {activeGuest.confirmado && activeGuest.acompanhantes_nomes.length > 0 && (
-                  <div className="pt-3 border-t border-gold-200/60">
-                    <p className="text-gold-600 text-[10px] uppercase tracking-widest mb-1 font-bold">Acompanhantes Confirmados</p>
-                    <ul className="list-disc pl-4 text-xs text-gold-850 space-y-1 font-serif">
-                      {activeGuest.acompanhantes_nomes.map((comp, idx) => (
-                        <li key={idx} className="font-medium">{comp}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                {activeGuest.restricao_alimentar && (
-                  <div className="pt-3 border-t border-gold-200/60 text-xs">
-                    <p className="text-gold-600 text-[10px] uppercase tracking-widest mb-1 font-bold">Restrições alimentares</p>
-                    <p className="text-gold-850 font-serif font-medium">{activeGuest.restricao_alimentar}</p>
-                  </div>
-                )}
 
                 {activeGuest.mensagem && (
                   <div className="pt-3 border-t border-gold-200/60">
@@ -787,91 +701,6 @@ export default function RSVP({ guest, onRsvpSubmit }: RSVPProps) {
                     </button>
                   </div>
                 </div>
-
-                <AnimatePresence>
-                  {isAttending === true && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-6 overflow-hidden"
-                    >
-                      
-                      {/* Companion Selector - DYNAMIC BASED ON GUEST LIMIT */}
-                      {activeGuest.acompanhantes_limite > 0 ? (
-                        <div>
-                          <label className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-3">
-                            Confirmar acompanhantes (Máximo de {activeGuest.acompanhantes_limite})
-                          </label>
-                          <div className="flex gap-2">
-                            {getCompanionOptions(activeGuest.acompanhantes_limite).map((num) => (
-                              <button
-                                key={num}
-                                type="button"
-                                onClick={() => handleCompanionCountChange(num)}
-                                disabled={loading}
-                                className={`flex-1 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition-all ${
-                                  companionCount === num
-                                    ? 'bg-gold-600 text-white border-gold-600'
-                                    : 'bg-gold-50/30 border-gold-200 text-gold-700 hover:bg-gold-100/50'
-                                }`}
-                              >
-                                {num}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-gold-50/40 p-3.5 rounded-xl border border-gold-200/50 text-gold-700/80 text-xs leading-relaxed font-semibold">
-                          ℹ️ Este convite é individual e intransferível (0 acompanhantes adicionais).
-                        </div>
-                      )}
-
-                      {/* Companion Names input fields */}
-                      {companionCount > 0 && (
-                        <div className="space-y-3 bg-gold-50/30 border border-gold-200/50 p-4 rounded-xl">
-                          <p className="text-gold-750 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5 font-bold">
-                            <Users size={14} className="text-gold-500" />
-                            Nome dos acompanhantes na lista
-                          </p>
-                          {companions.map((companion, idx) => (
-                            <div key={idx} className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold-500 text-xs font-bold">
-                                #{idx + 1}
-                              </span>
-                              <input
-                                type="text"
-                                required
-                                placeholder={`Nome completo do acompanhante ${idx + 1}`}
-                                value={companion}
-                                onChange={(e) => handleCompanionNameChange(idx, e.target.value)}
-                                disabled={loading}
-                                className="w-full bg-white border border-gold-200 rounded-lg py-2.5 pl-10 pr-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Dietary restrictions */}
-                      <div>
-                        <label htmlFor="dietary" className="block text-gold-800 text-xs uppercase tracking-widest font-bold mb-2">
-                          Restrições alimentares / Alergias (Opcional)
-                        </label>
-                        <input
-                          id="dietary"
-                          type="text"
-                          placeholder="Vegetariano, Vegano, Sem glúten, etc."
-                          value={dietaryRestrictions}
-                          onChange={(e) => setDietaryRestrictions(e.target.value)}
-                          disabled={loading}
-                          className="w-full bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/20"
-                        />
-                      </div>
-
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
                 {/* Message to couple */}
                 <div>
