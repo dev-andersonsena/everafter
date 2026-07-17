@@ -3,6 +3,8 @@ import { ChevronDown, Calendar, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
 import { weddingDetails } from '../data';
 import Logo from './Logo';
+import customDividerImage from '../assets/images/regenerated_image_1784242442181.png';
+
 
 interface TimeLeft {
   days: number;
@@ -100,71 +102,28 @@ export default function Hero() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
-          className="mb-6 flex flex-col items-center"
+          className="mb-8 flex flex-col items-center"
         >
           <Logo size="xl" />
         </motion.div>
 
-        {/* Parents Blessing */}
+        {/* Elegant Image Container requested by user */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2, delay: 0.3 }}
-          className="mb-8 px-4"
-        >
-          <p className="font-handwriting text-gold-600 text-3xl md:text-4xl">
-            Com a Benção de Deus e de nossos pais;
-          </p>
-        </motion.div>
-
-        {/* Parent Names Columns */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.5 }}
-          className="grid grid-cols-2 gap-8 sm:gap-16 w-full max-w-lg mb-10 px-4"
-        >
-          <div className="text-center">
-            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed">
-              Eva Ferreira
-            </p>
-            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed mt-1.5">
-              Francisco Matos
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed">
-              Fátima Brasil
-            </p>
-            <p className="font-serif text-xs sm:text-sm uppercase tracking-[0.2em] font-medium text-gold-800 leading-relaxed mt-1.5">
-              Anderson Brasil
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Big elegant couple names */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="mb-6 px-4"
+          transition={{ duration: 1.2, delay: 0.4 }}
+          className="mb-8 px-4 flex justify-center w-full max-w-2xl"
+          id="custom-hero-image-container"
         >
-          <h1 className="font-serif text-gold-800 uppercase leading-none">
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.18em]">Alana Letícia</span>
-            <span className="block text-4xl sm:text-5xl font-handwriting my-5 text-gold-500 normal-case">e</span>
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-[0.18em]">Henderson Venicius</span>
-          </h1>
+          <div className="relative w-full flex justify-center items-center">
+            <img 
+              src={customDividerImage} 
+              alt="Divisor Elegante de Casamento" 
+              className="w-full max-w-[550px] h-auto object-contain mix-blend-multiply opacity-95 transition-all duration-300 hover:scale-102"
+              referrerPolicy="no-referrer"
+            />
+          </div>
         </motion.div>
-
-        {/* Invitation Text */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.9 }}
-          transition={{ duration: 1.2, delay: 0.7 }}
-          className="text-[11px] sm:text-xs uppercase tracking-[0.25em] text-gold-600 font-semibold my-6 px-4"
-        >
-          Convidamos você para nosso casamento
-        </motion.p>
 
         {/* Elegant Date Dividers */}
         <motion.div
