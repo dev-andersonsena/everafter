@@ -246,8 +246,8 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
           <div className="bg-stone-900/45 border border-stone-800 rounded-2xl p-4">
             <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold">Total de Confirmados</p>
-            <p className="text-2xl font-serif text-green-400 mt-1">{totalConfirmedPeople}</p>
-            <p className="text-[10px] text-stone-400 mt-1">{confirmedAttending.length} titulares + {totalCompanionsConfirmed} acomp.</p>
+            <p className="text-2xl font-serif text-green-400 mt-1">{confirmedAttending.length}</p>
+            <p className="text-[10px] text-stone-400 mt-1">Convidados confirmados</p>
           </div>
 
           <div className="bg-stone-900/45 border border-stone-800 rounded-2xl p-4">
@@ -457,6 +457,9 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-serif text-base text-stone-200 font-semibold">{guest.nome}</span>
+                              <span className="bg-stone-800 border border-stone-700/60 text-gold-300 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" title="Código de busca do convite">
+                                Código: {guest.id.startsWith("guest_") ? guest.id.substring(6).toUpperCase() : guest.id.toUpperCase()}
+                              </span>
                               
                               {/* Confirmed Badge */}
                               {guest.confirmado === true && (

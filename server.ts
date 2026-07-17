@@ -347,13 +347,16 @@ async function deleteGuest(id: string): Promise<boolean> {
   }
 }
 
-async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: number, acompanhantes_nomes: string[], restricao: string, mensagem: string): Promise<boolean> {
+async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: number, acompanhantes_nomes: string[], restricao: string, mensagem: string, telefone?: string, email?: string): Promise<boolean> {
   if (usePostgres) {
     const res = await pool.query(`
       UPDATE dados.registro
-      SET confirmado = $1, mensagem = $2
-      WHERE id = $3
-    `, [confirmado, mensagem, id]);
+      SET confirmado = $1, 
+          mensagem = $2,
+          telefone = COALESCE(NULLIF($3, ''), telefone),
+          email = COALESCE(NULLIF($4, ''), email)
+      WHERE id = $5
+    `, [confirmado, mensagem, telefone || '', email || '', id]);
     return (res.rowCount ?? 0) > 0;
   } else {
     const g = memoryGuests.find(g => g.id === id);
@@ -363,6 +366,8 @@ async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: n
       g.acompanhantes_nomes = [];
       g.restricao_alimentar = '';
       g.mensagem = mensagem;
+      if (telefone) g.telefone = telefone;
+      if (email) g.email = email;
       return true;
     }
     return false;
@@ -484,6 +489,44 @@ app.get("/api/guests", async (req, res) => {
   }
 });
 
+// 1.5. Search a guest securely by exact full name or unique invitation code
+app.get("/api/guests/search", async (req, res) => {
+  try {
+    const q = req.query.q as string;
+    if (!q || q.trim().length < 3) {
+      return res.status(400).json({ error: "Por favor, digite ao menos 3 letras do nome completo ou o código do convite." });
+    }
+
+    const guests = await getGuests();
+    const queryNormalized = q.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // Look for exact normalized full name match OR unique invitation code (last part of id)
+    const matched = guests.filter(g => {
+      const dbNameNormalized = g.nome.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      
+      const guestCode = g.id.startsWith("guest_") ? g.id.substring(6).toUpperCase() : g.id.toUpperCase();
+      
+      return dbNameNormalized === queryNormalized || guestCode === q.trim().toUpperCase() || g.id === q.trim();
+    });
+
+    if (matched.length === 0) {
+      return res.status(404).json({ error: "Nenhum convite encontrado. Verifique se digitou o nome completo igual ao convite ou o código correto." });
+    }
+
+    res.json(matched);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 2. Add guest (Admin)
 app.post("/api/guests", async (req, res) => {
   try {
@@ -563,7 +606,7 @@ app.get("/api/guests/:id", async (req, res) => {
 // 5. RSVP confirmation
 app.post("/api/guests/:id/rsvp", async (req, res) => {
   try {
-    const { confirmado, acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem } = req.body;
+    const { confirmado, acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem, telefone, email } = req.body;
     const guest = await getGuestById(req.params.id);
     if (!guest) {
       return res.status(404).json({ error: "Convidado não encontrado." });
@@ -575,7 +618,9 @@ app.post("/api/guests/:id/rsvp", async (req, res) => {
       confirmado ? parseInt(acompanhantes || "0") : 0,
       confirmado ? (acompanhantes_nomes || []) : [],
       restricao_alimentar || "",
-      mensagem || ""
+      mensagem || "",
+      telefone,
+      email
     );
 
     if (!success) {

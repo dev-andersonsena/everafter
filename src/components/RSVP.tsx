@@ -90,29 +90,21 @@ export default function RSVP({ guest, onRsvpSubmit, onRequestStandaloneRSVP }: R
     setSearchResults([]);
     
     if (!searchName.trim() || searchName.trim().length < 3) {
-      setSearchError('Por favor, digite ao menos 3 letras do seu nome.');
+      setSearchError('Por favor, digite ao menos 3 letras do seu nome completo ou o código do convite.');
       return;
     }
 
     setSearching(true);
     try {
-      const res = await fetch('/api/guests');
+      const res = await fetch(`/api/guests/search?q=${encodeURIComponent(searchName.trim())}`);
       if (res.ok) {
-        const allGuests: Guest[] = await res.json();
-        const query = searchName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        
-        const filtered = allGuests.filter(g => {
-          const normalizedGuestName = g.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          return normalizedGuestName.includes(query);
-        });
-
-        if (filtered.length === 0) {
-          setSearchError('Nenhum convite encontrado com este nome. Por favor, verifique a grafia ou entre em contato com os noivos.');
-        } else {
-          setSearchResults(filtered);
-        }
+        const matchedGuests: Guest[] = await res.json();
+        setSearchResults(matchedGuests);
+      } else if (res.status === 404) {
+        setSearchError('Nenhum convite encontrado. Para garantir a sua privacidade, digite seu nome completo exatamente como registrado (ex: Carlos Henrique de Oliveira) ou o seu Código de Convite.');
       } else {
-        setSearchError('Erro ao consultar a lista de convidados.');
+        const errData = await res.json().catch(() => ({}));
+        setSearchError(errData.error || 'Erro ao consultar a lista de convidados.');
       }
     } catch (err) {
       setSearchError('Erro de conexão ao buscar convite.');
@@ -298,7 +290,7 @@ export default function RSVP({ guest, onRsvpSubmit, onRequestStandaloneRSVP }: R
                       <Search size={22} className="text-gold-500" />
                     </div>
                     <h3 className="font-serif text-lg text-gold-800 font-bold">Localize seu Convite</h3>
-                    <p className="text-gold-600/80 text-xs mt-1">Busque seu nome completo na lista de convidados pré-cadastrada pelos noivos.</p>
+                    <p className="text-gold-600/80 text-xs mt-1">Insira seu nome completo ou código de convite para localizar sua reserva de forma segura.</p>
                   </div>
 
                   <form onSubmit={handleSearchInvite} className="space-y-4">
@@ -312,7 +304,7 @@ export default function RSVP({ guest, onRsvpSubmit, onRequestStandaloneRSVP }: R
                       <input
                         type="text"
                         required
-                        placeholder="Nome completo (ex: Carlos Henrique)"
+                        placeholder="Nome completo ou Código (ex: ABC123)"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)}
                         className="flex-1 bg-gold-50/30 border border-gold-200 rounded-xl py-3 px-4 text-gold-900 text-xs focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-400/10"

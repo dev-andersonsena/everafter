@@ -32,9 +32,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
     | 'SELECT_GUEST'
     | 'CONFIRM_ATTENDANCE'
     | 'ASK_PHONE'
-    | 'ASK_COMPANION_COUNT'
-    | 'ASK_COMPANION_NAMES'
-    | 'ASK_DIETARY'
+    | 'ASK_EMAIL'
     | 'ASK_MESSAGE'
     | 'FINISHED'
   >(null);
@@ -45,18 +43,12 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
     email: string;
     telefone: string;
     confirmado: boolean | null;
-    acompanhantes: number;
-    acompanhantes_nomes: string[];
-    restricao_alimentar: string;
     mensagem: string;
   }>({
     nome: '',
     email: '',
     telefone: '',
     confirmado: null,
-    acompanhantes: 0,
-    acompanhantes_nomes: [],
-    restricao_alimentar: '',
     mensagem: '',
   });
 
@@ -246,9 +238,6 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
       email: '',
       telefone: '',
       confirmado: null,
-      acompanhantes: 0,
-      acompanhantes_nomes: [],
-      restricao_alimentar: '',
       mensagem: '',
     });
     setMatchedGuests([]);
@@ -354,63 +343,15 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
         const phoneInput = messageText.trim();
         setRsvpData(prev => ({ ...prev, telefone: phoneInput }));
         
-        setRsvpStep('ASK_COMPANION_COUNT');
-        const reply = `Anotado! Você levará algum acompanhante (como filhos, esposo ou esposa)? Se sim, quantos acompanhantes?`;
-        setMessages(prev => [...prev, { role: 'model', content: reply, action: 'ask_companions' }]);
+        setRsvpStep('ASK_EMAIL');
+        const reply = `Anotado! Agora, qual o seu e-mail para que possamos lhe enviar a confirmação oficial e atualizações importantes?`;
+        setMessages(prev => [...prev, { role: 'model', content: reply }]);
         speakText(reply);
       }
       
-      else if (rsvpStep === 'ASK_COMPANION_COUNT') {
-        const lower = messageText.toLowerCase();
-        let count = 0;
-        if (lower.includes('não') || lower.includes('nao') || lower.includes('nenhum') || lower.includes('apenas eu') || lower.includes('0')) {
-          count = 0;
-        } else {
-          const numMatch = messageText.match(/\d+/);
-          if (numMatch) {
-            count = parseInt(numMatch[0]);
-          } else if (lower.includes('um') || lower.includes('uma')) {
-            count = 1;
-          } else if (lower.includes('dois') || lower.includes('duas')) {
-            count = 2;
-          } else if (lower.includes('tres') || lower.includes('três')) {
-            count = 3;
-          } else if (lower.includes('quatro')) {
-            count = 4;
-          } else {
-            count = 0;
-          }
-        }
-        
-        setRsvpData(prev => ({ ...prev, acompanhantes: count }));
-        
-        if (count > 0) {
-          setRsvpStep('ASK_COMPANION_NAMES');
-          const reply = `Perfeito. Por favor, digite ou fale o nome completo de todos os seus ${count} acompanhante(s) (separados por vírgula se for mais de um):`;
-          setMessages(prev => [...prev, { role: 'model', content: reply }]);
-          speakText(reply);
-        } else {
-          setRsvpStep('ASK_DIETARY');
-          const reply = `Entendido! Apenas você. Você possui alguma restrição alimentar ou alergia? (Se não tiver nenhuma, basta responder "Não").`;
-          setMessages(prev => [...prev, { role: 'model', content: reply, action: 'ask_dietary' }]);
-          speakText(reply);
-        }
-      }
-      
-      else if (rsvpStep === 'ASK_COMPANION_NAMES') {
-        const names = messageText.split(',').map(n => n.trim()).filter(Boolean);
-        setRsvpData(prev => ({ ...prev, acompanhantes_nomes: names }));
-        
-        setRsvpStep('ASK_DIETARY');
-        const reply = `Ótimo, nomes registrados! Você ou seus acompanhantes têm alguma restrição alimentar ou alergia? (Se não tiver nenhuma, basta responder "Não").`;
-        setMessages(prev => [...prev, { role: 'model', content: reply, action: 'ask_dietary' }]);
-        speakText(reply);
-      }
-      
-      else if (rsvpStep === 'ASK_DIETARY') {
-        const dietaryInput = messageText.trim();
-        const finalDietary = (dietaryInput.toLowerCase() === 'não' || dietaryInput.toLowerCase() === 'nao' || dietaryInput.toLowerCase() === 'não tenho' || dietaryInput.toLowerCase() === 'nenhuma') ? '' : dietaryInput;
-        setRsvpData(prev => ({ ...prev, restricao_alimentar: finalDietary }));
+      else if (rsvpStep === 'ASK_EMAIL') {
+        const emailInput = messageText.trim();
+        setRsvpData(prev => ({ ...prev, email: emailInput }));
         
         setRsvpStep('ASK_MESSAGE');
         const reply = `Tudo certo! Para finalizarmos, gostaria de deixar uma mensagem curta de carinho para o casal? (Se não quiser, basta responder "Não").`;
@@ -438,10 +379,9 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 confirmado: finalRsvpData.confirmado,
-                acompanhantes: finalRsvpData.acompanhantes,
-                acompanhantes_nomes: finalRsvpData.acompanhantes_nomes,
-                restricao_alimentar: finalRsvpData.restricao_alimentar,
-                mensagem: finalRsvpData.mensagem
+                mensagem: finalRsvpData.mensagem,
+                telefone: finalRsvpData.telefone,
+                email: finalRsvpData.email
               })
             });
             apiSuccess = res.ok;
@@ -453,9 +393,6 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                 nome: finalRsvpData.nome,
                 email: finalRsvpData.email || 'assessor.virtual@casamento.com',
                 telefone: finalRsvpData.telefone,
-                acompanhantes: finalRsvpData.acompanhantes,
-                acompanhantes_nomes: finalRsvpData.acompanhantes_nomes,
-                restricao_alimentar: finalRsvpData.restricao_alimentar,
                 mensagem: finalRsvpData.mensagem
               })
             });
@@ -468,6 +405,25 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
         const reply = `Sua presença foi confirmada com sucesso! Gostaria que eu criasse um lembrete no dia da cerimônia para você?`;
         setMessages(prev => [...prev, { role: 'model', content: reply, action: 'ask_calendar_reminder' }]);
         speakText(reply);
+      }
+      
+      else if (rsvpStep === 'FINISHED') {
+        const lower = messageText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const wantsReminder = lower.includes('sim') || lower.includes('quero') || lower.includes('confirmar') || lower.includes('adicionar') || lower.includes('salvar') || lower.includes('lembrete');
+        
+        if (wantsReminder) {
+          const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Casamento+de+Alana+%26+Henderson&dates=20260907T180000Z/20260908T010000Z&details=Casamento+de+Alana+Leticia+%26+Henderson+Venicius.+Confirmado+com+sucesso+pelo+assessor+virtual!&location=Prime+Eventos,+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto`;
+          window.open(googleCalendarUrl, '_blank');
+          
+          const text = "Lembrete aberto! Você será direcionado para salvar o compromisso no seu calendário Google. Estaremos esperando você com muito carinho!";
+          setMessages(prev => [...prev, { role: 'model', content: text }]);
+          speakText(text);
+        } else {
+          const text = "Sem problemas! Estaremos esperando por você no dia 7 de Setembro às 15:00 no Prime Eventos.\n\nVou lhe fornecer a localização no mapa, caso no dia voce tiver duvidas, basta abrir o site que temos a localização ou se preferir so me pedir que lhe envio imediatamente!";
+          setMessages(prev => [...prev, { role: 'model', content: text, action: 'open_map_cerimonia' }]);
+          speakText(text);
+        }
+        setRsvpStep(null);
       }
     } catch (err) {
       console.error(err);
@@ -622,7 +578,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                 </div>
                 <div>
                   <h3 className="font-serif font-bold text-sm tracking-wide">Assessor de Casamento</h3>
-                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">CONCIERGE VIRTUAL POR VOZ</p>
+                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">IA</p>
                 </div>
               </div>
 
@@ -860,7 +816,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                                 }}
                                 className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-sans font-semibold rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1 border border-stone-200"
                               >
-                                💬 Tirar Dúvidas com I.A.
+                                💬 Tirar Dúvidas com IA.
                               </button>
                             </div>
                           </div>
@@ -905,63 +861,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                           </div>
                         )}
 
-                        {msg.action === 'ask_companions' && (
-                          <div className="flex flex-col gap-1.5">
-                            <p className="text-[10px] text-stone-500 font-sans font-medium mb-1">Selecione o número de acompanhantes:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              <button
-                                onClick={() => handleSendMessage('Não levarei acompanhantes')}
-                                className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-sans font-semibold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                Não levarei
-                              </button>
-                              <button
-                                onClick={() => handleSendMessage('1')}
-                                className="px-2.5 py-1.5 bg-gold-50 hover:bg-gold-100 border border-gold-200 text-gold-800 font-sans font-bold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                1 Acompanhante
-                              </button>
-                              <button
-                                onClick={() => handleSendMessage('2')}
-                                className="px-2.5 py-1.5 bg-gold-50 hover:bg-gold-100 border border-gold-200 text-gold-800 font-sans font-bold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                2 Acompanhantes
-                              </button>
-                              <button
-                                onClick={() => handleSendMessage('3')}
-                                className="px-2.5 py-1.5 bg-gold-50 hover:bg-gold-100 border border-gold-200 text-gold-800 font-sans font-bold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                3 Acompanhantes
-                              </button>
-                            </div>
-                          </div>
-                        )}
 
-                        {msg.action === 'ask_dietary' && (
-                          <div className="flex flex-col gap-1.5">
-                            <p className="text-[10px] text-stone-500 font-sans font-medium mb-1">Selecione uma opção ou responda por voz/texto:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              <button
-                                onClick={() => handleSendMessage('Não')}
-                                className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-sans font-semibold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                Não tenho restrições
-                              </button>
-                              <button
-                                onClick={() => handleSendMessage('Vegetariano / Vegano')}
-                                className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-sans font-semibold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                Vegetariano / Vegano
-                              </button>
-                              <button
-                                onClick={() => handleSendMessage('Intolerante a Lactose / Glúten')}
-                                className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-sans font-semibold rounded-lg text-xs transition-all cursor-pointer"
-                              >
-                                Sem Lactose / Glúten
-                              </button>
-                            </div>
-                          </div>
-                        )}
 
                         {msg.action === 'ask_msg_note' && (
                           <div className="flex gap-2">
@@ -986,6 +886,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                                   const text = "Lembrete aberto! Você será direcionado para salvar o compromisso no seu calendário Google. Estaremos esperando você com muito carinho!";
                                   setMessages(prev => [...prev, { role: 'model', content: text }]);
                                   speakText(text);
+                                  setRsvpStep(null);
                                 }}
                                 className="w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold rounded-xl text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
                               >
@@ -993,9 +894,10 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                               </button>
                               <button
                                 onClick={() => {
-                                  const text = "Sem problemas! Estaremos esperando por você no dia 7 de Setembro às 15:00 no Prime Eventos.";
-                                  setMessages(prev => [...prev, { role: 'model', content: text }]);
+                                  const text = "Sem problemas! Estaremos esperando por você no dia 7 de Setembro às 15:00 no Prime Eventos.\n\nVou lhe fornecer a localização no mapa, caso no dia voce tiver duvidas, basta abrir o site que temos a localização ou se preferir so me pedir que lhe envio imediatamente!";
+                                  setMessages(prev => [...prev, { role: 'model', content: text, action: 'open_map_cerimonia' }]);
                                   speakText(text);
+                                  setRsvpStep(null);
                                 }}
                                 className="w-full text-center px-4 py-1.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-500 font-sans font-medium rounded-xl text-[11px] transition-all cursor-pointer"
                               >

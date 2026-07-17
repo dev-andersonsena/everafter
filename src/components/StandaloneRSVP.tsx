@@ -300,31 +300,14 @@ export default function StandaloneRSVP({ onClose, onSuccess }: StandaloneRSVPPro
                 <p className="font-serif text-base text-gold-800 mt-0.5 font-bold">{successGuest.nome}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3.5 pt-3 border-t border-gold-200/30">
+              <div className="pt-3 border-t border-gold-200/30 flex justify-center">
                 <div>
-                  <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold">Acompanhantes</p>
-                  <p className="text-gold-800 font-bold mt-0.5">{successGuest.acompanhantes} {successGuest.acompanhantes === 1 ? 'pessoa' : 'pessoas'}</p>
-                </div>
-                <div>
-                  <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold">Status</p>
+                  <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold text-center">Status</p>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 bg-green-50 border border-green-100 rounded-full px-2.5 py-0.5 mt-0.5">
                     Confirmado
                   </span>
                 </div>
               </div>
-
-              {successGuest.acompanhantes_nomes && successGuest.acompanhantes_nomes.length > 0 && (
-                <div className="pt-3 border-t border-gold-200/30">
-                  <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold mb-1">Nomes dos Acompanhantes</p>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {successGuest.acompanhantes_nomes.map((cName, idx) => (
-                      <span key={idx} className="bg-white border border-gold-200/60 rounded-lg px-2.5 py-1 text-[10px] text-gold-800 font-medium">
-                        {cName}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <motion.button

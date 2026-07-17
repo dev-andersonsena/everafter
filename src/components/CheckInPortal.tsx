@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, Check, Search, ShieldCheck, MapPin, Smartphone, Calendar, Clock, ArrowLeft, RefreshCw, AlertTriangle, Sparkles, LogOut
+  Users, Check, Search, ShieldCheck, MapPin, Smartphone, Calendar, Clock, ArrowLeft, RefreshCw, AlertTriangle, Sparkles, LogOut, Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Guest } from '../types';
@@ -318,37 +318,24 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-stone-900/60 border border-stone-800/50 rounded-2xl p-4">
                           <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1">
-                            <MapPin size={11} className="text-gold-400" />
-                            Mesa Reservada
+                            <Smartphone size={11} className="text-gold-400" />
+                            Telefone
                           </p>
-                          <p className="text-lg font-serif text-gold-200 mt-1 font-bold">
-                            {selectedGuest.mesa ? selectedGuest.mesa : 'Não atribuída'}
+                          <p className="text-sm font-sans text-stone-100 mt-1 font-bold break-all">
+                            {selectedGuest.telefone ? selectedGuest.telefone : 'Não informado'}
                           </p>
                         </div>
 
                         <div className="bg-stone-900/60 border border-stone-800/50 rounded-2xl p-4">
-                          <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold">Acompanhantes Confirmados</p>
-                          <p className="text-lg font-serif text-stone-100 mt-1 font-bold">
-                            {selectedGuest.confirmado === true ? selectedGuest.acompanhantes : 0} acompanhantes
+                          <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1">
+                            <Mail size={11} className="text-gold-400" />
+                            E-mail
+                          </p>
+                          <p className="text-sm font-sans text-stone-100 mt-1 font-bold break-all">
+                            {selectedGuest.email ? selectedGuest.email : 'Não informado'}
                           </p>
                         </div>
                       </div>
-
-                      {/* Display companion list */}
-                      {selectedGuest.confirmado === true && selectedGuest.acompanhantes_nomes.length > 0 && (
-                        <div className="bg-stone-900/40 border border-stone-850 p-4 rounded-2xl">
-                          <p className="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1">
-                            <Users size={14} className="text-gold-300" />
-                            Nomes na lista:
-                          </p>
-                          <ul className="list-decimal list-inside text-xs text-stone-300 space-y-1 font-serif">
-                            <li>{selectedGuest.nome} (Titular)</li>
-                            {selectedGuest.acompanhantes_nomes.map((name, idx) => (
-                              <li key={idx}>{name}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
 
                       {/* Dietary restrictions banner */}
                       {selectedGuest.restricao_alimentar && (

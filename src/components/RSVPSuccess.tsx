@@ -110,33 +110,14 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
               <p className="font-serif text-base text-gold-900 mt-0.5 font-bold">{guest.nome}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5 pt-3 border-t border-gold-200/30">
+            <div className="pt-3 border-t border-gold-200/30 flex justify-center">
               <div>
-                <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold">Acompanhantes</p>
-                <p className="text-gold-900 font-bold mt-0.5 text-xs">
-                  {guest.acompanhantes} {guest.acompanhantes === 1 ? 'acompanhante' : 'acompanhantes'}
-                </p>
-              </div>
-              <div>
-                <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold">Status do Convite</p>
+                <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold text-center">Status do Convite</p>
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-100 rounded-full px-2.5 py-0.5 mt-0.5">
                   Confirmado
                 </span>
               </div>
             </div>
-
-            {guest.acompanhantes_nomes && guest.acompanhantes_nomes.length > 0 && (
-              <div className="pt-3 border-t border-gold-200/30">
-                <p className="text-gold-500 uppercase tracking-widest text-[9px] font-bold mb-1.5">Acompanhantes Confirmados</p>
-                <div className="flex flex-wrap gap-1.5 mt-1">
-                  {guest.acompanhantes_nomes.map((cName, idx) => (
-                    <span key={idx} className="bg-white border border-gold-200/50 rounded-lg px-2.5 py-1 text-[10px] text-gold-800 font-medium">
-                      {cName}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {guest.restricao_alimentar && (
               <div className="pt-3 border-t border-gold-200/30 text-xs">
@@ -162,9 +143,9 @@ export default function RSVPSuccess({ guest, onClose }: RSVPSuccessProps) {
               LISTA DE DIAS INCLUSO:
             </p>
             <p className="text-[10px] font-sans text-stone-500 mb-3 leading-relaxed">
-              <strong>45, 30, 7, 5 e 2 dias antes</strong> + <strong>no dia exato</strong>.<br />
+              <strong>7 dias antes do evento e no dia do evento</strong><strong></strong>.<br />
               <span className="text-amber-600 font-bold block mt-1.5 text-center">
-                agende
+                Agende
               </span>
             </p>
             <div className="flex gap-2 justify-center flex-wrap sm:flex-nowrap">

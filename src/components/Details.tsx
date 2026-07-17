@@ -119,7 +119,7 @@ export default function Details() {
               <ul className="space-y-4 text-sm text-gold-900/80 font-sans font-medium">
                 <li className="flex gap-3 items-start">
                   <Car size={18} className="text-gold-500 shrink-0 mt-0.5" />
-                  <span>Estacionamento privativo gratuito no local do evento (Prime Eventos).</span>
+                  <span>Estacionamento em via pública disponível nas proximidades da entrada principal.</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <Info size={18} className="text-gold-500 shrink-0 mt-0.5" />
