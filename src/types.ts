@@ -7,6 +7,9 @@ export interface GiftItem {
   description: string;
   purchasedCount: number;
   isSuggested?: boolean;
+  pixKey?: string;
+  pixName?: string;
+  pixBank?: string;
 }
 
 export interface RSVPResponse {

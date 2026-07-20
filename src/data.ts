@@ -12,9 +12,9 @@ export const weddingDetails: EventDetails = {
   receptionMapsLink: 'https://maps.google.com/?q=Prime+Eventos+R.+Deocl%C3%A9cio+Brito,+3399+-+Planalto',
   dressCode: 'Esporte Fino / Social',
   dressCodeDescription: 'Sugerimos que os homens usem calça social, camisa e blazer (gravata é opcional). Para as mulheres, vestidos longos ou midi em tons leves e elegantes (pedimos que evitem branco, off-white e cores muito próximas do branco).',
-  pixKey: 'henderson.alana.casamento@gmail.com',
-  pixName: 'Henderson Venicius e Alana Letícia',
-  pixBank: 'Banco Nu Pagamentos (Nubank)'
+  pixKey: 'alanaleticiafmatos@gmail.com',
+  pixName: 'Alana Letícia Ferreira Matos',
+  pixBank: 'MERCADO PAGO IP LTDA'
 };
 
 export const giftItems: GiftItem[] = [
@@ -26,52 +26,71 @@ export const giftItems: GiftItem[] = [
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format&fit=crop',
     description: 'Uma diária inesquecível para os noivos relaxarem na serra gaúcha.',
     purchasedCount: 2,
-    isSuggested: true
+    isSuggested: true,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406650.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr35382241287938706304047E',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   },
   {
     id: '2',
     name: 'Jantar Romântico com Fondue',
     category: 'Lua de Mel',
-    price: 350,
+    price: 250,
     image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
     description: 'Um jantar clássico e romântico para os noivos saborearem a culinária local.',
     purchasedCount: 5,
-    isSuggested: true
+    isSuggested: true,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406250.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr353822412864612763044693',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   },
   {
     id: '3',
     name: 'Espumante para Noite de Núpcias',
     category: 'Lua de Mel',
-    price: 180,
+    price: 200,
     image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=600&auto=format&fit=crop',
     description: 'Um brinde especial para celebrar o primeiro dia da vida de casados.',
-    purchasedCount: 0
+    purchasedCount: 0,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406200.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr35382241285762336304983F',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   },
   {
     id: '5',
     name: 'Jogo de Jantar 30 Peças Porcelana',
     category: 'Cozinha',
-    price: 520,
+    price: 350,
     image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=600&auto=format&fit=crop',
     description: 'Um jogo de pratos finos para os noivos receberem a família com carinho.',
-    purchasedCount: 0
+    purchasedCount: 0,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406350.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr35382241287569886304BFAC',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   },
   {
     id: '7',
     name: 'Jogo de Panelas Antiaderente Cerâmica',
     category: 'Cozinha',
-    price: 430,
+    price: 270,
     image: 'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?q=80&w=600&auto=format&fit=crop',
     description: 'Um jogo moderno e prático para as receitas especiais dos noivos.',
-    purchasedCount: 1
+    purchasedCount: 1,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406270.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr35382241286845616304A526',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   },
   {
     id: '8',
     name: 'Jogo de cama',
     category: 'Quarto',
-    price: 320,
+    price: 300,
     image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=600&auto=format&fit=crop',
     description: 'Muito conforto e maciez para os momentos de descanso do casal.',
-    purchasedCount: 3
+    purchasedCount: 3,
+    pixKey: '00020126500014br.gov.bcb.pix0128alanaleticiafmatos@gmail.com5204000053039865406300.005802BR5924Alana Leticia Ferreira M6009Sao Paulo62240520daqr35382241287271456304A6E3',
+    pixName: 'Alana Letícia Ferreira Matos',
+    pixBank: 'MERCADO PAGO IP LTDA'
   }
 ];
+

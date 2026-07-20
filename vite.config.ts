@@ -1,29 +1,26 @@
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-export default defineConfig(() => {
-  return {
-    plugins: [react(), tailwindcss()],
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
 
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
-      },
-    },
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
 
-    server: {
-      host: '0.0.0.0',
+    allowedHosts: [
+      'alanaehenderson.com.br',
+      'www.alanaehenderson.com.br',
+      'ec2-3-84-182-52.compute-1.amazonaws.com',
+    ],
+  },
 
-      allowedHosts: [
-        'alanaehenderson.com.br',
-        'www.alanaehenderson.com.br',
-      ],
-
-      hmr: process.env.DISABLE_HMR !== 'true',
-
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
-    },
-  };
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
 });

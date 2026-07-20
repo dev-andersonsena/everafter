@@ -17,7 +17,8 @@ export default function Gifts() {
     : giftItems.filter(item => item.category === selectedCategory);
 
   const handleCopyPix = () => {
-    navigator.clipboard.writeText(weddingDetails.pixKey);
+    const keyToCopy = activeGift?.pixKey || weddingDetails.pixKey;
+    navigator.clipboard.writeText(keyToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -204,19 +205,22 @@ export default function Gifts() {
                       Dados do Pix dos Noivos
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm text-gold-900">
-                      <div>
-                        <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold">Titular</span>
-                        <span className="font-bold text-gold-800">{weddingDetails.pixName}</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-4 text-xs sm:text-sm text-gold-900">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold">Banco</span>
-                          <span className="font-bold text-gold-800">{weddingDetails.pixBank}</span>
+                          <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold mb-1">Titular</span>
+                          <span className="font-bold text-gold-800 text-xs sm:text-sm">{activeGift.pixName || weddingDetails.pixName}</span>
                         </div>
                         <div>
-                          <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold">Chave Pix</span>
-                          <span className="font-bold text-gold-850 select-all truncate">{weddingDetails.pixKey}</span>
+                          <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold mb-1">Banco</span>
+                          <span className="font-bold text-gold-800 text-xs sm:text-sm">{activeGift.pixBank || weddingDetails.pixBank}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white border border-gold-100 rounded-xl p-3.5 flex flex-col gap-1.5">
+                        <span className="text-gold-500 block text-[10px] uppercase tracking-widest font-bold">Chave Pix Copia e Cola</span>
+                        <div className="font-mono text-[11px] text-gold-950 font-semibold break-all select-all leading-relaxed bg-gold-50/50 p-3 rounded-lg border border-gold-100/50 block select-all">
+                          {activeGift.pixKey || weddingDetails.pixKey}
                         </div>
                       </div>
                     </div>
