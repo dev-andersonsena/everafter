@@ -1,12 +1,40 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+[![CI/CD](https://github.com/dev-andersonsena/everafter/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/dev-andersonsena/everafter/actions/workflows/ci-cd.yml)
 
-# Run and deploy your AI Studio app
+## CI/CD e infraestrutura
 
-This contains everything you need to run your app locally.
+O projeto possui uma pipeline de CI/CD implementada com GitHub Actions.
 
-View your app in AI Studio: https://ai.studio/apps/f7431f60-e285-4536-8c65-08535b7807e1
+### Integração contínua
+
+Em cada Pull Request direcionado à branch `main`, a pipeline executa:
+
+- instalação reproduzível com `npm ci`;
+- validação TypeScript com `tsc --noEmit`;
+- execução de testes;
+- build do frontend React/Vite;
+- build do backend Node.js/Express.
+
+### Entrega contínua
+
+Após o merge na branch `main`, o GitHub Actions:
+
+- acessa uma instância Amazon EC2 por SSH;
+- atualiza o código da aplicação;
+- instala as dependências;
+- gera o build de produção;
+- reinicia o serviço utilizando PM2.
+
+As credenciais e informações de acesso são armazenadas em GitHub Actions Secrets.
+
+### Arquitetura
+
+- Frontend: React e Vite
+- Backend: Node.js e Express
+- Banco de dados: PostgreSQL
+- Infraestrutura: AWS EC2
+- Gerenciamento de processo: PM2
+- CI/CD: GitHub Actions
+
 
 ## Run Locally
 
