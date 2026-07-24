@@ -156,7 +156,7 @@ export default function Hero() {
             <Calendar className="text-gold-500 shrink-0" size={18} />
             <div className="text-left">
               <p className="text-[10px] uppercase tracking-widest text-gold-500 font-semibold">Quando</p>
-              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Domingo, 07 de Setembro de 2026 às 15:00</p>
+              <p className="font-serif font-medium text-xs sm:text-sm text-gold-800">Segunda, 07 de Setembro de 2026 às 15:00</p>
             </div>
           </div>
           
