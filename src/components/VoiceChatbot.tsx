@@ -55,6 +55,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
   const [matchedGuests, setMatchedGuests] = useState<Guest[]>([]);
 
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [mouthFrame, setMouthFrame] = useState('chatbot-rest.png');
   const [isListening, setIsListening] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [recognition, setRecognition] = useState<any>(null);
@@ -72,6 +73,28 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const lipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+const stopLipSync = () => {
+  if (lipSyncTimerRef.current) {
+    clearTimeout(lipSyncTimerRef.current);
+    lipSyncTimerRef.current = null;
+  }
+
+  setMouthFrame('chatbot-rest.png');
+  setIsSpeaking(false);
+};
+
+const startLipSync = () => {
+  if (lipSyncTimerRef.current) {
+    clearTimeout(lipSyncTimerRef.current);
+    lipSyncTimerRef.current = null;
+  }
+
+  setIsSpeaking(true);
+  setMouthFrame('chatbot-ae.png');
+};
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -180,6 +203,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
 
     // Cancel any previous speaking
     window.speechSynthesis.cancel();
+    stopLipSync();
 
     // Clean text from markdown/special characters for better speech
     const cleanText = text
@@ -208,10 +232,65 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
       }
     }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+  const mouthFrames = [
+    'chatbot-ae.png',
+    'chatbot-i.png',
+    'chatbot-o.png',
+    'chatbot-u.png',
+    'chatbot-mbp.png',
+  ];
 
+  let mouthFrameIndex = 0;
+
+  utterance.onstart = startLipSync;
+
+  utterance.onboundary = (event: SpeechSynthesisEvent) => {
+    // O navegador dispara este evento no início de cada palavra falada.
+    if (event.name !== 'word') return;
+
+    if (lipSyncTimerRef.current) {
+      clearTimeout(lipSyncTimerRef.current);
+      lipSyncTimerRef.current = null;
+    }
+
+    setMouthFrame(mouthFrames[mouthFrameIndex % mouthFrames.length]);
+    mouthFrameIndex += 1;
+
+    // Verifica se, logo após a palavra atual, existe pontuação.
+    const remainingText = cleanText.slice(
+      event.charIndex + event.charLength
+    );
+
+    const punctuation = remainingText.match(/^\s*([,.;:!?])/);
+
+    if (!punctuation) return;
+
+    const pauses: Record<string, number> = {
+      ',': 180,
+      ';': 260,
+      ':': 260,
+      '.': 430,
+      '!': 430,
+      '?': 430,
+    };
+
+    const punctuationMark = punctuation[1];
+    const pauseDuration = pauses[punctuationMark] ?? 180;
+
+    // Fecha a boca pouco antes da pontuação ser pronunciada.
+    const closeMouthAfter = Math.max(
+      110,
+      (event.charLength * 45) / voiceRate
+    );
+
+    lipSyncTimerRef.current = setTimeout(() => {
+      setMouthFrame('chatbot-rest.png');
+    }, Math.min(closeMouthAfter, pauseDuration));
+  };
+
+  utterance.onend = stopLipSync;
+  utterance.onerror = stopLipSync;
+    
     speechUtteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   };
@@ -578,7 +657,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                 </div>
                 <div>
                   <h3 className="font-serif font-bold text-sm tracking-wide">Assessor de Casamento</h3>
-                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">IA</p>
+                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">CONCIERGE VIRTUAL POR VOZ</p>
                 </div>
               </div>
 
@@ -816,7 +895,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
                                 }}
                                 className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-sans font-semibold rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1 border border-stone-200"
                               >
-                                💬 Tirar Dúvidas com IA.
+                                💬 Tirar Dúvidas com I.A.
                               </button>
                             </div>
                           </div>
@@ -1020,19 +1099,26 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
         )}
       </AnimatePresence>
 
-      {/* Floating launcher Button */}
+        {/* Floating launcher Button */}
       <motion.button
         id="chatbot-launcher-button"
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
-        className="w-14 h-14 rounded-full bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-700 hover:to-gold-800 text-white shadow-lg shadow-gold-900/20 flex items-center justify-center cursor-pointer border border-gold-400/40 relative group"
+        className="w-[63px] h-[63px] rounded-full overflow-hidden bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-700 hover:to-gold-800 text-white shadow-lg shadow-gold-900/20 flex items-center justify-center cursor-pointer border border-gold-400/40 relative group"
+        style={{ width: '63px', height: '63px' }}
       >
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
         </span>
-        <MessageCircle size={22} className="group-hover:rotate-6 transition-transform duration-300" />
+
+        <img
+          src={`/${mouthFrame}`}
+          alt="Assistente virtual"
+          className="h-full w-full rounded-full object-cover"
+          style={{ objectPosition: 'center 30%' }}
+        />
       </motion.button>
     </motion.div>
   );
