@@ -19,7 +19,7 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: 'Olá! Sou o Assessor Virtual da Alana e do Henderson. Vamos confirmar sua presença, lhe ajudo aqui no preenchimento! (Você pode falar comigo clicando no microfone!)',
+      content: 'Olá! Sou o Assessora Virtual da Alana e do Henderson. Vamos confirmar sua presença, lhe ajudo no preenchimento. (Você pode falar comigo clicando no microfone!)',
       action: 'welcome_rsvp'
     },
   ]);
@@ -75,6 +75,8 @@ export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const lipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fallbackLipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const receivedSpeechBoundaryRef = useRef(false);
 
 const stopLipSync = () => {
   if (lipSyncTimerRef.current) {
@@ -82,6 +84,12 @@ const stopLipSync = () => {
     lipSyncTimerRef.current = null;
   }
 
+  if (fallbackLipSyncTimerRef.current) {
+    clearInterval(fallbackLipSyncTimerRef.current);
+    fallbackLipSyncTimerRef.current = null;
+  }
+
+  receivedSpeechBoundaryRef.current = false;
   setMouthFrame('chatbot-rest.png');
   setIsSpeaking(false);
 };
@@ -92,8 +100,33 @@ const startLipSync = () => {
     lipSyncTimerRef.current = null;
   }
 
+  if (fallbackLipSyncTimerRef.current) {
+    clearInterval(fallbackLipSyncTimerRef.current);
+    fallbackLipSyncTimerRef.current = null;
+  }
+
+  receivedSpeechBoundaryRef.current = false;
   setIsSpeaking(true);
   setMouthFrame('chatbot-ae.png');
+};
+
+const startFallbackLipSync = () => {
+  const frames = [
+    'chatbot-ae.png',
+    'chatbot-i.png',
+    'chatbot-ae.png',
+    'chatbot-o.png',
+    'chatbot-ae.png',
+    'chatbot-u.png',
+    'chatbot-mbp.png',
+  ];
+
+  let frameIndex = 0;
+
+  fallbackLipSyncTimerRef.current = setInterval(() => {
+    setMouthFrame(frames[frameIndex % frames.length]);
+    frameIndex += 1;
+  }, 155);
 };
 
   // Scroll to bottom on new messages
@@ -242,11 +275,27 @@ const startLipSync = () => {
 
   let mouthFrameIndex = 0;
 
-  utterance.onstart = startLipSync;
+  utterance.onstart = () => {
+    startLipSync();
+
+    // No iPhone, algumas vozes Apple não emitem onboundary.
+    // Se nenhum evento de palavra chegar, ativa o modo alternativo.
+    lipSyncTimerRef.current = setTimeout(() => {
+      if (!receivedSpeechBoundaryRef.current) {
+        startFallbackLipSync();
+      }
+    }, 450);
+  };
 
   utterance.onboundary = (event: SpeechSynthesisEvent) => {
     // O navegador dispara este evento no início de cada palavra falada.
     if (event.name !== 'word') return;
+    receivedSpeechBoundaryRef.current = true;
+
+    if (fallbackLipSyncTimerRef.current) {
+      clearInterval(fallbackLipSyncTimerRef.current);
+      fallbackLipSyncTimerRef.current = null;
+    }
 
     if (lipSyncTimerRef.current) {
       clearTimeout(lipSyncTimerRef.current);
@@ -656,8 +705,8 @@ const startLipSync = () => {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-serif font-bold text-sm tracking-wide">Assessor de Casamento</h3>
-                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">CONCIERGE VIRTUAL POR VOZ</p>
+                  <h3 className="font-serif font-bold text-sm tracking-wide">Assessora de Casamento</h3>
+                  <p className="text-[10px] font-sans text-gold-100/90 tracking-wider">IA</p>
                 </div>
               </div>
 
@@ -895,7 +944,7 @@ const startLipSync = () => {
                                 }}
                                 className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-sans font-semibold rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1 border border-stone-200"
                               >
-                                💬 Tirar Dúvidas com I.A.
+                                💬 Tirar Dúvidas com IA.
                               </button>
                             </div>
                           </div>
@@ -1105,8 +1154,8 @@ const startLipSync = () => {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
-        className="w-[63px] h-[63px] rounded-full overflow-hidden bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-700 hover:to-gold-800 text-white shadow-lg shadow-gold-900/20 flex items-center justify-center cursor-pointer border border-gold-400/40 relative group"
-        style={{ width: '63px', height: '63px' }}
+        className="w-[68px] h-[68px] rounded-full overflow-hidden bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-700 hover:to-gold-800 text-white shadow-lg shadow-gold-900/20 flex items-center justify-center cursor-pointer border border-gold-400/40 relative group"
+        style={{ width: '68px', height: '68px' }}
       >
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
