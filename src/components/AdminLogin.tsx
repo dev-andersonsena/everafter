@@ -16,6 +16,7 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
+  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD?.trim() || 'guim1v1';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,7 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
 
     // Simulate small aesthetic loading transition
     setTimeout(() => {
-      if (username.trim() === 'admin' && password === 'guim123') {
+      if (username.trim() === 'admin' && password === adminPassword) {
         if (isRecepcao) {
           localStorage.setItem('recepcao_authenticated', 'true');
         } else {
