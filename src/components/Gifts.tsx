@@ -29,7 +29,7 @@ export default function Gifts() {
 
   const getWhatsAppLink = (giftName: string, price: number) => {
     const text = `Olá Henderson e Alana! Gostaria de presentear vocês com o item: "${giftName}" no valor de ${formatPrice(price)}. Acabei de fazer a transferência do Pix e estou enviando o comprovante!`;
-    return `https://wa.me/5554999999999?text=${encodeURIComponent(text)}`; // Dummy WhatsApp number
+    return `https://wa.me/5586995315622?text=${encodeURIComponent(text)}`; // número de whatsapp dos noivos
   };
 
   return (
