@@ -408,16 +408,11 @@ const startFallbackLipSync = () => {
         const nameInput = messageText.trim();
         setRsvpData(prev => ({ ...prev, nome: nameInput }));
         
-        // Fetch pre-registered guests
-        const res = await fetch('/api/guests');
+        // Search by exact full name without exposing the complete guest list publicly
+        const res = await fetch(`/api/guests/search?q=${encodeURIComponent(nameInput)}`);
         let matches: Guest[] = [];
         if (res.ok) {
-          const allGuests: Guest[] = await res.json();
-          const query = nameInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          matches = allGuests.filter(g => {
-            const normalizedGuestName = g.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            return normalizedGuestName.includes(query) || query.includes(normalizedGuestName);
-          });
+          matches = await res.json();
         }
         
         if (matches.length === 1) {

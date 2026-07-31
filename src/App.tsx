@@ -23,13 +23,37 @@ export default function App() {
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
   const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
   const [loadingGuest, setLoadingGuest] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return typeof window !== 'undefined' ? localStorage.getItem('admin_authenticated') === 'true' : false;
-  });
-  const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(() => {
-    return typeof window !== 'undefined' ? localStorage.getItem('recepcao_authenticated') === 'true' : false;
-  });
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(async response => response.ok ? response.json() : null)
+      .then(session => {
+        if (session?.role === 'admin') {
+          setIsAdminLoggedIn(true);
+          setIsRecepcaoLoggedIn(true);
+        } else if (session?.role === 'recepcao') {
+          setIsRecepcaoLoggedIn(true);
+        }
+      })
+      .catch(() => {
+        setIsAdminLoggedIn(false);
+        setIsRecepcaoLoggedIn(false);
+      })
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setIsAdminLoggedIn(false);
+      setIsRecepcaoLoggedIn(false);
+      setViewMode('invite');
+    }
+  };
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -143,47 +167,49 @@ export default function App() {
   ];
 
   if (viewMode === 'admin') {
+    if (!authChecked) {
+      return <div className="min-h-screen flex items-center justify-center bg-watercolor text-gold-800">Validando sessão...</div>;
+    }
     if (!isAdminLoggedIn) {
       return (
-        <AdminLogin 
-          onLoginSuccess={() => setIsAdminLoggedIn(true)} 
-          onClose={() => setViewMode('invite')} 
+        <AdminLogin
+          onLoginSuccess={() => setIsAdminLoggedIn(true)}
+          onClose={() => setViewMode('invite')}
         />
       );
     }
     return (
-      <AdminDashboard 
-        onClose={() => setViewMode('invite')} 
+      <AdminDashboard
+        onClose={() => setViewMode('invite')}
         onLogout={() => {
-          setIsAdminLoggedIn(false);
-          setViewMode('invite');
+          void handleLogout();
         }}
       />
     );
   }
 
   if (viewMode === 'recepcao') {
+    if (!authChecked) {
+      return <div className="min-h-screen flex items-center justify-center bg-watercolor text-gold-800">Validando sessão...</div>;
+    }
     if (!isRecepcaoLoggedIn) {
       return (
-        <AdminLogin 
-          onLoginSuccess={() => setIsRecepcaoLoggedIn(true)} 
-          onClose={() => setViewMode('invite')} 
+        <AdminLogin
+          onLoginSuccess={() => setIsRecepcaoLoggedIn(true)}
+          onClose={() => setViewMode('invite')}
           isRecepcao={true}
         />
       );
     }
     return (
-      <CheckInPortal 
-        onClose={() => setViewMode('invite')} 
+      <CheckInPortal
+        onClose={() => setViewMode('invite')}
         onLogout={() => {
-          setIsRecepcaoLoggedIn(false);
-          localStorage.removeItem('recepcao_authenticated');
-          setViewMode('invite');
+          void handleLogout();
         }}
       />
     );
   }
-
   if (viewMode === 'rsvp') {
     return (
       <StandaloneRSVP 
