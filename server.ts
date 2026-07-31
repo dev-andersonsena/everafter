@@ -1,14 +1,16 @@
-import express from "express";
+import express, { type RequestHandler } from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+app.set("trust proxy", 1);
 
 // Initialize Google Gen AI client with safety
 const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -29,6 +31,147 @@ if (geminiApiKey) {
 }
 
 app.use(express.json());
+
+type AuthRole = "admin" | "recepcao";
+
+interface AuthSession {
+  role: AuthRole;
+  expiresAt: number;
+}
+
+const AUTH_COOKIE_NAME = "everafter_staff_session";
+const AUTH_SESSION_TTL_SECONDS = 8 * 60 * 60;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME?.trim() || "admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || String();
+const RECEPTION_USERNAME = process.env.RECEPTION_USERNAME?.trim() || ADMIN_USERNAME;
+const RECEPTION_PASSWORD = process.env.RECEPTION_PASSWORD || ADMIN_PASSWORD;
+const SESSION_SECRET = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
+const loginAttempts = new Map<string, { failures: number; resetAt: number }>();
+
+if (!process.env.SESSION_SECRET) {
+  console.warn("SESSION_SECRET não configurado. As sessões serão invalidadas ao reiniciar o servidor.");
+}
+
+
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function signSessionPayload(payload: string) {
+  return createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+}
+
+function createSessionToken(role: AuthRole) {
+  const session: AuthSession = {
+    role,
+    expiresAt: Date.now() + AUTH_SESSION_TTL_SECONDS * 1000,
+  };
+  const payload = Buffer.from(JSON.stringify(session)).toString("base64url");
+  return `${payload}.${signSessionPayload(payload)}`;
+}
+
+function parseCookies(cookieHeader?: string) {
+  const cookies = new Map<string, string>();
+  for (const cookie of (cookieHeader || "").split(";")) {
+    const separatorIndex = cookie.indexOf("=");
+    if (separatorIndex < 1) continue;
+    const name = cookie.slice(0, separatorIndex).trim();
+    const value = cookie.slice(separatorIndex + 1).trim();
+    if (!name) continue;
+    try {
+      cookies.set(name, decodeURIComponent(value));
+    } catch {
+      cookies.set(name, value);
+    }
+  }
+  return cookies;
+}
+
+function getSession(cookieHeader?: string): AuthSession | null {
+  const token = parseCookies(cookieHeader).get(AUTH_COOKIE_NAME);
+  if (!token) return null;
+  const [payload, providedSignature] = token.split(".");
+  if (!payload || !providedSignature) return null;
+  const expectedSignature = signSessionPayload(payload);
+  if (!safeEqual(providedSignature, expectedSignature)) return null;
+  try {
+    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AuthSession;
+    if (
+      (session.role !== "admin" && session.role !== "recepcao") ||
+      !Number.isFinite(session.expiresAt) ||
+      session.expiresAt <= Date.now()
+    ) {
+      return null;
+    }
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+function serializeSessionCookie(token: string, maxAge = AUTH_SESSION_TTL_SECONDS) {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secure}`;
+}
+
+function requireRoles(...allowedRoles: AuthRole[]): RequestHandler {
+  return (req, res, next) => {
+    const session = getSession(req.headers.cookie);
+    if (!session) return res.status(401).json({ error: "Autenticação necessária." });
+    if (!allowedRoles.includes(session.role)) {
+      return res.status(403).json({ error: "Você não tem permissão para esta operação." });
+    }
+    next();
+  };
+}
+
+const requireAdmin = requireRoles("admin");
+const requireStaff = requireRoles("admin", "recepcao");
+
+app.post("/api/auth/login", (req, res) => {
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const currentAttempt = loginAttempts.get(ip);
+  if (currentAttempt && currentAttempt.resetAt > now && currentAttempt.failures >= 5) {
+    return res.status(429).json({ error: "Muitas tentativas. Aguarde 15 minutos e tente novamente." });
+  }
+  if (currentAttempt && currentAttempt.resetAt <= now) loginAttempts.delete(ip);
+
+  const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
+  const password = typeof req.body?.password === "string" ? req.body.password : "";
+  const role: AuthRole = req.body?.role === "recepcao" ? "recepcao" : "admin";
+  const expectedUsername = role === "recepcao" ? RECEPTION_USERNAME : ADMIN_USERNAME;
+  const expectedPassword = role === "recepcao" ? RECEPTION_PASSWORD : ADMIN_PASSWORD;
+  const authenticated = Boolean(expectedPassword) &&
+    safeEqual(username, expectedUsername) &&
+    safeEqual(password, expectedPassword);
+
+  if (!authenticated) {
+    const attempt = loginAttempts.get(ip);
+    loginAttempts.set(ip, {
+      failures: (attempt?.failures || 0) + 1,
+      resetAt: attempt?.resetAt && attempt.resetAt > now ? attempt.resetAt : now + 15 * 60 * 1000,
+    });
+    return res.status(401).json({ error: "Usuário ou senha incorretos." });
+  }
+
+  loginAttempts.delete(ip);
+  res.setHeader("Set-Cookie", serializeSessionCookie(createSessionToken(role)));
+  return res.json({ authenticated: true, role });
+});
+
+app.get("/api/auth/session", (req, res) => {
+  const session = getSession(req.headers.cookie);
+  if (!session) return res.status(401).json({ authenticated: false });
+  return res.json({ authenticated: true, role: session.role });
+});
+
+app.post("/api/auth/logout", (_req, res) => {
+  res.setHeader("Set-Cookie", serializeSessionCookie("", 0));
+  return res.json({ success: true });
+});
 
 // Initialize PostgreSQL connection pool with lazy safety
 const pool = new Pool({
@@ -480,7 +623,7 @@ async function getAccessLogs(): Promise<AccessLog[]> {
 // --- API ROUTES ---
 
 // 1. Get all guests (Admin)
-app.get("/api/guests", async (req, res) => {
+app.get("/api/guests", requireStaff, async (req, res) => {
   try {
     const guests = await getGuests();
     res.json(guests);
@@ -528,7 +671,7 @@ app.get("/api/guests/search", async (req, res) => {
 });
 
 // 2. Add guest (Admin)
-app.post("/api/guests", async (req, res) => {
+app.post("/api/guests", requireAdmin, async (req, res) => {
   try {
     const { nome, email, telefone, acompanhantes_limite } = req.body;
     if (!nome) {
@@ -572,7 +715,7 @@ app.post("/api/guests/public-rsvp", async (req, res) => {
 });
 
 // 3. Delete guest (Admin)
-app.delete("/api/guests/:id", async (req, res) => {
+app.delete("/api/guests/:id", requireAdmin, async (req, res) => {
   try {
     const success = await deleteGuest(req.params.id);
     if (!success) {
@@ -635,7 +778,7 @@ app.post("/api/guests/:id/rsvp", async (req, res) => {
 });
 
 // 6. Set guest table/mesa
-app.post("/api/guests/:id/mesa", async (req, res) => {
+app.post("/api/guests/:id/mesa", requireAdmin, async (req, res) => {
   try {
     const { mesa } = req.body;
     const success = await setGuestMesa(req.params.id, mesa || "");
@@ -649,7 +792,7 @@ app.post("/api/guests/:id/mesa", async (req, res) => {
 });
 
 // 7. Check-in (day of wedding)
-app.post("/api/guests/:id/checkin", async (req, res) => {
+app.post("/api/guests/:id/checkin", requireStaff, async (req, res) => {
   try {
     const guest = await getGuestById(req.params.id);
     if (!guest) {
@@ -671,7 +814,7 @@ app.post("/api/guests/:id/checkin", async (req, res) => {
 });
 
 // 8. Access Logs (Admin Analytics)
-app.get("/api/access-logs", async (req, res) => {
+app.get("/api/access-logs", requireAdmin, async (req, res) => {
   try {
     const logs = await getAccessLogs();
     res.json(logs);

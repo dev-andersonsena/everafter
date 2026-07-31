@@ -16,9 +16,7 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD?.trim() || 'guim1v1';
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsShaking(false);
@@ -30,24 +28,31 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
     }
 
     setLoading(true);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+          role: isRecepcao ? 'recepcao' : 'admin',
+        }),
+      });
 
-    // Simulate small aesthetic loading transition
-    setTimeout(() => {
-      if (username.trim() === 'admin' && password === adminPassword) {
-        if (isRecepcao) {
-          localStorage.setItem('recepcao_authenticated', 'true');
-        } else {
-          localStorage.setItem('admin_authenticated', 'true');
-        }
+      if (response.ok) {
         onLoginSuccess();
       } else {
-        setError('Usuário ou senha incorretos.');
+        const data = await response.json().catch(() => ({}));
+        setError(data.error || 'Usuário ou senha incorretos.');
         setIsShaking(true);
-        setLoading(false);
       }
-    }, 800);
+    } catch {
+      setError('Não foi possível conectar ao servidor.');
+      setIsShaking(true);
+    } finally {
+      setLoading(false);
+    }
   };
-
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-watercolor px-4 py-12">
       {/* Dynamic ambient blur circles in background - CodePen high fidelity style */}
