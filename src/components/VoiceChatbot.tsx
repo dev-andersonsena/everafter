@@ -11,9 +11,10 @@ interface Message {
 
 interface VoiceChatbotProps {
   visible: boolean;
+  onUsageChange?: (isUsing: boolean) => void;
 }
 
-export default function VoiceChatbot({ visible }: VoiceChatbotProps) {
+export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
@@ -657,6 +658,7 @@ const startFallbackLipSync = () => {
   // Close and stop speaking
   const handleClose = () => {
     setIsOpen(false);
+    onUsageChange?.(false);
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
@@ -1146,7 +1148,11 @@ const startFallbackLipSync = () => {
         {/* Floating launcher Button */}
       <motion.button
         id="chatbot-launcher-button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const willOpen = !isOpen;
+          setIsOpen(willOpen);
+          onUsageChange?.(willOpen);
+        }}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
         className="w-[68px] h-[68px] rounded-full overflow-hidden bg-gradient-to-r from-gold-600 to-gold-700 hover:from-gold-700 hover:to-gold-800 text-white shadow-lg shadow-gold-900/20 flex items-center justify-center cursor-pointer border border-gold-400/40 relative group"

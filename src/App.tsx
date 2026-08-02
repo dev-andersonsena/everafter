@@ -12,6 +12,7 @@ import CheckInPortal from './components/CheckInPortal';
 import StandaloneRSVP from './components/StandaloneRSVP';
 import RSVPSuccess from './components/RSVPSuccess';
 import VoiceChatbot from './components/VoiceChatbot';
+import RSVPReminderButton from './components/RSVPReminderButton';
 import IntroVideo from './components/IntroVideo';
 import { Guest } from './types';
 
@@ -114,6 +115,8 @@ export default function App() {
   // Orchestrate floating MusicPlayer and VoiceChatbot
   const [musicState, setMusicState] = useState<'initial' | 'hidden' | 'beside'>('initial');
   const [chatbotVisible, setChatbotVisible] = useState<boolean>(false);
+  const [chatbotInUse, setChatbotInUse] = useState(false);
+  const [chatbotCooldownUntil, setChatbotCooldownUntil] = useState<number | null>(null);
 
   useEffect(() => {
     let t1: NodeJS.Timeout;
@@ -408,6 +411,24 @@ export default function App() {
           {/* Floating Music Controller */}
           <MusicPlayer displayState={musicState} />
 
+      {/* Floating Voice Assistant Chatbot */}
+      <VoiceChatbot
+        visible={chatbotVisible}
+        onUsageChange={(isUsing) => {
+          setChatbotInUse(isUsing);
+          if (!isUsing) {
+            setChatbotCooldownUntil(Date.now() + 30_000);
+          }
+        }}
+      />
+
+      {/* RSVP reminder: 20s after entry, or 30s after the chatbot is closed. */}
+      <RSVPReminderButton
+        hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+        chatbotInUse={chatbotInUse}
+        chatbotCooldownUntil={chatbotCooldownUntil}
+        onClick={() => scrollToSection('rsvp')}
+      />
           {/* Floating Voice Assistant Chatbot */}
           <VoiceChatbot visible={chatbotVisible} />
 
