@@ -49,3 +49,135 @@ html {
 
 
 
+/* Floating RSVP reminder inspired by Simey's CSS-only shimmer button. */
+@property --rsvp-shimmer-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 25deg;
+}
+
+@keyframes rsvp-shimmer-sweep {
+  0% { --rsvp-shimmer-angle: 25deg; }
+  100% { --rsvp-shimmer-angle: 385deg; }
+}
+
+.rsvp-reminder-position {
+  position: fixed;
+  z-index: 39;
+  top: 9.5rem;
+  right: max(3rem, calc((100vw - 72rem) / 2 + 1.5rem));
+  width: min(23.5rem, calc(100vw - 3rem));
+}
+
+.rsvp-shimmer-button {
+  --rsvp-shimmer-angle: 25deg;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 4.05 / 1;
+  padding: 1.25rem 2rem;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  color: #9c3f1e;
+  background:
+    linear-gradient(135deg, rgba(255, 248, 243, 0.98), rgba(244, 196, 171, 0.94)) padding-box,
+    conic-gradient(
+      from var(--rsvp-shimmer-angle),
+      #c86840 0deg,
+      #fff8f2 24deg,
+      #ffffff 38deg,
+      #e99a73 58deg,
+      #c86840 100deg,
+      #c86840 360deg
+    ) border-box;
+  box-shadow:
+    0 3px 0 rgba(156, 63, 30, 0.45),
+    0 10px 20px rgba(123, 46, 20, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -8px 18px rgba(200, 104, 64, 0.09);
+  cursor: pointer;
+  animation: rsvp-shimmer-sweep 2.8s linear infinite;
+  transition: transform 280ms cubic-bezier(.2, .8, .2, 1), box-shadow 280ms ease;
+}
+
+.rsvp-shimmer-button::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  z-index: -1;
+  border: 1px solid rgba(200, 104, 64, 0.58);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.rsvp-shimmer-button__text {
+  position: relative;
+  z-index: 2;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.15rem, 2.35vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.rsvp-shimmer-button__shine {
+  position: absolute;
+  inset: -80% -25%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.7) 48%, transparent 61%);
+  transform: translateX(-55%) rotate(4deg);
+  animation: rsvp-button-glint 2.8s ease-in-out infinite;
+}
+
+@keyframes rsvp-button-glint {
+  0%, 28% { transform: translateX(-58%) rotate(4deg); opacity: 0; }
+  42% { opacity: 0.9; }
+  68%, 100% { transform: translateX(58%) rotate(4deg); opacity: 0; }
+}
+
+.rsvp-shimmer-button:hover {
+  transform: translateY(-3px) scale(1.025);
+  box-shadow:
+    0 5px 0 rgba(156, 63, 30, 0.42),
+    0 15px 28px rgba(123, 46, 20, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -8px 18px rgba(200, 104, 64, 0.1);
+}
+
+.rsvp-shimmer-button:active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow:
+    0 1px 0 rgba(156, 63, 30, 0.5),
+    0 5px 10px rgba(123, 46, 20, 0.18),
+    inset 0 2px 8px rgba(156, 63, 30, 0.08);
+}
+
+.rsvp-shimmer-button:focus-visible {
+  outline: 3px solid rgba(200, 104, 64, 0.28);
+  outline-offset: 5px;
+}
+
+@media (max-width: 640px) {
+  .rsvp-reminder-position {
+    top: 4.75rem;
+    right: 1.25rem;
+    width: clamp(10.5rem, 44vw, 12rem);
+  }
+
+  .rsvp-shimmer-button {
+    padding: 0.55rem 0.8rem;
+  }
+
+  .rsvp-shimmer-button__text {
+    font-size: clamp(0.72rem, 3vw, 0.9rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-shimmer-button,
+  .rsvp-shimmer-button__shine {
+    animation: none;
+  }
+}
