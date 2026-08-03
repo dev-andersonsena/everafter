@@ -696,46 +696,249 @@ html {
   }
 }
 
-/* Borderless shimmer: the glow follows the PNG alpha instead of a rectangular layer. */
-@keyframes rsvp-floral-outline-shimmer {
-  0%, 100% {
-    filter:
-      drop-shadow(-2px -1px 2px rgba(255, 252, 248, 0.95))
-      drop-shadow(-3px 0 4px rgba(224, 132, 95, 0.48));
-  }
-  25% {
-    filter:
-      drop-shadow(2px -2px 2px rgba(255, 252, 248, 0.98))
-      drop-shadow(3px -1px 5px rgba(224, 132, 95, 0.56));
-  }
-  50% {
-    filter:
-      drop-shadow(2px 2px 2px rgba(255, 252, 248, 0.95))
-      drop-shadow(3px 2px 5px rgba(224, 132, 95, 0.52));
-  }
-  75% {
-    filter:
-      drop-shadow(-2px 2px 2px rgba(255, 252, 248, 0.98))
-      drop-shadow(-3px 2px 5px rgba(224, 132, 95, 0.56));
-  }
+/* Remove only the rectangular hover/focus overlay; keep the contour shimmer. */
+.rsvp-shimmer-button,
+.rsvp-shimmer-button:hover,
+.rsvp-shimmer-button:focus,
+.rsvp-shimmer-button:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.rsvp-shimmer-button::after {
+  content: none;
+  display: none;
+  animation: none;
+}
+
+/* Guarantee that no rectangular shadow/mask is rendered around the PNG. */
+.rsvp-shimmer-button,
+.rsvp-shimmer-button:hover,
+.rsvp-shimmer-button:hover:not(:active),
+.rsvp-shimmer-button:focus,
+.rsvp-shimmer-button:focus-visible,
+.rsvp-shimmer-button:active {
+  filter: none;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
 }
 
 .rsvp-shimmer-button::before,
 .rsvp-shimmer-button::after {
+  content: none;
   display: none;
+  opacity: 0;
+  filter: none;
+  animation: none;
+  -webkit-mask: none;
+  mask: none;
 }
 
 .rsvp-floral-button-image {
-  animation: rsvp-floral-outline-shimmer 2.4s linear infinite;
+  filter: none;
+  box-shadow: none;
+  background: transparent;
 }
 
-.rsvp-shimmer-button:hover .rsvp-floral-button-image,
-.rsvp-shimmer-button:focus-visible .rsvp-floral-button-image {
-  animation-duration: 1.15s;
+/* Shimmer only: a narrow highlight sweeps across the transparent button artwork. */
+@keyframes rsvp-image-only-shimmer {
+  0%, 18% {
+    opacity: 0;
+    clip-path: polygon(-32% 0, -18% 0, 2% 100%, -12% 100%);
+  }
+  28% {
+    opacity: 0.68;
+  }
+  72% {
+    opacity: 0.68;
+  }
+  82%, 100% {
+    opacity: 0;
+    clip-path: polygon(112% 0, 126% 0, 146% 100%, 132% 100%);
+  }
+}
+
+.rsvp-shimmer-button::before {
+  content: none;
+  display: none;
+}
+
+.rsvp-shimmer-button::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: url("/rsvp-button-floral-cropped.png") center / 100% 100% no-repeat;
+  filter: brightness(1.7) saturate(0.82);
+  mix-blend-mode: screen;
+  -webkit-mask: none;
+  mask: none;
+  box-shadow: none;
+  animation: rsvp-image-only-shimmer 2.8s ease-in-out infinite;
+}
+
+.rsvp-shimmer-button:hover::after,
+.rsvp-shimmer-button:focus-visible::after {
+  animation-duration: 1.45s;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rsvp-floral-button-image {
+  .rsvp-shimmer-button::after {
+    display: none;
     animation: none;
+  }
+}
+
+/* CodePen spring + shimmer effect, scoped exclusively to the floral RSVP button. */
+@keyframes rsvp-codepen-shimmer {
+  0% { --shimmer: 0deg; }
+  100% { --shimmer: 360deg; }
+}
+
+@keyframes rsvp-codepen-shine {
+  0% { opacity: 0; }
+  15%, 55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.rsvp-shimmer-button {
+  --glow-hue: 222deg;
+  --shadow-hue: 180deg;
+  --spring-easing: linear(
+    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156, 0.312 5.8%, 0.789 11.1%, 1.015 14.2%,
+    1.096, 1.157, 1.199, 1.224 20.3%, 1.231, 1.231, 1.226, 1.214 24.6%,
+    1.176 26.9%, 1.057 32.6%, 1.007 35.5%, 0.984, 0.968, 0.956, 0.949 42%,
+    0.946 44.1%, 0.95 46.5%, 0.998 57.2%, 1.007, 1.011 63.3%, 1.012 68.3%,
+    0.998 84%, 1
+  );
+  --spring-duration: 1.33s;
+  --inset: 40px;
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  border-radius: 0.66em;
+  scale: 1;
+  transform: none;
+  filter: none;
+  background: transparent;
+  box-shadow:
+    0 2px 3px 1px hsl(var(--glow-hue) 50% 20% / 50%),
+    inset 0 -10px 20px -10px hsla(var(--shadow-hue), 10%, 90%, 95%);
+  transition: all var(--spring-duration) var(--spring-easing);
+}
+
+.rsvp-shimmer-button::before,
+.rsvp-shimmer-button::after {
+  content: none;
+  display: none;
+}
+
+.rsvp-shimmer-button:hover:not(:active),
+.rsvp-shimmer-button:focus-visible {
+  scale: 1.2;
+  transform: none;
+  filter: none;
+  transition-duration: calc(var(--spring-duration) * 0.5);
+  box-shadow:
+    0 4px 8px -2px hsl(var(--glow-hue) 50% 20% / 50%),
+    inset 0 0 0 transparent;
+}
+
+.rsvp-shimmer-button:active {
+  scale: 1.1;
+  transform: none;
+  filter: none;
+  transition-duration: calc(var(--spring-duration) * 0.5);
+}
+
+.rsvp-shimmer-button__shine {
+  display: block;
+  position: absolute;
+  inset: calc(var(--inset) * -1);
+  z-index: 2;
+  overflow: visible;
+  border-radius: inherit;
+  pointer-events: none;
+  background: none;
+  transform: none;
+  -webkit-mask-image: conic-gradient(
+    from var(--shimmer, 0deg),
+    transparent 0%,
+    transparent 20%,
+    black 36%,
+    black 45%,
+    transparent 50%,
+    transparent 70%,
+    black 85%,
+    black 95%,
+    transparent 100%
+  );
+  mask-image: conic-gradient(
+    from var(--shimmer, 0deg),
+    transparent 0%,
+    transparent 20%,
+    black 36%,
+    black 45%,
+    transparent 50%,
+    transparent 70%,
+    black 85%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  mix-blend-mode: plus-lighter;
+  animation: rsvp-codepen-shimmer 1s linear infinite both;
+}
+
+.rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button__shine::after {
+  content: "";
+  position: absolute;
+  inset: var(--inset);
+  opacity: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: color;
+  transition: all 0.5s ease;
+}
+
+.rsvp-shimmer-button__shine::before {
+  z-index: -1;
+  box-shadow:
+    0 0 calc(var(--inset) * 0.1) 2px hsl(var(--glow-hue) 20% 95%),
+    0 0 calc(var(--inset) * 0.18) 4px hsl(var(--glow-hue) 20% 80%),
+    0 0 calc(var(--inset) * 0.33) 4px hsl(var(--glow-hue) 50% 70%),
+    0 0 calc(var(--inset) * 0.66) 5px hsl(var(--glow-hue) 100% 70%);
+}
+
+.rsvp-shimmer-button__shine::after {
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--glow-hue) 70% 95%),
+    inset 0 0 2px 1px hsl(var(--glow-hue) 100% 80%),
+    inset 0 0 5px 2px hsl(var(--glow-hue) 100% 70%);
+}
+
+.rsvp-shimmer-button:hover .rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button:hover .rsvp-shimmer-button__shine::after,
+.rsvp-shimmer-button:focus-visible .rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button:focus-visible .rsvp-shimmer-button__shine::after {
+  opacity: 1;
+  animation: rsvp-codepen-shine 1.2s ease-in 1 forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-shimmer-button,
+  .rsvp-shimmer-button__shine,
+  .rsvp-shimmer-button__shine::before,
+  .rsvp-shimmer-button__shine::after {
+    animation: none;
+    transition-duration: 0.01ms;
   }
 }

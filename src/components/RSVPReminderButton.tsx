@@ -63,6 +63,7 @@ export default function RSVPReminderButton({
               alt=""
               aria-hidden="true"
             />
+            <span className="rsvp-shimmer-button__shine" aria-hidden="true" />
             <span className="sr-only">{"Confirma presen\u00e7a"}</span>
           </button>
         </motion.div>
