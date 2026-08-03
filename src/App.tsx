@@ -68,7 +68,7 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Parse URL routing triggers
+  // Parse URL routing triggers URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const guestId = params.get('i') || params.get('invite');
