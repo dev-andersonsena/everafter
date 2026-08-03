@@ -73,6 +73,7 @@ html {
   --rsvp-shimmer-angle: 25deg;
   position: relative;
   isolation: isolate;
+  top: -22px;
   width: 100%;
   aspect-ratio: 4.05 / 1;
   padding: 1.25rem 2rem;
@@ -114,6 +115,7 @@ html {
 .rsvp-shimmer-button__text {
   position: relative;
   z-index: 2;
+  top: -4px;
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(1.15rem, 2.35vw, 1.55rem);
   font-weight: 500;
@@ -157,6 +159,23 @@ html {
 .rsvp-shimmer-button:focus-visible {
   outline: 3px solid rgba(200, 104, 64, 0.28);
   outline-offset: 5px;
+}
+
+/* Desktop: cover the regular "Confirmar Presen?a" navigation item. */
+@media (min-width: 641px) {
+  .rsvp-reminder-position {
+    z-index: 45;
+    top: 0.5rem;
+    width: 13rem;
+  }
+
+  .rsvp-shimmer-button {
+    padding: 0.55rem 1rem;
+  }
+
+  .rsvp-shimmer-button__text {
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+  }
 }
 
 @media (max-width: 640px) {
