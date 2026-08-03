@@ -13,13 +13,24 @@ import StandaloneRSVP from './components/StandaloneRSVP';
 import RSVPSuccess from './components/RSVPSuccess';
 import VoiceChatbot from './components/VoiceChatbot';
 import RSVPReminderButton from './components/RSVPReminderButton';
+import IntroVideo from './components/IntroVideo';
 import { Guest } from './types';
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const skipIntro = params.has('admin') || params.has('recepcao') || params.has('checkin');
+      if (skipIntro) return false;
+      return sessionStorage.getItem('wedding_intro_seen') !== 'true';
+    }
+    return true;
+  });
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
-  // Custom Dynamic State Manager
+
+  // Custom Dynamic State Manager teste
   const [guest, setGuest] = useState<Guest | null>(null);
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
   const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
@@ -68,7 +79,7 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Parse URL routing triggers URL
+  // Parse URL routing triggers
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const guestId = params.get('i') || params.get('invite');
@@ -113,7 +124,7 @@ export default function App() {
     let loopTimeout: NodeJS.Timeout;
 
     // Phase 1: MusicPlayer is initially visible for 5s (0s-5s). Chatbot is hidden.
-    
+
     // Phase 2: At 5s, MusicPlayer disappears, and VoiceChatbot appears in its place.
     t1 = setTimeout(() => {
       setMusicState('hidden');
@@ -215,11 +226,11 @@ export default function App() {
   }
   if (viewMode === 'rsvp') {
     return (
-      <StandaloneRSVP 
+      <StandaloneRSVP
         onClose={() => {
           window.history.replaceState({}, document.title, window.location.pathname);
           setViewMode('invite');
-        }} 
+        }}
         onSuccess={(newGuest) => {
           setGuest(newGuest);
           setRsvpSuccessGuest(newGuest);
@@ -231,162 +242,181 @@ export default function App() {
 
   if (viewMode === 'rsvp_success' && rsvpSuccessGuest) {
     return (
-      <RSVPSuccess 
-        guest={rsvpSuccessGuest} 
+      <RSVPSuccess
+        guest={rsvpSuccessGuest}
         onClose={() => {
           setRsvpSuccessGuest(null);
           setViewMode('invite');
           window.history.replaceState({}, document.title, window.location.pathname);
-        }} 
+        }}
       />
     );
   }
 
   return (
-    <div id="app-root" className="min-h-screen bg-gold-50 font-sans text-gold-950 antialiased selection:bg-gold-200 selection:text-gold-950">
-      
-
-      {/* Navigation Header */}
-      <header
-        id="main-navigation"
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-gold-50/95 backdrop-blur-md border-b border-gold-200/20 py-3 shadow-sm' 
-            : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          
-          {/* Initials Logo */}
-          <button 
-            onClick={() => scrollToSection('inicio')}
-            className={`font-serif font-medium text-sm tracking-[0.25em] uppercase cursor-pointer select-none transition-colors duration-300 ${
-              isScrolled ? 'text-gold-800 hover:text-gold-950' : 'text-gold-700 hover:text-gold-900'
+    <AnimatePresence mode="wait">
+      {showIntro ? (
+        <motion.div
+          key="intro-video"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
+        >
+          <IntroVideo onComplete={() => {
+            setShowIntro(false);
+            sessionStorage.setItem('wedding_intro_seen', 'true');
+          }} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="main-site"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
+          id="app-root"
+          className="min-h-screen bg-gold-50 font-sans text-gold-950 antialiased selection:bg-gold-200 selection:text-gold-950"
+        >
+          {/* Navigation Header */}
+          <header
+            id="main-navigation"
+            className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+              isScrolled
+                ? 'bg-gold-50/95 backdrop-blur-md border-b border-gold-200/20 py-3 shadow-sm'
+                : 'bg-transparent py-5'
             }`}
           >
-            A <span className="font-handwriting text-base text-gold-500 lowercase font-normal normal-case italic">e</span> H
-          </button>
+            <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.filter((link) => link.id !== 'rsvp').map((link) => (
+              {/* Initials Logo */}
               <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
-                className={`font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer select-none relative py-1 transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gold-700 hover:text-gold-900' 
-                    : 'text-gold-600/90 hover:text-gold-800'
+                onClick={() => scrollToSection('inicio')}
+                className={`font-serif font-medium text-sm tracking-[0.25em] uppercase cursor-pointer select-none transition-colors duration-300 ${
+                  isScrolled ? 'text-gold-800 hover:text-gold-950' : 'text-gold-700 hover:text-gold-900'
                 }`}
               >
-                {link.name}
+                A <span className="font-handwriting text-base text-gold-500 lowercase font-normal normal-case italic">e</span> H
               </button>
-            ))}
-            <RSVPReminderButton
-              placement="desktop"
-              hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
-              chatbotInUse={chatbotInUse}
-              chatbotCooldownUntil={chatbotCooldownUntil}
-              onClick={() => scrollToSection('rsvp')}
+
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center gap-8">
+                {navLinks.filter((link) => link.id !== 'rsvp').map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className={`font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer select-none relative py-1 transition-colors duration-300 ${
+                      isScrolled
+                        ? 'text-gold-700 hover:text-gold-900'
+                        : 'text-gold-600/90 hover:text-gold-800'
+                    }`}
+                  >
+                    {link.name}
+                  </button>
+                ))}
+                <RSVPReminderButton
+                  placement="desktop"
+                  hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+                  chatbotInUse={chatbotInUse}
+                  chatbotCooldownUntil={chatbotCooldownUntil}
+                  onClick={() => scrollToSection('rsvp')}
+                />
+              </nav>
+
+              {/* Mobile Menu Toggle Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`md:hidden p-1.5 rounded-lg cursor-pointer transition-colors ${
+                  isScrolled ? 'text-gold-800' : 'text-gold-600'
+                }`}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
+          </header>
+
+          {/* Mobile Menu Drawer */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="fixed top-[52px] left-0 right-0 z-35 bg-gold-50 border-b border-gold-200/20 shadow-xl overflow-hidden md:hidden font-sans"
+              >
+                <nav className="flex flex-col p-6 space-y-4">
+                  {navLinks.map((link) => (
+                    <button
+                      key={link.id}
+                      onClick={() => scrollToSection(link.id)}
+                      className="text-left text-gold-800 hover:text-gold-600 font-semibold text-sm py-2 tracking-wider uppercase cursor-pointer"
+                    >
+                      {link.name}
+                    </button>
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Main Sections */}
+          <main>
+            {/* Hero Section */}
+            <Hero />
+
+            {/* Event Details Section */}
+            <Details />
+
+            {/* Gift List Section */}
+            <Gifts />
+
+            {/* RSVP Section */}
+            <RSVP
+              guest={guest}
+              onRsvpSubmit={(updated) => {
+                setGuest(updated);
+                if (updated && updated.confirmado === true) {
+                  setRsvpSuccessGuest(updated);
+                  setViewMode('rsvp_success');
+                }
+              }}
+              onRequestStandaloneRSVP={() => {
+                setViewMode('rsvp');
+                window.history.pushState({}, '', '?rsvp=new');
+              }}
             />
-          </nav>
+          </main>
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`md:hidden p-1.5 rounded-lg cursor-pointer transition-colors ${
-              isScrolled ? 'text-gold-800' : 'text-gold-600'
-            }`}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </header>
+          {/* Elegant, Sweet Footer */}
+          <footer id="app-footer" className="bg-gold-100/50 py-16 text-center border-t border-gold-200/30 px-4 font-sans text-xs text-gold-700">
+            <div className="max-w-md mx-auto flex flex-col items-center gap-4">
+              <Heart size={16} className="text-gold-500 fill-current animate-pulse mb-1" />
+              <p className="font-serif uppercase tracking-[0.18em] text-gold-800 text-sm font-medium">Alana &amp; Henderson</p>
+              <p className="tracking-wider">Feito com amor • 07 de Setembro de 2026</p>
 
-      {/* Mobile Menu Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-[52px] left-0 right-0 z-35 bg-gold-50 border-b border-gold-200/20 shadow-xl overflow-hidden md:hidden font-sans"
-          >
-            <nav className="flex flex-col p-6 space-y-4">
-              {navLinks.map((link) => (
+              {/* Admin and Reception Desk Shortcuts */}
+              <div className="flex gap-4 items-center justify-center pt-6 border-t border-gold-200/40 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-gold-600">
                 <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className="text-left text-gold-800 hover:text-gold-600 font-semibold text-sm py-2 tracking-wider uppercase cursor-pointer"
+                  onClick={() => setViewMode('admin')}
+                  className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                  {link.name}
+                  <Shield size={12} />
+                  Painel Noivos (Admin)
                 </button>
-              ))}
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <span>•</span>
+                <button
+                  onClick={() => setViewMode('recepcao')}
+                  className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <CheckSquare size={12} />
+                  Portaria (Check-In)
+                </button>
+              </div>
+            </div>
+          </footer>
 
-      {/* Main Sections */}
-      <main>
-        {/* Hero Section */}
-        <Hero />
-
-        {/* Event Details Section */}
-        <Details />
-
-        {/* Gift List Section */}
-        <Gifts />
-
-        {/* RSVP Section */}
-        <RSVP 
-          guest={guest} 
-          onRsvpSubmit={(updated) => {
-            setGuest(updated);
-            if (updated && updated.confirmado === true) {
-              setRsvpSuccessGuest(updated);
-              setViewMode('rsvp_success');
-            }
-          }} 
-          onRequestStandaloneRSVP={() => {
-            setViewMode('rsvp');
-            window.history.pushState({}, '', '?rsvp=new');
-          }}
-        />
-      </main>
-
-      {/* Elegant, Sweet Footer */}
-      <footer id="app-footer" className="bg-gold-100/50 py-16 text-center border-t border-gold-200/30 px-4 font-sans text-xs text-gold-700">
-        <div className="max-w-md mx-auto flex flex-col items-center gap-4">
-          <Heart size={16} className="text-gold-500 fill-current animate-pulse mb-1" />
-          <p className="font-serif uppercase tracking-[0.18em] text-gold-800 text-sm font-medium">Alana &amp; Henderson</p>
-          <p className="tracking-wider">Feito com amor • 07 de Setembro de 2026</p>
-          
-          {/* Admin and Reception Desk Shortcuts */}
-          <div className="flex gap-4 items-center justify-center pt-6 border-t border-gold-200/40 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-gold-600">
-            <button 
-              onClick={() => setViewMode('admin')} 
-              className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <Shield size={12} />
-              Painel Noivos (Admin)
-            </button>
-            <span>•</span>
-            <button 
-              onClick={() => setViewMode('recepcao')} 
-              className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <CheckSquare size={12} />
-              Portaria (Check-In)
-            </button>
-          </div>
-        </div>
-      </footer>
-
-      {/* Floating Music Controller */}
-      <MusicPlayer displayState={musicState} />
+          {/* Floating Music Controller */}
+          <MusicPlayer displayState={musicState} />
 
       {/* Floating Voice Assistant Chatbot */}
       <VoiceChatbot
@@ -408,6 +438,8 @@ export default function App() {
         onClick={() => scrollToSection('rsvp')}
       />
 
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
