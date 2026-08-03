@@ -30,7 +30,7 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  // Custom Dynamic State Manager
+  // Custom Dynamic State Manager teste
   const [guest, setGuest] = useState<Guest | null>(null);
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
   const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
