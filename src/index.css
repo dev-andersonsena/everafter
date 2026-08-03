@@ -200,3 +200,213 @@ html {
     animation: none;
   }
 }
+
+/* Final floral RSVP button: responsive placement plus scoped CodePen shimmer. */
+@property --shimmer {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 33deg;
+}
+
+@keyframes rsvp-codepen-shimmer {
+  0% { --shimmer: 0deg; }
+  100% { --shimmer: 360deg; }
+}
+
+@keyframes rsvp-codepen-shine {
+  0% { opacity: 0; }
+  15%, 55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.rsvp-reminder-position--desktop {
+  display: none;
+}
+
+.rsvp-reminder-position--mobile {
+  position: fixed;
+  z-index: 39;
+  top: 4.75rem;
+  right: 1.25rem;
+  width: clamp(10.5rem, 44vw, 12rem);
+}
+
+.rsvp-shimmer-button {
+  --glow-hue: 222deg;
+  --shadow-hue: 180deg;
+  --spring-easing: linear(
+    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156, 0.312 5.8%, 0.789 11.1%, 1.015 14.2%,
+    1.096, 1.157, 1.199, 1.224 20.3%, 1.231, 1.231, 1.226, 1.214 24.6%,
+    1.176 26.9%, 1.057 32.6%, 1.007 35.5%, 0.984, 0.968, 0.956, 0.949 42%,
+    0.946 44.1%, 0.95 46.5%, 0.998 57.2%, 1.007, 1.011 63.3%, 1.012 68.3%,
+    0.998 84%, 1
+  );
+  --spring-duration: 1.33s;
+  --inset: 40px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0.66em;
+  background: transparent;
+  cursor: pointer;
+  scale: 1;
+  transform: none;
+  box-shadow:
+    0 2px 3px 1px hsl(var(--glow-hue) 50% 20% / 50%),
+    inset 0 -10px 20px -10px hsla(var(--shadow-hue), 10%, 90%, 95%);
+  transition: all var(--spring-duration) var(--spring-easing);
+}
+
+.rsvp-shimmer-button::before,
+.rsvp-shimmer-button::after {
+  content: none;
+  display: none;
+}
+
+.rsvp-floral-button-image {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+.rsvp-shimmer-button:hover:not(:active),
+.rsvp-shimmer-button:focus-visible {
+  scale: 1.2;
+  transform: none;
+  transition-duration: calc(var(--spring-duration) * 0.5);
+  box-shadow:
+    0 4px 8px -2px hsl(var(--glow-hue) 50% 20% / 50%),
+    inset 0 0 0 transparent;
+}
+
+.rsvp-shimmer-button:active {
+  scale: 1.1;
+  transform: none;
+  transition-duration: calc(var(--spring-duration) * 0.5);
+}
+
+.rsvp-shimmer-button__shine {
+  display: block;
+  position: absolute;
+  inset: calc(var(--inset) * -1);
+  z-index: 2;
+  overflow: visible;
+  border-radius: inherit;
+  pointer-events: none;
+  background: none;
+  transform: none;
+  -webkit-mask-image: conic-gradient(
+    from var(--shimmer, 0deg),
+    transparent 0%, transparent 20%,
+    black 36%, black 45%,
+    transparent 50%, transparent 70%,
+    black 85%, black 95%,
+    transparent 100%
+  );
+  mask-image: conic-gradient(
+    from var(--shimmer, 0deg),
+    transparent 0%, transparent 20%,
+    black 36%, black 45%,
+    transparent 50%, transparent 70%,
+    black 85%, black 95%,
+    transparent 100%
+  );
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  mix-blend-mode: plus-lighter;
+  animation: rsvp-codepen-shimmer 1s linear infinite both;
+}
+
+.rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button__shine::after {
+  content: "";
+  position: absolute;
+  inset: var(--inset);
+  opacity: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: color;
+  transition: all 0.5s ease;
+}
+
+.rsvp-shimmer-button__shine::before {
+  z-index: -1;
+  box-shadow:
+    0 0 calc(var(--inset) * 0.1) 2px hsl(var(--glow-hue) 20% 95%),
+    0 0 calc(var(--inset) * 0.18) 4px hsl(var(--glow-hue) 20% 80%),
+    0 0 calc(var(--inset) * 0.33) 4px hsl(var(--glow-hue) 50% 70%),
+    0 0 calc(var(--inset) * 0.66) 5px hsl(var(--glow-hue) 100% 70%);
+}
+
+.rsvp-shimmer-button__shine::after {
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--glow-hue) 70% 95%),
+    inset 0 0 2px 1px hsl(var(--glow-hue) 100% 80%),
+    inset 0 0 5px 2px hsl(var(--glow-hue) 100% 70%);
+}
+
+.rsvp-shimmer-button:hover .rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button:hover .rsvp-shimmer-button__shine::after,
+.rsvp-shimmer-button:focus-visible .rsvp-shimmer-button__shine::before,
+.rsvp-shimmer-button:focus-visible .rsvp-shimmer-button__shine::after {
+  opacity: 1;
+  animation: rsvp-codepen-shine 1.2s ease-in 1 forwards;
+}
+
+@media (min-width: 768px) {
+  .rsvp-reminder-position--desktop {
+    display: block;
+    position: static;
+    z-index: auto;
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .rsvp-reminder-position--mobile {
+    display: none;
+  }
+
+  .rsvp-reminder-position--desktop .rsvp-shimmer-button {
+    top: 0;
+    width: 11.5rem;
+    height: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .rsvp-reminder-position--desktop {
+    display: none;
+  }
+
+  .rsvp-reminder-position--mobile {
+    display: block;
+  }
+
+  .rsvp-reminder-position--mobile .rsvp-shimmer-button {
+    top: -22px;
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-shimmer-button,
+  .rsvp-shimmer-button__shine,
+  .rsvp-shimmer-button__shine::before,
+  .rsvp-shimmer-button__shine::after {
+    animation: none;
+    transition-duration: 0.01ms;
+  }
+}
