@@ -29,7 +29,7 @@ export default function App() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   // Custom Dynamic State Manager teste
   const [guest, setGuest] = useState<Guest | null>(null);
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
@@ -124,7 +124,7 @@ export default function App() {
     let loopTimeout: NodeJS.Timeout;
 
     // Phase 1: MusicPlayer is initially visible for 5s (0s-5s). Chatbot is hidden.
-    
+
     // Phase 2: At 5s, MusicPlayer disappears, and VoiceChatbot appears in its place.
     t1 = setTimeout(() => {
       setMusicState('hidden');
@@ -226,11 +226,11 @@ export default function App() {
   }
   if (viewMode === 'rsvp') {
     return (
-      <StandaloneRSVP 
+      <StandaloneRSVP
         onClose={() => {
           window.history.replaceState({}, document.title, window.location.pathname);
           setViewMode('invite');
-        }} 
+        }}
         onSuccess={(newGuest) => {
           setGuest(newGuest);
           setRsvpSuccessGuest(newGuest);
@@ -242,13 +242,13 @@ export default function App() {
 
   if (viewMode === 'rsvp_success' && rsvpSuccessGuest) {
     return (
-      <RSVPSuccess 
-        guest={rsvpSuccessGuest} 
+      <RSVPSuccess
+        guest={rsvpSuccessGuest}
         onClose={() => {
           setRsvpSuccessGuest(null);
           setViewMode('invite');
           window.history.replaceState({}, document.title, window.location.pathname);
-        }} 
+        }}
       />
     );
   }
@@ -280,15 +280,15 @@ export default function App() {
           <header
             id="main-navigation"
             className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-              isScrolled 
-                ? 'bg-gold-50/95 backdrop-blur-md border-b border-gold-200/20 py-3 shadow-sm' 
+              isScrolled
+                ? 'bg-gold-50/95 backdrop-blur-md border-b border-gold-200/20 py-3 shadow-sm'
                 : 'bg-transparent py-5'
             }`}
           >
             <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-              
+
               {/* Initials Logo */}
-              <button 
+              <button
                 onClick={() => scrollToSection('inicio')}
                 className={`font-serif font-medium text-sm tracking-[0.25em] uppercase cursor-pointer select-none transition-colors duration-300 ${
                   isScrolled ? 'text-gold-800 hover:text-gold-950' : 'text-gold-700 hover:text-gold-900'
@@ -299,19 +299,26 @@ export default function App() {
 
               {/* Desktop Navigation */}
               <nav className="hidden md:flex items-center gap-8">
-                {navLinks.map((link) => (
+                {navLinks.filter((link) => link.id !== 'rsvp').map((link) => (
                   <button
                     key={link.id}
                     onClick={() => scrollToSection(link.id)}
                     className={`font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer select-none relative py-1 transition-colors duration-300 ${
-                      isScrolled 
-                        ? 'text-gold-700 hover:text-gold-900' 
+                      isScrolled
+                        ? 'text-gold-700 hover:text-gold-900'
                         : 'text-gold-600/90 hover:text-gold-800'
                     }`}
                   >
                     {link.name}
                   </button>
                 ))}
+                <RSVPReminderButton
+                  placement="desktop"
+                  hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+                  chatbotInUse={chatbotInUse}
+                  chatbotCooldownUntil={chatbotCooldownUntil}
+                  onClick={() => scrollToSection('rsvp')}
+                />
               </nav>
 
               {/* Mobile Menu Toggle Button */}
@@ -364,15 +371,15 @@ export default function App() {
             <Gifts />
 
             {/* RSVP Section */}
-            <RSVP 
-              guest={guest} 
+            <RSVP
+              guest={guest}
               onRsvpSubmit={(updated) => {
                 setGuest(updated);
                 if (updated && updated.confirmado === true) {
                   setRsvpSuccessGuest(updated);
                   setViewMode('rsvp_success');
                 }
-              }} 
+              }}
               onRequestStandaloneRSVP={() => {
                 setViewMode('rsvp');
                 window.history.pushState({}, '', '?rsvp=new');
@@ -386,19 +393,19 @@ export default function App() {
               <Heart size={16} className="text-gold-500 fill-current animate-pulse mb-1" />
               <p className="font-serif uppercase tracking-[0.18em] text-gold-800 text-sm font-medium">Alana &amp; Henderson</p>
               <p className="tracking-wider">Feito com amor • 07 de Setembro de 2026</p>
-              
+
               {/* Admin and Reception Desk Shortcuts */}
               <div className="flex gap-4 items-center justify-center pt-6 border-t border-gold-200/40 w-full mt-4 text-[10px] uppercase tracking-widest font-semibold text-gold-600">
-                <button 
-                  onClick={() => setViewMode('admin')} 
+                <button
+                  onClick={() => setViewMode('admin')}
                   className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Shield size={12} />
                   Painel Noivos (Admin)
                 </button>
                 <span>•</span>
-                <button 
-                  onClick={() => setViewMode('recepcao')} 
+                <button
+                  onClick={() => setViewMode('recepcao')}
                   className="hover:text-gold-800 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <CheckSquare size={12} />
@@ -424,13 +431,12 @@ export default function App() {
 
       {/* RSVP reminder: 20s after entry, or 30s after the chatbot is closed. */}
       <RSVPReminderButton
+        placement="mobile"
         hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
         chatbotInUse={chatbotInUse}
         chatbotCooldownUntil={chatbotCooldownUntil}
         onClick={() => scrollToSection('rsvp')}
       />
-          {/* Floating Voice Assistant Chatbot */}
-          <VoiceChatbot visible={chatbotVisible} />
 
         </motion.div>
       )}
