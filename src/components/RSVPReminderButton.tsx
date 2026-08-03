@@ -6,7 +6,6 @@ interface RSVPReminderButtonProps {
   chatbotInUse: boolean;
   chatbotCooldownUntil: number | null;
   onClick: () => void;
-  placement: "desktop" | "mobile";
 }
 
 const INITIAL_DELAY_MS = 20_000;
@@ -16,7 +15,6 @@ export default function RSVPReminderButton({
   chatbotInUse,
   chatbotCooldownUntil,
   onClick,
-  placement,
 }: RSVPReminderButtonProps) {
   const enteredAt = useRef(Date.now());
   const [isVisible, setIsVisible] = useState(false);
@@ -45,7 +43,7 @@ export default function RSVPReminderButton({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className={`rsvp-reminder-position rsvp-reminder-position--${placement}`}
+          className="rsvp-reminder-position"
           initial={{ opacity: 0, y: -14, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.97 }}
@@ -57,14 +55,8 @@ export default function RSVPReminderButton({
             onClick={onClick}
             aria-label={"Abrir confirma\u00e7\u00e3o de presen\u00e7a"}
           >
-            <img
-              className="rsvp-floral-button-image"
-              src="/rsvp-button-floral-cropped.png"
-              alt=""
-              aria-hidden="true"
-            />
+            <span className="rsvp-shimmer-button__text">{"Confirma\u00e7\u00e3o de presen\u00e7a"}</span>
             <span className="rsvp-shimmer-button__shine" aria-hidden="true" />
-            <span className="sr-only">{"Confirma presen\u00e7a"}</span>
           </button>
         </motion.div>
       )}
