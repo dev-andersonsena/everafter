@@ -269,7 +269,7 @@ export default function App() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {navLinks.filter((link) => link.id !== 'rsvp').map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
@@ -282,6 +282,13 @@ export default function App() {
                 {link.name}
               </button>
             ))}
+            <RSVPReminderButton
+              placement="desktop"
+              hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+              chatbotInUse={chatbotInUse}
+              chatbotCooldownUntil={chatbotCooldownUntil}
+              onClick={() => scrollToSection('rsvp')}
+            />
           </nav>
 
           {/* Mobile Menu Toggle Button */}
@@ -394,6 +401,7 @@ export default function App() {
 
       {/* RSVP reminder: 20s after entry, or 30s after the chatbot is closed. */}
       <RSVPReminderButton
+        placement="mobile"
         hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
         chatbotInUse={chatbotInUse}
         chatbotCooldownUntil={chatbotCooldownUntil}
