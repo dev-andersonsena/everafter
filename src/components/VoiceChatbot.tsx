@@ -24,7 +24,7 @@ export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotPro
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: 'Olá! Sou o Assessora Virtual. Vou ajudar você a confirmar sua presença.',
+      content: 'Olá! Sou o Assessora Virtual. Vamos confirmar sua presença, lhe ajudo no preenchimento.',
       action: 'welcome_rsvp'
     },
   ]);
@@ -165,7 +165,7 @@ const startFallbackLipSync = () => {
       window.speechSynthesis?.cancel();
       stopLipSync();
       autoCloseTimerRef.current = null;
-    }, 8000);
+    }, 4000);
 
     return () => {
       if (autoCloseTimerRef.current !== null) {
