@@ -68,3 +68,11 @@ export interface AccessLog {
   celular: string;
   cidade: string;
 }
+export interface CompanionLink {
+  hash: string;
+  acompanhantes_limite: number;
+  guest_id: string | null;
+  guest_nome?: string | null;
+  created_at: string;
+  used_at: string | null;
+}

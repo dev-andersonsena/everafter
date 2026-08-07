@@ -212,6 +212,14 @@ interface AccessLog {
   celular: string;
   cidade: string;
 }
+interface CompanionLink {
+  hash: string;
+  acompanhantes_limite: number;
+  guest_id: string | null;
+  guest_nome?: string | null;
+  created_at: string;
+  used_at: string | null;
+}
 
 // Memory database fallback for preview sandbox
 let memoryGuests: Guest[] = [
@@ -265,6 +273,7 @@ let memoryGuests: Guest[] = [
   }
 ];
 
+let memoryCompanionLinks: CompanionLink[] = [];
 let memoryAccessLogs: AccessLog[] = [
   {
     id: 1,
@@ -321,11 +330,11 @@ async function initDb() {
       );
     `);
 
-    // Auto-migrate: Drop columns that are no longer needed
+    // Keep RSVP companion data on the guest record for reporting and check-in.
     try {
-      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS acompanhantes;`);
-      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS acompanhantes_nomes;`);
-      await client.query(`ALTER TABLE dados.registro DROP COLUMN IF EXISTS restricao_alimentar;`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS acompanhantes INTEGER NOT NULL DEFAULT 0;`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS acompanhantes_nomes TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS restricao_alimentar TEXT NOT NULL DEFAULT '';`);
       console.log("🟢 Colunas desnecessárias removidas com sucesso (se existiam).");
     } catch (migError) {
       console.warn("⚠️ Nota sobre migração de colunas:", migError);
@@ -343,6 +352,17 @@ async function initDb() {
         cidade VARCHAR(100)
       );
     `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS dados.companion_links (
+        hash VARCHAR(64) PRIMARY KEY,
+        acompanhantes_limite INTEGER NOT NULL CHECK (acompanhantes_limite BETWEEN 1 AND 20),
+        guest_id VARCHAR(50) UNIQUE REFERENCES dados.registro(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        used_at TIMESTAMP
+      );
+    `);
+
     
     client.release();
     console.log("🟢 Banco de dados PostgreSQL inicializado (schema 'dados' e tabelas prontas).");
@@ -365,9 +385,9 @@ async function getGuests(): Promise<Guest[]> {
       telefone: row.telefone,
       acompanhantes_limite: row.acompanhantes_limite || 0,
       confirmado: row.confirmado,
-      acompanhantes: 0,
-      acompanhantes_nomes: [],
-      restricao_alimentar: '',
+      acompanhantes: Number(row.acompanhantes) || 0,
+      acompanhantes_nomes: Array.isArray(row.acompanhantes_nomes) ? row.acompanhantes_nomes : [],
+      restricao_alimentar: row.restricao_alimentar || '',
       mensagem: row.mensagem || '',
       mesa: row.mesa || '',
       check_in: row.check_in || false,
@@ -390,9 +410,9 @@ async function getGuestById(id: string): Promise<Guest | null> {
       telefone: row.telefone,
       acompanhantes_limite: row.acompanhantes_limite || 0,
       confirmado: row.confirmado,
-      acompanhantes: 0,
-      acompanhantes_nomes: [],
-      restricao_alimentar: '',
+      acompanhantes: Number(row.acompanhantes) || 0,
+      acompanhantes_nomes: Array.isArray(row.acompanhantes_nomes) ? row.acompanhantes_nomes : [],
+      restricao_alimentar: row.restricao_alimentar || '',
       mensagem: row.mensagem || '',
       mesa: row.mesa || '',
       check_in: row.check_in || false,
@@ -436,6 +456,7 @@ async function addPublicGuestRSVP(g: {
   acompanhantes_nomes: string[];
   restricao_alimentar: string;
   mensagem: string;
+  acompanhantes_limite?: number;
 }): Promise<Guest> {
   const id = "guest_pub_" + Math.random().toString(36).substring(2, 11);
   const newGuest: Guest = {
@@ -443,11 +464,11 @@ async function addPublicGuestRSVP(g: {
     nome: g.nome,
     email: g.email || "",
     telefone: g.telefone || "",
-    acompanhantes_limite: 0,
+    acompanhantes_limite: g.acompanhantes_limite || 0,
     confirmado: true,
-    acompanhantes: 0,
-    acompanhantes_nomes: [],
-    restricao_alimentar: '',
+    acompanhantes: g.acompanhantes,
+    acompanhantes_nomes: g.acompanhantes_nomes,
+    restricao_alimentar: g.restricao_alimentar,
     mensagem: g.mensagem || '',
     mesa: '',
     check_in: false,
@@ -458,15 +479,19 @@ async function addPublicGuestRSVP(g: {
   if (usePostgres) {
     await pool.query(`
       INSERT INTO dados.registro (
-        id, nome, email, telefone, confirmado, mensagem
+        id, nome, email, telefone, acompanhantes_limite, confirmado, acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `, [
       newGuest.id,
       newGuest.nome,
       newGuest.email,
       newGuest.telefone,
+      newGuest.acompanhantes_limite,
       newGuest.confirmado,
+      newGuest.acompanhantes,
+      newGuest.acompanhantes_nomes,
+      newGuest.restricao_alimentar,
       newGuest.mensagem
     ]);
   } else {
@@ -495,19 +520,22 @@ async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: n
     const res = await pool.query(`
       UPDATE dados.registro
       SET confirmado = $1, 
-          mensagem = $2,
-          telefone = COALESCE(NULLIF($3, ''), telefone),
-          email = COALESCE(NULLIF($4, ''), email)
-      WHERE id = $5
-    `, [confirmado, mensagem, telefone || '', email || '', id]);
+          acompanhantes = $2,
+          acompanhantes_nomes = $3,
+          restricao_alimentar = $4,
+          mensagem = $5,
+          telefone = COALESCE(NULLIF($6, ''), telefone),
+          email = COALESCE(NULLIF($7, ''), email)
+      WHERE id = $8
+    `, [confirmado, acompanhantes, acompanhantes_nomes, restricao, mensagem, telefone || '', email || '', id]);
     return (res.rowCount ?? 0) > 0;
   } else {
     const g = memoryGuests.find(g => g.id === id);
     if (g) {
       g.confirmado = confirmado;
-      g.acompanhantes = 0;
-      g.acompanhantes_nomes = [];
-      g.restricao_alimentar = '';
+      g.acompanhantes = acompanhantes;
+      g.acompanhantes_nomes = acompanhantes_nomes;
+      g.restricao_alimentar = restricao;
       g.mensagem = mensagem;
       if (telefone) g.telefone = telefone;
       if (email) g.email = email;
@@ -620,7 +648,220 @@ async function getAccessLogs(): Promise<AccessLog[]> {
 }
 
 
+async function getCompanionLinks(): Promise<CompanionLink[]> {
+  if (usePostgres) {
+    const result = await pool.query(`
+      SELECT links.*, registro.nome AS guest_nome
+      FROM dados.companion_links links
+      LEFT JOIN dados.registro registro ON registro.id = links.guest_id
+      ORDER BY links.created_at DESC
+    `);
+    return result.rows;
+  }
+  return [...memoryCompanionLinks].reverse().map(link => ({
+    ...link,
+    guest_nome: link.guest_id ? memoryGuests.find(guest => guest.id === link.guest_id)?.nome || null : null,
+  }));
+}
+
+async function getCompanionLink(hash: string): Promise<CompanionLink | null> {
+  if (usePostgres) {
+    const result = await pool.query(
+      'SELECT * FROM dados.companion_links WHERE hash = $1',
+      [hash],
+    );
+    return result.rows[0] || null;
+  }
+  return memoryCompanionLinks.find(link => link.hash === hash) || null;
+}
+
+async function createCompanionLink(acompanhantes_limite: number): Promise<CompanionLink> {
+  const hash = randomBytes(18).toString("hex");
+  if (usePostgres) {
+    const result = await pool.query(
+      'INSERT INTO dados.companion_links (hash, acompanhantes_limite) VALUES ($1, $2) RETURNING *',
+      [hash, acompanhantes_limite],
+    );
+    return result.rows[0];
+  }
+
+  const link: CompanionLink = {
+    hash,
+    acompanhantes_limite,
+    guest_id: null,
+    created_at: new Date().toISOString(),
+    used_at: null,
+  };
+  memoryCompanionLinks.push(link);
+  return link;
+}
+
+type CompanionRsvpInput = {
+  nome: string;
+  email: string;
+  telefone: string;
+  acompanhantes: number;
+  acompanhantes_nomes: string[];
+  restricao_alimentar: string;
+  mensagem: string;
+};
+
+async function redeemCompanionLink(hash: string, input: CompanionRsvpInput): Promise<Guest> {
+  if (usePostgres) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const linkResult = await client.query(
+        'SELECT * FROM dados.companion_links WHERE hash = $1 FOR UPDATE',
+        [hash],
+      );
+      const link = linkResult.rows[0];
+      if (!link) throw new Error("LINK_NOT_FOUND");
+      if (link.guest_id || link.used_at) throw new Error("LINK_ALREADY_USED");
+
+      const guestId = "guest_comp_" + randomBytes(9).toString("hex");
+      const createdAt = new Date().toISOString();
+      await client.query(`
+        INSERT INTO dados.registro (
+          id, nome, email, telefone, acompanhantes_limite, confirmado,
+          acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem
+        )
+        VALUES ($1, $2, $3, $4, $5, TRUE, $6, $7, $8, $9)
+      `, [
+        guestId,
+        input.nome,
+        input.email,
+        input.telefone,
+        link.acompanhantes_limite,
+        input.acompanhantes,
+        input.acompanhantes_nomes,
+        input.restricao_alimentar,
+        input.mensagem,
+      ]);
+      await client.query(
+        'UPDATE dados.companion_links SET guest_id = $1, used_at = CURRENT_TIMESTAMP WHERE hash = $2',
+        [guestId, hash],
+      );
+      await client.query('COMMIT');
+
+      return {
+        id: guestId,
+        nome: input.nome,
+        email: input.email,
+        telefone: input.telefone,
+        acompanhantes_limite: link.acompanhantes_limite,
+        confirmado: true,
+        acompanhantes: input.acompanhantes,
+        acompanhantes_nomes: input.acompanhantes_nomes,
+        restricao_alimentar: input.restricao_alimentar,
+        mensagem: input.mensagem,
+        mesa: '',
+        check_in: false,
+        check_in_at: null,
+        created_at: createdAt,
+      };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  const link = memoryCompanionLinks.find(candidate => candidate.hash === hash);
+  if (!link) throw new Error("LINK_NOT_FOUND");
+  if (link.guest_id || link.used_at) throw new Error("LINK_ALREADY_USED");
+
+  const guest = await addPublicGuestRSVP({
+    ...input,
+    acompanhantes_limite: link.acompanhantes_limite,
+  });
+  link.guest_id = guest.id;
+  link.used_at = new Date().toISOString();
+  return guest;
+}
 // --- API ROUTES ---
+// Companion-link management (Admin)
+app.get("/api/companion-links", requireAdmin, async (_req, res) => {
+  try {
+    res.json(await getCompanionLinks());
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/companion-links", requireAdmin, async (req, res) => {
+  try {
+    const limit = Number.parseInt(String(req.body?.acompanhantes_limite), 10);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 20) {
+      return res.status(400).json({ error: "Informe uma quantidade entre 1 e 20 acompanhantes." });
+    }
+    res.status(201).json(await createCompanionLink(limit));
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Public metadata used to render the restricted RSVP form.
+app.get("/api/companion-links/:hash", async (req, res) => {
+  try {
+    const link = await getCompanionLink(req.params.hash);
+    if (!link) return res.status(404).json({ error: "Link de acompanhantes inv\u00e1lido." });
+    if (link.guest_id || link.used_at) return res.status(410).json({ error: "Este link j\u00e1 foi utilizado." });
+    res.json({
+      hash: link.hash,
+      acompanhantes_limite: link.acompanhantes_limite,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/companion-links/:hash/rsvp", async (req, res) => {
+  try {
+    const link = await getCompanionLink(req.params.hash);
+    if (!link) return res.status(404).json({ error: "Link de acompanhantes inv\u00e1lido." });
+    if (link.guest_id || link.used_at) return res.status(410).json({ error: "Este link j\u00e1 foi utilizado." });
+
+    const nome = typeof req.body?.nome === "string" ? req.body.nome.trim() : "";
+    const email = typeof req.body?.email === "string" ? req.body.email.trim() : "";
+    const telefone = typeof req.body?.telefone === "string" ? req.body.telefone.trim() : "";
+    const acompanhantes = Number.parseInt(String(req.body?.acompanhantes ?? 0), 10);
+    const nomes = Array.isArray(req.body?.acompanhantes_nomes)
+      ? req.body.acompanhantes_nomes.map((value: unknown) => typeof value === "string" ? value.trim() : "")
+      : [];
+
+    if (!nome || !email || !telefone) {
+      return res.status(400).json({ error: "Nome, e-mail e telefone s\u00e3o obrigat\u00f3rios." });
+    }
+    if (!Number.isInteger(acompanhantes) || acompanhantes < 0 || acompanhantes > link.acompanhantes_limite) {
+      return res.status(400).json({ error: "Quantidade de acompanhantes acima do permitido para este link." });
+    }
+    if (nomes.length !== acompanhantes || nomes.some((value: string) => !value)) {
+      return res.status(400).json({ error: "Informe o nome de todos os acompanhantes selecionados." });
+    }
+
+    const guest = await redeemCompanionLink(req.params.hash, {
+      nome,
+      email,
+      telefone,
+      acompanhantes,
+      acompanhantes_nomes: nomes,
+      restricao_alimentar: typeof req.body?.restricao_alimentar === "string" ? req.body.restricao_alimentar.trim() : "",
+      mensagem: typeof req.body?.mensagem === "string" ? req.body.mensagem.trim() : "",
+    });
+    res.status(201).json(guest);
+  } catch (error: any) {
+    if (error?.message === "LINK_NOT_FOUND") {
+      return res.status(404).json({ error: "Link de acompanhantes inv\u00e1lido." });
+    }
+    if (error?.message === "LINK_ALREADY_USED") {
+      return res.status(410).json({ error: "Este link j\u00e1 foi utilizado." });
+    }
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // 1. Get all guests (Admin)
 app.get("/api/guests", requireStaff, async (req, res) => {
@@ -703,8 +944,8 @@ app.post("/api/guests/public-rsvp", async (req, res) => {
       nome,
       email: email || "",
       telefone: telefone || "",
-      acompanhantes: parseInt(acompanhantes || "0"),
-      acompanhantes_nomes: acompanhantes_nomes || [],
+      acompanhantes: 0,
+      acompanhantes_nomes: [],
       restricao_alimentar: restricao_alimentar || "",
       mensagem: mensagem || ""
     });
@@ -755,11 +996,21 @@ app.post("/api/guests/:id/rsvp", async (req, res) => {
       return res.status(404).json({ error: "Convidado não encontrado." });
     }
 
+    const requestedCompanions = confirmado ? Number.parseInt(String(acompanhantes || 0), 10) : 0;
+    const companionNames = confirmado && Array.isArray(acompanhantes_nomes) ? acompanhantes_nomes : [];
+    if (
+      requestedCompanions < 0 ||
+      requestedCompanions > guest.acompanhantes_limite ||
+      companionNames.length !== requestedCompanions
+    ) {
+      return res.status(400).json({ error: "Quantidade de acompanhantes inv\u00e1lida para este convite." });
+    }
+
     const success = await updateGuestRSVP(
       req.params.id,
       confirmado,
-      confirmado ? parseInt(acompanhantes || "0") : 0,
-      confirmado ? (acompanhantes_nomes || []) : [],
+      requestedCompanions,
+      companionNames,
       restricao_alimentar || "",
       mensagem || "",
       telefone,
