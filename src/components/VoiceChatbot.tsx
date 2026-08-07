@@ -81,9 +81,6 @@ export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotPro
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const hasSpokenWelcomeRef = useRef(false);
-  const hasAutoOpenedRef = useRef(false);
-  const autoCloseTimerRef = useRef<number | null>(null);
-  const onUsageChangeRef = useRef(onUsageChange);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const selectedVoiceNameRef = useRef('');
   const voicePitchRef = useRef(voicePitch);
@@ -93,7 +90,6 @@ export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotPro
   selectedVoiceNameRef.current = selectedVoiceName;
   voicePitchRef.current = voicePitch;
   voiceRateRef.current = voiceRate;
-  onUsageChangeRef.current = onUsageChange;
 
 
   const lipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -152,29 +148,6 @@ const startFallbackLipSync = () => {
 };
 
   // Scroll to bottom on new messages
-  // Open the conversation once, two seconds after the site makes it visible.
-  useEffect(() => {
-    if (!visible || hasAutoOpenedRef.current) return;
-    hasAutoOpenedRef.current = true;
-    setIsOpen(true);
-    onUsageChangeRef.current?.(true);
-
-    autoCloseTimerRef.current = window.setTimeout(() => {
-      setIsOpen(false);
-      onUsageChangeRef.current?.(false);
-      window.speechSynthesis?.cancel();
-      stopLipSync();
-      autoCloseTimerRef.current = null;
-    }, 4000);
-
-    return () => {
-      if (autoCloseTimerRef.current !== null) {
-        window.clearTimeout(autoCloseTimerRef.current);
-        autoCloseTimerRef.current = null;
-        hasAutoOpenedRef.current = false;
-      }
-    };
-  }, [visible]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -400,48 +373,6 @@ const startFallbackLipSync = () => {
     window.speechSynthesis.speak(utterance);
   };
 
-  // Announce the assistant as soon as the invitation screen is ready.
-  // Mobile browsers may require the first touch before allowing speech.
-  useEffect(() => {
-    if (
-      typeof window === 'undefined' ||
-      !window.speechSynthesis ||
-      !isVoiceEnabled ||
-      !visible ||
-      hasSpokenWelcomeRef.current
-    ) {
-      return;
-    }
-
-    let disposed = false;
-    let timer: number | undefined;
-
-    const cleanupListeners = () => {
-      window.removeEventListener('pointerdown', announceWelcome);
-      window.removeEventListener('touchstart', announceWelcome);
-      window.removeEventListener('keydown', announceWelcome);
-    };
-
-    const announceWelcome = () => {
-      if (disposed || hasSpokenWelcomeRef.current) return;
-      speakText(WELCOME_MESSAGE, () => {
-        if (disposed) return;
-        hasSpokenWelcomeRef.current = true;
-        cleanupListeners();
-      });
-    };
-
-    timer = window.setTimeout(announceWelcome, 400);
-    window.addEventListener('pointerdown', announceWelcome, { passive: true });
-    window.addEventListener('touchstart', announceWelcome, { passive: true });
-    window.addEventListener('keydown', announceWelcome);
-
-    return () => {
-      disposed = true;
-      if (timer !== undefined) window.clearTimeout(timer);
-      cleanupListeners();
-    };
-  }, [visible, isVoiceEnabled]);
 
   // Toggle listening
   const toggleListening = () => {
@@ -1250,6 +1181,12 @@ const startFallbackLipSync = () => {
           const willOpen = !isOpen;
           setIsOpen(willOpen);
           onUsageChange?.(willOpen);
+
+          if (willOpen && !hasSpokenWelcomeRef.current) {
+            speakText(WELCOME_MESSAGE, () => {
+              hasSpokenWelcomeRef.current = true;
+            });
+          }
         }}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
