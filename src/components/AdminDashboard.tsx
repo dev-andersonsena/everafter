@@ -10,9 +10,10 @@ import { Guest, AccessLog, CompanionLink } from '../types';
 interface AdminDashboardProps {
   onClose: () => void;
   onLogout: () => void;
+  canDeleteGuests?: boolean;
 }
 
-export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProps) {
+export default function AdminDashboard({ onClose, onLogout, canDeleteGuests = false }: AdminDashboardProps) {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -750,14 +751,15 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                               <QrCode size={13} />
                             </button>
 
-                            {/* Delete Guest */}
-                            <button
-                              onClick={() => handleDeleteGuest(guest.id, guest.nome)}
-                              className="p-2.5 bg-stone-950 border border-stone-800 hover:border-red-500/20 text-stone-500 hover:text-red-400 rounded-xl cursor-pointer"
-                              title="Excluir Convidado"
-                            >
-                              <Trash2 size={13} />
-                            </button>
+                            {canDeleteGuests && (
+                              <button
+                                onClick={() => handleDeleteGuest(guest.id, guest.nome)}
+                                className="p-2.5 bg-stone-950 border border-stone-800 hover:border-red-500/20 text-stone-500 hover:text-red-400 rounded-xl cursor-pointer"
+                                title="Excluir Convidado"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
 
                           </div>
                         </div>

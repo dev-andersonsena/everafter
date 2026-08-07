@@ -8,6 +8,10 @@ interface Message {
   content: string;
   action?: string;
 }
+const WELCOME_MESSAGE = "Ol\u00e1! Sou a assessora virtual. Vou ajudar voc\u00ea a confirmar sua presen\u00e7a.";
+const DEFAULT_VOICE_PITCH = 0.85;
+const DEFAULT_VOICE_RATE = 0.90;
+
 
 interface VoiceChatbotProps {
   visible: boolean;
@@ -20,7 +24,7 @@ export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotPro
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: 'Olá! Sou o Assessora Virtual da Alana e do Henderson. Vamos confirmar sua presença, lhe ajudo no preenchimento. (Você pode falar comigo clicando no microfone!)',
+      content: 'Olá! Sou o Assessora Virtual. Vou ajudar você a confirmar sua presença.',
       action: 'welcome_rsvp'
     },
   ]);
@@ -65,15 +69,32 @@ export default function VoiceChatbot({ visible, onUsageChange }: VoiceChatbotPro
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [voicePitch, setVoicePitch] = useState<number>(() => {
     const saved = localStorage.getItem('wedding_voice_pitch');
-    return saved ? parseFloat(saved) : 0.85; // Deeper, announcer-like pitch by default
+    const parsed = saved ? parseFloat(saved) : Number.NaN;
+    return Number.isFinite(parsed) ? parsed : DEFAULT_VOICE_PITCH;
   });
   const [voiceRate, setVoiceRate] = useState<number>(() => {
     const saved = localStorage.getItem('wedding_voice_rate');
-    return saved ? parseFloat(saved) : 0.90; // Slower, clear broadcaster tempo
+    const parsed = saved ? parseFloat(saved) : Number.NaN;
+    return Number.isFinite(parsed) ? parsed : DEFAULT_VOICE_RATE;
   });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const hasSpokenWelcomeRef = useRef(false);
+  const hasAutoOpenedRef = useRef(false);
+  const autoCloseTimerRef = useRef<number | null>(null);
+  const onUsageChangeRef = useRef(onUsageChange);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const selectedVoiceNameRef = useRef('');
+  const voicePitchRef = useRef(voicePitch);
+  const voiceRateRef = useRef(voiceRate);
+
+  voicesRef.current = voices;
+  selectedVoiceNameRef.current = selectedVoiceName;
+  voicePitchRef.current = voicePitch;
+  voiceRateRef.current = voiceRate;
+  onUsageChangeRef.current = onUsageChange;
+
 
   const lipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fallbackLipSyncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -131,6 +152,30 @@ const startFallbackLipSync = () => {
 };
 
   // Scroll to bottom on new messages
+  // Open the conversation once, two seconds after the site makes it visible.
+  useEffect(() => {
+    if (!visible || hasAutoOpenedRef.current) return;
+    hasAutoOpenedRef.current = true;
+    setIsOpen(true);
+    onUsageChangeRef.current?.(true);
+
+    autoCloseTimerRef.current = window.setTimeout(() => {
+      setIsOpen(false);
+      onUsageChangeRef.current?.(false);
+      window.speechSynthesis?.cancel();
+      stopLipSync();
+      autoCloseTimerRef.current = null;
+    }, 8000);
+
+    return () => {
+      if (autoCloseTimerRef.current !== null) {
+        window.clearTimeout(autoCloseTimerRef.current);
+        autoCloseTimerRef.current = null;
+        hasAutoOpenedRef.current = false;
+      }
+    };
+  }, [visible]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
@@ -232,7 +277,7 @@ const startFallbackLipSync = () => {
   }, []);
 
   // Speak text using SpeechSynthesis
-  const speakText = (text: string) => {
+  const speakText = (text: string, onSpeechStart?: () => void) => {
     if (!window.speechSynthesis || !isVoiceEnabled) return;
 
     // Cancel any previous speaking
@@ -250,17 +295,26 @@ const startFallbackLipSync = () => {
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'pt-BR';
-    utterance.rate = voiceRate;
-    utterance.pitch = voicePitch; // Deeper, announcer-like pitch by default or adjusted by slider
+    // Read the latest saved settings here. This is especially important on
+    // Android, where the welcome speech may only start after the first touch.
+    utterance.rate = voiceRateRef.current;
+    utterance.pitch = voicePitchRef.current;
 
-    // Find the chosen voice from the system
-    if (selectedVoiceName) {
-      const chosenVoice = voices.find(v => v.name === selectedVoiceName);
+    // Read voices again at speech time because Android loads them asynchronously.
+    const availableVoices = voicesRef.current.length > 0
+      ? voicesRef.current
+      : window.speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('pt'));
+    const savedVoiceName = localStorage.getItem('preferred_wedding_voice');
+    const currentVoiceName = selectedVoiceNameRef.current || savedVoiceName;
+
+    if (currentVoiceName) {
+      const chosenVoice = availableVoices.find(v => v.name === currentVoiceName);
       if (chosenVoice) {
         utterance.voice = chosenVoice;
       }
     } else {
-      const ptVoice = voices.find(v => v.lang === 'pt-BR' || v.lang.startsWith('pt'));
+      const ptVoice = availableVoices.find(v => v.lang.toLowerCase() === 'pt-br')
+        || availableVoices.find(v => v.lang.toLowerCase().startsWith('pt'));
       if (ptVoice) {
         utterance.voice = ptVoice;
       }
@@ -278,6 +332,7 @@ const startFallbackLipSync = () => {
 
   utterance.onstart = () => {
     startLipSync();
+    onSpeechStart?.();
 
     // No iPhone, algumas vozes Apple não emitem onboundary.
     // Se nenhum evento de palavra chegar, ativa o modo alternativo.
@@ -345,6 +400,49 @@ const startFallbackLipSync = () => {
     window.speechSynthesis.speak(utterance);
   };
 
+  // Announce the assistant as soon as the invitation screen is ready.
+  // Mobile browsers may require the first touch before allowing speech.
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !window.speechSynthesis ||
+      !isVoiceEnabled ||
+      !visible ||
+      hasSpokenWelcomeRef.current
+    ) {
+      return;
+    }
+
+    let disposed = false;
+    let timer: number | undefined;
+
+    const cleanupListeners = () => {
+      window.removeEventListener('pointerdown', announceWelcome);
+      window.removeEventListener('touchstart', announceWelcome);
+      window.removeEventListener('keydown', announceWelcome);
+    };
+
+    const announceWelcome = () => {
+      if (disposed || hasSpokenWelcomeRef.current) return;
+      speakText(WELCOME_MESSAGE, () => {
+        if (disposed) return;
+        hasSpokenWelcomeRef.current = true;
+        cleanupListeners();
+      });
+    };
+
+    timer = window.setTimeout(announceWelcome, 400);
+    window.addEventListener('pointerdown', announceWelcome, { passive: true });
+    window.addEventListener('touchstart', announceWelcome, { passive: true });
+    window.addEventListener('keydown', announceWelcome);
+
+    return () => {
+      disposed = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+      cleanupListeners();
+    };
+  }, [visible, isVoiceEnabled]);
+
   // Toggle listening
   const toggleListening = () => {
     if (!recognition) {
@@ -409,7 +507,7 @@ const startFallbackLipSync = () => {
         const nameInput = messageText.trim();
         setRsvpData(prev => ({ ...prev, nome: nameInput }));
         
-        // Search by exact full name without exposing the complete guest list publicly
+        // Search by name without exposing the complete guest list publicly
         const res = await fetch(`/api/guests/search?q=${encodeURIComponent(nameInput)}`);
         let matches: Guest[] = [];
         if (res.ok) {

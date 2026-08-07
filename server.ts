@@ -32,7 +32,7 @@ if (geminiApiKey) {
 
 app.use(express.json());
 
-type AuthRole = "admin" | "recepcao";
+type AuthRole = "root" | "admin" | "recepcao";
 
 interface AuthSession {
   role: AuthRole;
@@ -43,6 +43,8 @@ const AUTH_COOKIE_NAME = "everafter_staff_session";
 const AUTH_SESSION_TTL_SECONDS = 8 * 60 * 60;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME?.trim() || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || String();
+const ROOT_USERNAME = "root";
+const ROOT_PASSWORD = process.env.ROOT_PASSWORD || String();
 const RECEPTION_USERNAME = process.env.RECEPTION_USERNAME?.trim() || ADMIN_USERNAME;
 const RECEPTION_PASSWORD = process.env.RECEPTION_PASSWORD || ADMIN_PASSWORD;
 const SESSION_SECRET = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
@@ -99,7 +101,7 @@ function getSession(cookieHeader?: string): AuthSession | null {
   try {
     const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AuthSession;
     if (
-      (session.role !== "admin" && session.role !== "recepcao") ||
+      (session.role !== "root" && session.role !== "admin" && session.role !== "recepcao") ||
       !Number.isFinite(session.expiresAt) ||
       session.expiresAt <= Date.now()
     ) {
@@ -127,8 +129,9 @@ function requireRoles(...allowedRoles: AuthRole[]): RequestHandler {
   };
 }
 
-const requireAdmin = requireRoles("admin");
-const requireStaff = requireRoles("admin", "recepcao");
+const requireAdmin = requireRoles("root", "admin");
+const requireRoot = requireRoles("root");
+const requireStaff = requireRoles("root", "admin", "recepcao");
 
 app.post("/api/auth/login", (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || "unknown";
@@ -141,9 +144,14 @@ app.post("/api/auth/login", (req, res) => {
 
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body?.password === "string" ? req.body.password : "";
-  const role: AuthRole = req.body?.role === "recepcao" ? "recepcao" : "admin";
-  const expectedUsername = role === "recepcao" ? RECEPTION_USERNAME : ADMIN_USERNAME;
-  const expectedPassword = role === "recepcao" ? RECEPTION_PASSWORD : ADMIN_PASSWORD;
+  const requestedRole = req.body?.role === "recepcao" ? "recepcao" : "admin";
+  const role: AuthRole = requestedRole === "admin" && username === ROOT_USERNAME ? "root" : requestedRole;
+  const expectedUsername = role === "root"
+    ? ROOT_USERNAME
+    : role === "recepcao" ? RECEPTION_USERNAME : ADMIN_USERNAME;
+  const expectedPassword = role === "root"
+    ? ROOT_PASSWORD
+    : role === "recepcao" ? RECEPTION_PASSWORD : ADMIN_PASSWORD;
   const authenticated = Boolean(expectedPassword) &&
     safeEqual(username, expectedUsername) &&
     safeEqual(password, expectedPassword);
@@ -888,7 +896,7 @@ app.get("/api/guests/search", async (req, res) => {
       .replace(/\s+/g, " ")
       .trim();
 
-    // Look for exact normalized full name match OR unique invitation code (last part of id)
+    // Restore the previous RSVP flow: accept similar names or an invitation code.
     const matched = guests.filter(g => {
       const dbNameNormalized = g.nome.toLowerCase()
         .normalize("NFD")
@@ -898,7 +906,12 @@ app.get("/api/guests/search", async (req, res) => {
       
       const guestCode = g.id.startsWith("guest_") ? g.id.substring(6).toUpperCase() : g.id.toUpperCase();
       
-      return dbNameNormalized === queryNormalized || guestCode === q.trim().toUpperCase() || g.id === q.trim();
+      return (
+        dbNameNormalized.includes(queryNormalized) ||
+        queryNormalized.includes(dbNameNormalized) ||
+        guestCode === q.trim().toUpperCase() ||
+        g.id === q.trim()
+      );
     });
 
     if (matched.length === 0) {
@@ -955,8 +968,8 @@ app.post("/api/guests/public-rsvp", async (req, res) => {
   }
 });
 
-// 3. Delete guest (Admin)
-app.delete("/api/guests/:id", requireAdmin, async (req, res) => {
+// 3. Delete guest (Root only)
+app.delete("/api/guests/:id", requireRoot, async (req, res) => {
   try {
     const success = await deleteGuest(req.params.id);
     if (!success) {
