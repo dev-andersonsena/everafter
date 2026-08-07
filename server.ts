@@ -36,6 +36,7 @@ type AuthRole = "root" | "admin" | "recepcao";
 
 interface AuthSession {
   role: AuthRole;
+  username: string;
   expiresAt: number;
 }
 
@@ -65,9 +66,10 @@ function signSessionPayload(payload: string) {
   return createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
 }
 
-function createSessionToken(role: AuthRole) {
+function createSessionToken(role: AuthRole, username: string) {
   const session: AuthSession = {
     role,
+    username,
     expiresAt: Date.now() + AUTH_SESSION_TTL_SECONDS * 1000,
   };
   const payload = Buffer.from(JSON.stringify(session)).toString("base64url");
@@ -107,6 +109,12 @@ function getSession(cookieHeader?: string): AuthSession | null {
     ) {
       return null;
     }
+    // Keeps sessions created before ownership tracking compatible until they expire.
+    if (!session.username) {
+      session.username = session.role === "root"
+        ? ROOT_USERNAME
+        : session.role === "admin" ? ADMIN_USERNAME : RECEPTION_USERNAME;
+    }
     return session;
   } catch {
     return null;
@@ -130,7 +138,6 @@ function requireRoles(...allowedRoles: AuthRole[]): RequestHandler {
 }
 
 const requireAdmin = requireRoles("root", "admin");
-const requireRoot = requireRoles("root");
 const requireStaff = requireRoles("root", "admin", "recepcao");
 
 app.post("/api/auth/login", (req, res) => {
@@ -166,14 +173,14 @@ app.post("/api/auth/login", (req, res) => {
   }
 
   loginAttempts.delete(ip);
-  res.setHeader("Set-Cookie", serializeSessionCookie(createSessionToken(role)));
-  return res.json({ authenticated: true, role });
+  res.setHeader("Set-Cookie", serializeSessionCookie(createSessionToken(role, username)));
+  return res.json({ authenticated: true, role, username });
 });
 
 app.get("/api/auth/session", (req, res) => {
   const session = getSession(req.headers.cookie);
   if (!session) return res.status(401).json({ authenticated: false });
-  return res.json({ authenticated: true, role: session.role });
+  return res.json({ authenticated: true, role: session.role, username: session.username });
 });
 
 app.post("/api/auth/logout", (_req, res) => {
@@ -209,6 +216,11 @@ interface Guest {
   check_in: boolean;
   check_in_at: string | null;
   created_at: string;
+  created_by?: string | null;
+  creation_source?: "admin" | "public" | "companion_link" | "legacy";
+  deleted_at?: string | null;
+  deleted_by?: string | null;
+  can_soft_delete?: boolean;
 }
 
 interface AccessLog {
@@ -227,6 +239,8 @@ interface CompanionLink {
   guest_nome?: string | null;
   created_at: string;
   used_at: string | null;
+  created_by?: string | null;
+  can_soft_delete?: boolean;
 }
 
 // Memory database fallback for preview sandbox
@@ -343,6 +357,11 @@ async function initDb() {
       await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS acompanhantes INTEGER NOT NULL DEFAULT 0;`);
       await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS acompanhantes_nomes TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];`);
       await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS restricao_alimentar TEXT NOT NULL DEFAULT '';`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS created_by VARCHAR(255);`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS creation_source VARCHAR(30) NOT NULL DEFAULT 'legacy';`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;`);
+      await client.query(`ALTER TABLE dados.registro ADD COLUMN IF NOT EXISTS deleted_by VARCHAR(255);`);
+      await client.query(`CREATE INDEX IF NOT EXISTS registro_active_idx ON dados.registro (created_at DESC) WHERE deleted_at IS NULL;`);
       console.log("🟢 Colunas desnecessárias removidas com sucesso (se existiam).");
     } catch (migError) {
       console.warn("⚠️ Nota sobre migração de colunas:", migError);
@@ -370,6 +389,7 @@ async function initDb() {
         used_at TIMESTAMP
       );
     `);
+    await client.query(`ALTER TABLE dados.companion_links ADD COLUMN IF NOT EXISTS created_by VARCHAR(255);`);
 
     
     client.release();
@@ -385,7 +405,7 @@ async function initDb() {
 // Database helper functions supporting both modes transparently
 async function getGuests(): Promise<Guest[]> {
   if (usePostgres) {
-    const res = await pool.query('SELECT * FROM dados.registro ORDER BY created_at DESC');
+    const res = await pool.query('SELECT * FROM dados.registro WHERE deleted_at IS NULL ORDER BY created_at DESC');
     return res.rows.map(row => ({
       id: row.id,
       nome: row.nome,
@@ -400,15 +420,19 @@ async function getGuests(): Promise<Guest[]> {
       mesa: row.mesa || '',
       check_in: row.check_in || false,
       check_in_at: row.check_in_at || null,
-      created_at: row.created_at
+      created_at: row.created_at,
+      created_by: row.created_by,
+      creation_source: row.creation_source,
+      deleted_at: row.deleted_at,
+      deleted_by: row.deleted_by
     }));
   }
-  return memoryGuests;
+  return memoryGuests.filter(guest => !guest.deleted_at);
 }
 
 async function getGuestById(id: string): Promise<Guest | null> {
   if (usePostgres) {
-    const res = await pool.query('SELECT * FROM dados.registro WHERE id = $1', [id]);
+    const res = await pool.query('SELECT * FROM dados.registro WHERE id = $1 AND deleted_at IS NULL', [id]);
     if (res.rows.length === 0) return null;
     const row = res.rows[0];
     return {
@@ -425,13 +449,17 @@ async function getGuestById(id: string): Promise<Guest | null> {
       mesa: row.mesa || '',
       check_in: row.check_in || false,
       check_in_at: row.check_in_at || null,
-      created_at: row.created_at
+      created_at: row.created_at,
+      created_by: row.created_by,
+      creation_source: row.creation_source,
+      deleted_at: row.deleted_at,
+      deleted_by: row.deleted_by
     };
   }
-  return memoryGuests.find(g => g.id === id) || null;
+  return memoryGuests.find(g => g.id === id && !g.deleted_at) || null;
 }
 
-async function addGuest(g: { id: string; nome: string; email: string; telefone: string; acompanhantes_limite: number }): Promise<Guest> {
+async function addGuest(g: { id: string; nome: string; email: string; telefone: string; acompanhantes_limite: number }, createdBy: string): Promise<Guest> {
   const newGuest: Guest = {
     ...g,
     confirmado: null,
@@ -442,14 +470,18 @@ async function addGuest(g: { id: string; nome: string; email: string; telefone: 
     mesa: '',
     check_in: false,
     check_in_at: null,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    created_by: createdBy,
+    creation_source: 'admin',
+    deleted_at: null,
+    deleted_by: null
   };
 
   if (usePostgres) {
     await pool.query(`
-      INSERT INTO dados.registro (id, nome, email, telefone, acompanhantes_limite)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [newGuest.id, newGuest.nome, newGuest.email, newGuest.telefone, newGuest.acompanhantes_limite]);
+      INSERT INTO dados.registro (id, nome, email, telefone, acompanhantes_limite, created_by, creation_source)
+      VALUES ($1, $2, $3, $4, $5, $6, 'admin')
+    `, [newGuest.id, newGuest.nome, newGuest.email, newGuest.telefone, newGuest.acompanhantes_limite, createdBy]);
   } else {
     memoryGuests.unshift(newGuest);
   }
@@ -481,15 +513,19 @@ async function addPublicGuestRSVP(g: {
     mesa: '',
     check_in: false,
     check_in_at: null,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    created_by: null,
+    creation_source: 'public',
+    deleted_at: null,
+    deleted_by: null
   };
 
   if (usePostgres) {
     await pool.query(`
       INSERT INTO dados.registro (
-        id, nome, email, telefone, acompanhantes_limite, confirmado, acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem
+        id, nome, email, telefone, acompanhantes_limite, confirmado, acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem, creation_source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'public')
     `, [
       newGuest.id,
       newGuest.nome,
@@ -508,18 +544,34 @@ async function addPublicGuestRSVP(g: {
   return newGuest;
 }
 
-async function deleteGuest(id: string): Promise<boolean> {
+function canSoftDeleteGuest(session: AuthSession, guest: Guest): boolean {
+  if (session.role === "root") return true;
+  return session.role === "admin"
+    && guest.creation_source === "companion_link"
+    && guest.created_by === session.username;
+}
+
+async function softDeleteGuest(id: string, session: AuthSession): Promise<"deleted" | "forbidden" | "not_found"> {
   if (usePostgres) {
-    const res = await pool.query('DELETE FROM dados.registro WHERE id = $1', [id]);
-    return (res.rowCount ?? 0) > 0;
+    const lookup = await pool.query(
+      'SELECT id, created_by, creation_source FROM dados.registro WHERE id = $1 AND deleted_at IS NULL',
+      [id],
+    );
+    if (lookup.rows.length === 0) return "not_found";
+    const guest = lookup.rows[0] as Guest;
+    if (!canSoftDeleteGuest(session, guest)) return "forbidden";
+    await pool.query(
+      'UPDATE dados.registro SET deleted_at = CURRENT_TIMESTAMP, deleted_by = $1 WHERE id = $2 AND deleted_at IS NULL',
+      [session.username, id],
+    );
+    return "deleted";
   } else {
-    const idx = memoryGuests.findIndex(g => g.id === id);
-    if (idx !== -1) {
-      memoryGuests.splice(idx, 1);
-      memoryAccessLogs = memoryAccessLogs.filter(log => log.guest_id !== id);
-      return true;
-    }
-    return false;
+    const guest = memoryGuests.find(g => g.id === id && !g.deleted_at);
+    if (!guest) return "not_found";
+    if (!canSoftDeleteGuest(session, guest)) return "forbidden";
+    guest.deleted_at = new Date().toISOString();
+    guest.deleted_by = session.username;
+    return "deleted";
   }
 }
 
@@ -534,11 +586,11 @@ async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: n
           mensagem = $5,
           telefone = COALESCE(NULLIF($6, ''), telefone),
           email = COALESCE(NULLIF($7, ''), email)
-      WHERE id = $8
+      WHERE id = $8 AND deleted_at IS NULL
     `, [confirmado, acompanhantes, acompanhantes_nomes, restricao, mensagem, telefone || '', email || '', id]);
     return (res.rowCount ?? 0) > 0;
   } else {
-    const g = memoryGuests.find(g => g.id === id);
+    const g = memoryGuests.find(g => g.id === id && !g.deleted_at);
     if (g) {
       g.confirmado = confirmado;
       g.acompanhantes = acompanhantes;
@@ -555,10 +607,10 @@ async function updateGuestRSVP(id: string, confirmado: boolean, acompanhantes: n
 
 async function setGuestMesa(id: string, mesa: string): Promise<boolean> {
   if (usePostgres) {
-    const res = await pool.query('UPDATE dados.registro SET mesa = $1 WHERE id = $2', [mesa, id]);
+    const res = await pool.query('UPDATE dados.registro SET mesa = $1 WHERE id = $2 AND deleted_at IS NULL', [mesa, id]);
     return (res.rowCount ?? 0) > 0;
   } else {
-    const g = memoryGuests.find(g => g.id === id);
+    const g = memoryGuests.find(g => g.id === id && !g.deleted_at);
     if (g) {
       g.mesa = mesa;
       return true;
@@ -570,15 +622,15 @@ async function setGuestMesa(id: string, mesa: string): Promise<boolean> {
 async function checkInGuest(id: string): Promise<Guest | null> {
   const now = new Date().toISOString();
   if (usePostgres) {
-    const checkRes = await pool.query('SELECT check_in, check_in_at FROM dados.registro WHERE id = $1', [id]);
+    const checkRes = await pool.query('SELECT check_in, check_in_at FROM dados.registro WHERE id = $1 AND deleted_at IS NULL', [id]);
     if (checkRes.rows.length === 0) return null;
     if (checkRes.rows[0].check_in) {
       return getGuestById(id);
     }
-    await pool.query('UPDATE dados.registro SET check_in = TRUE, check_in_at = $1 WHERE id = $2', [now, id]);
+    await pool.query('UPDATE dados.registro SET check_in = TRUE, check_in_at = $1 WHERE id = $2 AND deleted_at IS NULL', [now, id]);
     return getGuestById(id);
   } else {
-    const g = memoryGuests.find(g => g.id === id);
+    const g = memoryGuests.find(g => g.id === id && !g.deleted_at);
     if (g) {
       if (g.check_in) {
         return g;
@@ -656,19 +708,36 @@ async function getAccessLogs(): Promise<AccessLog[]> {
 }
 
 
-async function getCompanionLinks(): Promise<CompanionLink[]> {
+async function getCompanionLinks(session: AuthSession): Promise<CompanionLink[]> {
   if (usePostgres) {
     const result = await pool.query(`
-      SELECT links.*, registro.nome AS guest_nome
+      SELECT links.*, registro.nome AS guest_nome, registro.created_by AS guest_created_by,
+             registro.creation_source AS guest_creation_source, registro.deleted_at AS guest_deleted_at
       FROM dados.companion_links links
       LEFT JOIN dados.registro registro ON registro.id = links.guest_id
       ORDER BY links.created_at DESC
     `);
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      guest_nome: row.guest_deleted_at ? null : row.guest_nome,
+      can_soft_delete: Boolean(
+        row.guest_id && !row.guest_deleted_at && (
+          session.role === "root" || (
+            session.role === "admin"
+            && row.guest_creation_source === "companion_link"
+            && row.guest_created_by === session.username
+          )
+        )
+      ),
+    }));
   }
   return [...memoryCompanionLinks].reverse().map(link => ({
     ...link,
-    guest_nome: link.guest_id ? memoryGuests.find(guest => guest.id === link.guest_id)?.nome || null : null,
+    guest_nome: link.guest_id ? memoryGuests.find(guest => guest.id === link.guest_id && !guest.deleted_at)?.nome || null : null,
+    can_soft_delete: Boolean(
+      link.guest_id
+      && memoryGuests.some(guest => guest.id === link.guest_id && !guest.deleted_at && canSoftDeleteGuest(session, guest))
+    ),
   }));
 }
 
@@ -683,12 +752,12 @@ async function getCompanionLink(hash: string): Promise<CompanionLink | null> {
   return memoryCompanionLinks.find(link => link.hash === hash) || null;
 }
 
-async function createCompanionLink(acompanhantes_limite: number): Promise<CompanionLink> {
+async function createCompanionLink(acompanhantes_limite: number, createdBy: string): Promise<CompanionLink> {
   const hash = randomBytes(18).toString("hex");
   if (usePostgres) {
     const result = await pool.query(
-      'INSERT INTO dados.companion_links (hash, acompanhantes_limite) VALUES ($1, $2) RETURNING *',
-      [hash, acompanhantes_limite],
+      'INSERT INTO dados.companion_links (hash, acompanhantes_limite, created_by) VALUES ($1, $2, $3) RETURNING *',
+      [hash, acompanhantes_limite, createdBy],
     );
     return result.rows[0];
   }
@@ -699,6 +768,7 @@ async function createCompanionLink(acompanhantes_limite: number): Promise<Compan
     guest_id: null,
     created_at: new Date().toISOString(),
     used_at: null,
+    created_by: createdBy,
   };
   memoryCompanionLinks.push(link);
   return link;
@@ -732,9 +802,10 @@ async function redeemCompanionLink(hash: string, input: CompanionRsvpInput): Pro
       await client.query(`
         INSERT INTO dados.registro (
           id, nome, email, telefone, acompanhantes_limite, confirmado,
-          acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem
+          acompanhantes, acompanhantes_nomes, restricao_alimentar, mensagem,
+          created_by, creation_source
         )
-        VALUES ($1, $2, $3, $4, $5, TRUE, $6, $7, $8, $9)
+        VALUES ($1, $2, $3, $4, $5, TRUE, $6, $7, $8, $9, $10, 'companion_link')
       `, [
         guestId,
         input.nome,
@@ -745,6 +816,7 @@ async function redeemCompanionLink(hash: string, input: CompanionRsvpInput): Pro
         input.acompanhantes_nomes,
         input.restricao_alimentar,
         input.mensagem,
+        link.created_by,
       ]);
       await client.query(
         'UPDATE dados.companion_links SET guest_id = $1, used_at = CURRENT_TIMESTAMP WHERE hash = $2',
@@ -767,6 +839,10 @@ async function redeemCompanionLink(hash: string, input: CompanionRsvpInput): Pro
         check_in: false,
         check_in_at: null,
         created_at: createdAt,
+        created_by: link.created_by,
+        creation_source: 'companion_link',
+        deleted_at: null,
+        deleted_by: null,
       };
     } catch (error) {
       await client.query('ROLLBACK');
@@ -784,15 +860,18 @@ async function redeemCompanionLink(hash: string, input: CompanionRsvpInput): Pro
     ...input,
     acompanhantes_limite: link.acompanhantes_limite,
   });
+  guest.created_by = link.created_by || null;
+  guest.creation_source = 'companion_link';
   link.guest_id = guest.id;
   link.used_at = new Date().toISOString();
   return guest;
 }
 // --- API ROUTES ---
 // Companion-link management (Admin)
-app.get("/api/companion-links", requireAdmin, async (_req, res) => {
+app.get("/api/companion-links", requireAdmin, async (req, res) => {
   try {
-    res.json(await getCompanionLinks());
+    const session = getSession(req.headers.cookie)!;
+    res.json(await getCompanionLinks(session));
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -804,7 +883,8 @@ app.post("/api/companion-links", requireAdmin, async (req, res) => {
     if (!Number.isInteger(limit) || limit < 1 || limit > 20) {
       return res.status(400).json({ error: "Informe uma quantidade entre 1 e 20 acompanhantes." });
     }
-    res.status(201).json(await createCompanionLink(limit));
+    const session = getSession(req.headers.cookie)!;
+    res.status(201).json(await createCompanionLink(limit, session.username));
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -875,7 +955,11 @@ app.post("/api/companion-links/:hash/rsvp", async (req, res) => {
 app.get("/api/guests", requireStaff, async (req, res) => {
   try {
     const guests = await getGuests();
-    res.json(guests);
+    const session = getSession(req.headers.cookie)!;
+    res.json(guests.map(guest => ({
+      ...guest,
+      can_soft_delete: canSoftDeleteGuest(session, guest),
+    })));
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -939,7 +1023,7 @@ app.post("/api/guests", requireAdmin, async (req, res) => {
       email: email || "",
       telefone: telefone || "",
       acompanhantes_limite: parseInt(acompanhantes_limite || "0")
-    });
+    }, getSession(req.headers.cookie)!.username);
     res.status(201).json(guest);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -968,14 +1052,17 @@ app.post("/api/guests/public-rsvp", async (req, res) => {
   }
 });
 
-// 3. Delete guest (Root only)
-app.delete("/api/guests/:id", requireRoot, async (req, res) => {
+// 3. Soft-delete guest. Root may remove all; admin only companion records it owns.
+app.delete("/api/guests/:id", requireAdmin, async (req, res) => {
   try {
-    const success = await deleteGuest(req.params.id);
-    if (!success) {
+    const result = await softDeleteGuest(req.params.id, getSession(req.headers.cookie)!);
+    if (result === "not_found") {
       return res.status(404).json({ error: "Convidado não encontrado." });
     }
-    res.json({ success: true });
+    if (result === "forbidden") {
+      return res.status(403).json({ error: "O administrador só pode remover cadastros de acompanhantes gerados por seus próprios links." });
+    }
+    res.json({ success: true, soft_deleted: true });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

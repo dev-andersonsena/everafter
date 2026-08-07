@@ -53,7 +53,6 @@ export default function App() {
   });
   const [loadingGuest, setLoadingGuest] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [adminRole, setAdminRole] = useState<'root' | 'admin' | null>(null);
   const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -64,14 +63,12 @@ export default function App() {
         if (session?.role === 'root' || session?.role === 'admin') {
           setIsAdminLoggedIn(true);
           setIsRecepcaoLoggedIn(true);
-          setAdminRole(session.role);
         } else if (session?.role === 'recepcao') {
           setIsRecepcaoLoggedIn(true);
         }
       })
       .catch(() => {
         setIsAdminLoggedIn(false);
-        setAdminRole(null);
         setIsRecepcaoLoggedIn(false);
       })
       .finally(() => setAuthChecked(true));
@@ -82,7 +79,6 @@ export default function App() {
       await fetch('/api/auth/logout', { method: 'POST' });
     } finally {
       setIsAdminLoggedIn(false);
-      setAdminRole(null);
       setIsRecepcaoLoggedIn(false);
       setViewMode('invite');
     }
@@ -228,10 +224,9 @@ export default function App() {
     if (!isAdminLoggedIn) {
       return (
         <AdminLogin
-          onLoginSuccess={(role) => {
+          onLoginSuccess={() => {
             setIsAdminLoggedIn(true);
             setIsRecepcaoLoggedIn(true);
-            setAdminRole(role === 'root' ? 'root' : 'admin');
           }}
           onClose={() => setViewMode('invite')}
         />
@@ -243,7 +238,6 @@ export default function App() {
         onLogout={() => {
           void handleLogout();
         }}
-        canDeleteGuests={adminRole === 'root'}
       />
     );
   }
