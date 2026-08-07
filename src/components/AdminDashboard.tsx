@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, UserPlus, Heart, Link2, Copy, Check, QrCode, Trash2, 
+import {
+  Users, UserPlus, Heart, Link2, Copy, Check, QrCode, Trash2,
   Search, Eye, ShieldCheck, MapPin, Smartphone, Chrome, Calendar, Clock, ArrowLeft, RefreshCw, Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -208,16 +208,16 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
   const confirmedAttending = guests.filter(g => g.confirmado === true);
   const declinedCount = guests.filter(g => g.confirmado === false);
   const pendingCount = guests.filter(g => g.confirmado === null);
-  
+
   const totalCompanionsConfirmed = confirmedAttending.reduce((acc, curr) => acc + curr.acompanhantes, 0);
   const totalConfirmedPeople = confirmedAttending.length + totalCompanionsConfirmed;
 
   // Filtered guests list
   const filteredGuests = guests.filter(guest => {
-    const matchesSearch = guest.nome.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = guest.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (guest.email && guest.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
                           (guest.telefone && guest.telefone.includes(searchQuery));
-    
+
     if (statusFilter === 'todos') return matchesSearch;
     if (statusFilter === 'confirmados') return matchesSearch && guest.confirmado === true;
     if (statusFilter === 'recusados') return matchesSearch && guest.confirmado === false;
@@ -237,7 +237,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 py-12 px-4 sm:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        
+
         {/* Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-6 mb-8">
           <div>
@@ -363,7 +363,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
         {/* Tab Contents */}
         <AnimatePresence mode="wait">
-          
+
           {activeTab === 'acompanhantes' && (
             <motion.div
               key="acompanhantes"
@@ -565,10 +565,10 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
               {/* Guest Directory (2/3 width) */}
               <div className="lg:col-span-2 space-y-6">
-                
+
                 {/* Search & Filter tools */}
                 <div className="flex flex-col sm:flex-row gap-3 bg-stone-900/10 border border-stone-850 p-4 rounded-2xl">
-                  
+
                   {/* Search box */}
                   <div className="relative flex-1">
                     <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
@@ -620,7 +620,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                     {filteredGuests.map((guest) => {
                       const accessStats = getGuestAccessStats(guest.id);
                       return (
-                        <div 
+                        <div
                           key={guest.id}
                           className="bg-stone-900/25 border border-stone-800 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-stone-700 transition-all"
                         >
@@ -631,7 +631,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                               <span className="bg-stone-800 border border-stone-700/60 text-gold-300 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" title="Código de busca do convite">
                                 Código: {guest.id.startsWith("guest_") ? guest.id.substring(6).toUpperCase() : guest.id.toUpperCase()}
                               </span>
-                              
+
                               {/* Confirmed Badge */}
                               {guest.confirmado === true && (
                                 <span className="bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -663,6 +663,25 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                               {guest.email && <span className="text-stone-500">✉️ {guest.email}</span>}
                             </div>
 
+                            {guest.acompanhantes > 0 && (
+                              <div className="mt-2 rounded-xl border border-gold-400/15 bg-gold-400/5 p-3">
+                                <p className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gold-300">
+                                  <Users size={12} />
+                                  Acompanhantes ({guest.acompanhantes})
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {guest.acompanhantes_nomes.map((companionName, index) => (
+                                    <span
+                                      key={index}
+                                      className="rounded-full border border-stone-700 bg-stone-900 px-2.5 py-1 text-[10px] text-stone-300"
+                                    >
+                                      {companionName}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Show message if exists */}
                             {guest.confirmado === true && guest.mensagem && (
                               <div className="mt-1 pt-1 border-t border-stone-800/40 text-[11px] space-y-0.5">
@@ -681,7 +700,6 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
                           {/* Right: Actions */}
                           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                            
                             {/* Table Assignment Box */}
                             <div className="flex items-center gap-1 border border-stone-800 bg-stone-950/40 py-1 px-2 rounded-xl">
                               <MapPin size={11} className="text-gold-400 shrink-0" />
@@ -762,22 +780,22 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
               className="space-y-8"
             >
               <div className="grid md:grid-cols-3 gap-6">
-                
+
                 {/* RSVP Attendance Chart summary */}
                 <div className="bg-stone-900/30 border border-stone-800 rounded-3xl p-6">
                   <h3 className="font-serif text-lg text-stone-100 mb-4 flex items-center gap-2">
                     <Heart size={16} className="text-gold-400 fill-current" />
                     Engajamento de Resposta
                   </h3>
-                  
+
                   <div className="space-y-4 font-sans text-sm mt-6">
                     <div className="flex justify-between items-center text-stone-400">
                       <span>Sim, comparecerão</span>
                       <span className="font-semibold text-green-400">{confirmedAttending.length} convites ({totalGuests ? Math.round((confirmedAttending.length / totalGuests) * 100) : 0}%)</span>
                     </div>
                     <div className="w-full bg-stone-950 h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-green-400 h-full rounded-full" 
+                      <div
+                        className="bg-green-400 h-full rounded-full"
                         style={{ width: `${totalGuests ? (confirmedAttending.length / totalGuests) * 100 : 0}%` }}
                       />
                     </div>
@@ -787,8 +805,8 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                       <span className="font-semibold text-red-400">{declinedCount.length} convites ({totalGuests ? Math.round((declinedCount.length / totalGuests) * 100) : 0}%)</span>
                     </div>
                     <div className="w-full bg-stone-950 h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-red-400 h-full rounded-full" 
+                      <div
+                        className="bg-red-400 h-full rounded-full"
                         style={{ width: `${totalGuests ? (declinedCount.length / totalGuests) * 100 : 0}%` }}
                       />
                     </div>
@@ -798,8 +816,8 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                       <span className="font-semibold text-gold-300">{pendingCount.length} convites ({totalGuests ? Math.round((pendingCount.length / totalGuests) * 100) : 0}%)</span>
                     </div>
                     <div className="w-full bg-stone-950 h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-gold-400 h-full rounded-full" 
+                      <div
+                        className="bg-gold-400 h-full rounded-full"
                         style={{ width: `${totalGuests ? (pendingCount.length / totalGuests) * 100 : 0}%` }}
                       />
                     </div>
@@ -819,7 +837,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                       const mobileLogs = accessLogs.filter(l => l.celular === 'Sim').length;
                       const desktopLogs = loggedAccesses - mobileLogs;
                       const mobilePercent = loggedAccesses ? Math.round((mobileLogs / loggedAccesses) * 100) : 0;
-                      
+
                       return (
                         <>
                           <div className="flex justify-between items-center text-stone-400">
@@ -827,8 +845,8 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                             <span className="font-semibold text-stone-200">{mobileLogs} acessos ({mobilePercent}%)</span>
                           </div>
                           <div className="w-full bg-stone-950 h-2 rounded-full overflow-hidden">
-                            <div 
-                              className="bg-gold-400 h-full rounded-full" 
+                            <div
+                              className="bg-gold-400 h-full rounded-full"
                               style={{ width: `${mobilePercent}%` }}
                             />
                           </div>
@@ -838,8 +856,8 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                             <span className="font-semibold text-stone-200">{desktopLogs} acessos ({100 - mobilePercent}%)</span>
                           </div>
                           <div className="w-full bg-stone-950 h-2 rounded-full overflow-hidden">
-                            <div 
-                              className="bg-stone-700 h-full rounded-full" 
+                            <div
+                              className="bg-stone-700 h-full rounded-full"
                               style={{ width: `${100 - mobilePercent}%` }}
                             />
                           </div>
@@ -1021,9 +1039,9 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
               {/* QR Code Render Area */}
               <div className="bg-stone-50 border border-stone-100 p-4 rounded-2xl inline-block shadow-inner mb-6">
-                <img 
-                  src={qrCodeDataUrl} 
-                  alt="Convite QR Code" 
+                <img
+                  src={qrCodeDataUrl}
+                  alt="Convite QR Code"
                   className="w-48 h-48 mx-auto"
                 />
               </div>
