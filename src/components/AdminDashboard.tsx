@@ -10,10 +10,9 @@ import { Guest, AccessLog, CompanionLink } from '../types';
 interface AdminDashboardProps {
   onClose: () => void;
   onLogout: () => void;
-  canDeleteGuests?: boolean;
 }
 
-export default function AdminDashboard({ onClose, onLogout, canDeleteGuests = false }: AdminDashboardProps) {
+export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProps) {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,13 +147,16 @@ export default function AdminDashboard({ onClose, onLogout, canDeleteGuests = fa
   };
 
   const handleDeleteGuest = async (id: string, name: string) => {
-    if (confirm(`Tem certeza de que deseja remover o convidado "${name}" da lista?`)) {
+    if (confirm(`Remover "${name}" da interface? O registro será preservado no banco de dados.`)) {
       try {
         const res = await fetch(`/api/guests/${id}`, {
           method: 'DELETE'
         });
         if (res.ok) {
           fetchAdminData(true);
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Você não tem permissão para remover este cadastro.');
         }
       } catch (err) {
         console.error("Erro ao deletar convidado:", err);
@@ -467,14 +469,26 @@ export default function AdminDashboard({ onClose, onLogout, canDeleteGuests = fa
                           )}
                           <p className="mt-2 break-all font-mono text-[10px] text-stone-600">{url}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => copyCompanionLink(url)}
-                          className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-700 bg-stone-950 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-stone-300 hover:text-gold-300"
-                        >
-                          <Copy size={13} />
-                          Copiar
-                        </button>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => copyCompanionLink(url)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-stone-700 bg-stone-950 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-stone-300 hover:text-gold-300"
+                          >
+                            <Copy size={13} />
+                            Copiar
+                          </button>
+                          {link.guest_id && link.guest_nome && link.can_soft_delete && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteGuest(link.guest_id!, link.guest_nome!)}
+                              className="rounded-xl border border-stone-700 bg-stone-950 p-2.5 text-stone-500 hover:border-red-500/30 hover:text-red-400"
+                              title="Remover cadastro da interface (soft delete)"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -751,11 +765,11 @@ export default function AdminDashboard({ onClose, onLogout, canDeleteGuests = fa
                               <QrCode size={13} />
                             </button>
 
-                            {canDeleteGuests && (
+                            {guest.can_soft_delete && (
                               <button
                                 onClick={() => handleDeleteGuest(guest.id, guest.nome)}
                                 className="p-2.5 bg-stone-950 border border-stone-800 hover:border-red-500/20 text-stone-500 hover:text-red-400 rounded-xl cursor-pointer"
-                                title="Excluir Convidado"
+                                title="Remover da interface (soft delete)"
                               >
                                 <Trash2 size={13} />
                               </button>

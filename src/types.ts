@@ -57,6 +57,9 @@ export interface Guest {
   check_in: boolean;
   check_in_at: string | null;
   created_at: string;
+  created_by?: string | null;
+  creation_source?: 'admin' | 'public' | 'companion_link' | 'legacy';
+  can_soft_delete?: boolean;
 }
 
 export interface AccessLog {
@@ -75,4 +78,6 @@ export interface CompanionLink {
   guest_nome?: string | null;
   created_at: string;
   used_at: string | null;
+  created_by?: string | null;
+  can_soft_delete?: boolean;
 }
