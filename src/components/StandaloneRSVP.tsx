@@ -7,9 +7,13 @@ import Logo from './Logo';
 interface StandaloneRSVPProps {
   onClose: () => void;
   onSuccess: (newGuest: Guest) => void;
+  companionHash?: string;
+  companionLimit?: number;
 }
 
-export default function StandaloneRSVP({ onClose, onSuccess }: StandaloneRSVPProps) {
+export default function StandaloneRSVP({
+  onClose, onSuccess, companionHash, companionLimit = 0,
+}: StandaloneRSVPProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -67,7 +71,7 @@ export default function StandaloneRSVP({ onClose, onSuccess }: StandaloneRSVPPro
     setLoading(true);
 
     try {
-      const res = await fetch('/api/guests/public-rsvp', {
+      const res = await fetch(companionHash ? '/api/companion-links/' + companionHash + '/rsvp' : '/api/guests/public-rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -236,6 +240,62 @@ export default function StandaloneRSVP({ onClose, onSuccess }: StandaloneRSVPPro
                   />
                 </div>
               </div>
+
+              {companionHash && companionLimit > 0 && (
+                <div className="space-y-4 rounded-2xl border border-gold-200/80 bg-gold-50/70 p-4">
+                  <div>
+                    <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gold-800">
+                      <Users size={14} className="text-gold-500" />
+                      Adicionar acompanhantes
+                    </label>
+                    <p className="mt-1 text-[11px] text-gold-600">
+                      Este link permite incluir at&#233; {companionLimit} {companionLimit === 1 ? 'acompanhante' : 'acompanhantes'}.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-gold-700">
+                      Quantidade de acompanhantes
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={companionLimit}
+                      value={companionCount}
+                      onChange={(event) => {
+                        const value = Number.parseInt(event.target.value || '0', 10);
+                        handleCompanionCountChange(Math.min(companionLimit, Math.max(0, value)));
+                      }}
+                      disabled={loading}
+                      className="w-full rounded-xl border border-gold-200/80 bg-white/90 px-4 py-3 text-sm font-medium text-gold-950 focus:border-gold-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <AnimatePresence initial={false}>
+                    {companions.map((companion, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-gold-700">
+                          Nome do acompanhante {index + 1} *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={companion}
+                          onChange={(event) => handleCompanionNameChange(index, event.target.value)}
+                          placeholder="Nome completo"
+                          disabled={loading}
+                          className="w-full rounded-xl border border-gold-200/80 bg-white/90 px-4 py-3 text-sm font-medium text-gold-950 placeholder:text-gold-400/60 focus:border-gold-500 focus:outline-none"
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
 
               {/* Message to the couple (Optional) */}
               <div>

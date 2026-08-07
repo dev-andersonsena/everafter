@@ -9,7 +9,7 @@ interface RSVPReminderButtonProps {
   placement: "desktop" | "mobile";
 }
 
-const INITIAL_DELAY_MS = 20_000;
+const INITIAL_DELAY_MS = 15_000;
 
 export default function RSVPReminderButton({
   hasDecision,
@@ -20,9 +20,21 @@ export default function RSVPReminderButton({
 }: RSVPReminderButtonProps) {
   const enteredAt = useRef(Date.now());
   const [isVisible, setIsVisible] = useState(false);
+  const isMobile = placement === "mobile";
+  const startY = "calc(100vh - 9.5rem)";
 
   useEffect(() => {
-    if (hasDecision || chatbotInUse) {
+    if (hasDecision) {
+      setIsVisible(false);
+      return;
+    }
+
+    if (!isMobile) {
+      setIsVisible(true);
+      return;
+    }
+
+    if (chatbotInUse) {
       setIsVisible(false);
       return;
     }
@@ -39,17 +51,31 @@ export default function RSVPReminderButton({
     setIsVisible(false);
     const timer = window.setTimeout(() => setIsVisible(true), remaining);
     return () => window.clearTimeout(timer);
-  }, [chatbotCooldownUntil, chatbotInUse, hasDecision]);
+  }, [chatbotCooldownUntil, chatbotInUse, hasDecision, isMobile]);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           className={`rsvp-reminder-position rsvp-reminder-position--${placement}`}
-          initial={{ opacity: 0, y: -14, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.97 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          initial={isMobile ? { opacity: 1, y: startY, scale: 0.96 } : false}
+          animate={isMobile
+            ? {
+                opacity: [1, 1, 1, 0],
+                y: [startY, 0, 0, 0],
+                scale: [0.96, 1, 1, 1],
+              }
+            : { opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={isMobile
+            ? {
+                duration: 18.4,
+                times: [0, 0.435, 0.978, 1],
+                ease: "linear",
+                repeat: Infinity,
+                repeatDelay: 15,
+              }
+            : { duration: 0 }}
         >
           <button
             type="button"

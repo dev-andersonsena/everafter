@@ -10,6 +10,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 import CheckInPortal from './components/CheckInPortal';
 import StandaloneRSVP from './components/StandaloneRSVP';
+import CompanionRSVP from './components/CompanionRSVP';
 import RSVPSuccess from './components/RSVPSuccess';
 import VoiceChatbot from './components/VoiceChatbot';
 import RSVPReminderButton from './components/RSVPReminderButton';
@@ -33,7 +34,23 @@ export default function App() {
   // Custom Dynamic State Manager teste
   const [guest, setGuest] = useState<Guest | null>(null);
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
+  const [rsvpCompletedLocally, setRsvpCompletedLocally] = useState(
+    () => typeof window !== 'undefined' && localStorage.getItem('wedding_rsvp_completed') === 'true',
+  );
+
+  const rememberRsvpDecision = (completedGuest: Guest) => {
+    setGuest(completedGuest);
+    setRsvpCompletedLocally(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wedding_rsvp_completed', 'true');
+    }
+  };
   const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
+  const [companionHash, setCompanionHash] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const match = window.location.pathname.match(/^\/(?:acompanhantes|acompanhates)\/([a-f0-9]+)\/?$/i);
+    return match?.[1] || null;
+  });
   const [loadingGuest, setLoadingGuest] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(false);
@@ -180,6 +197,24 @@ export default function App() {
     { name: 'Confirmar Presença', id: 'rsvp' },
   ];
 
+  if (companionHash && viewMode !== 'rsvp_success') {
+    return (
+      <CompanionRSVP
+        hash={companionHash}
+        onClose={() => {
+          setCompanionHash(null);
+          setViewMode('invite');
+          window.history.replaceState({}, document.title, '/');
+        }}
+        onSuccess={(newGuest) => {
+          rememberRsvpDecision(newGuest);
+          setRsvpSuccessGuest(newGuest);
+          setViewMode('rsvp_success');
+        }}
+      />
+    );
+  }
+
   if (viewMode === 'admin') {
     if (!authChecked) {
       return <div className="min-h-screen flex items-center justify-center bg-watercolor text-gold-800">Validando sessão...</div>;
@@ -232,7 +267,7 @@ export default function App() {
           setViewMode('invite');
         }}
         onSuccess={(newGuest) => {
-          setGuest(newGuest);
+          rememberRsvpDecision(newGuest);
           setRsvpSuccessGuest(newGuest);
           setViewMode('rsvp_success');
         }}
@@ -246,8 +281,9 @@ export default function App() {
         guest={rsvpSuccessGuest}
         onClose={() => {
           setRsvpSuccessGuest(null);
+          setCompanionHash(null);
           setViewMode('invite');
-          window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState({}, document.title, '/');
         }}
       />
     );
@@ -314,7 +350,7 @@ export default function App() {
                 ))}
                 <RSVPReminderButton
                   placement="desktop"
-                  hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+                  hasDecision={rsvpCompletedLocally || (guest?.confirmado !== null && guest?.confirmado !== undefined)}
                   chatbotInUse={chatbotInUse}
                   chatbotCooldownUntil={chatbotCooldownUntil}
                   onClick={() => scrollToSection('rsvp')}
@@ -374,7 +410,7 @@ export default function App() {
             <RSVP
               guest={guest}
               onRsvpSubmit={(updated) => {
-                setGuest(updated);
+                rememberRsvpDecision(updated);
                 if (updated && updated.confirmado === true) {
                   setRsvpSuccessGuest(updated);
                   setViewMode('rsvp_success');
@@ -429,10 +465,10 @@ export default function App() {
         }}
       />
 
-      {/* RSVP reminder: 20s after entry, or 30s after the chatbot is closed. */}
+      {/* RSVP reminder: 15s after entry, or 30s after the chatbot is closed. */}
       <RSVPReminderButton
         placement="mobile"
-        hasDecision={guest?.confirmado !== null && guest?.confirmado !== undefined}
+        hasDecision={rsvpCompletedLocally || (guest?.confirmado !== null && guest?.confirmado !== undefined)}
         chatbotInUse={chatbotInUse}
         chatbotCooldownUntil={chatbotCooldownUntil}
         onClick={() => scrollToSection('rsvp')}

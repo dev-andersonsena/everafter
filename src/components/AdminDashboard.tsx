@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import QRCode from 'qrcode';
-import { Guest, AccessLog } from '../types';
+import { Guest, AccessLog, CompanionLink } from '../types';
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -17,7 +17,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
   const [accessLogs, setAccessLogs] = useState<AccessLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'convidados' | 'analytics' | 'logs'>('convidados');
+  const [activeTab, setActiveTab] = useState<'convidados' | 'acompanhantes' | 'analytics' | 'logs'>('convidados');
 
   // New Guest Form State
   const [nome, setNome] = useState('');
@@ -26,6 +26,12 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
   const [acompanhantesLimite, setAcompanhantesLimite] = useState(0);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState(false);
+
+  const [companionLinks, setCompanionLinks] = useState<CompanionLink[]>([]);
+  const [companionLimit, setCompanionLimit] = useState(1);
+  const [generatedCompanionLink, setGeneratedCompanionLink] = useState('');
+  const [companionError, setCompanionError] = useState('');
+  const [creatingCompanionLink, setCreatingCompanionLink] = useState(false);
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,15 +51,17 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
     if (!isSilent) setLoading(true);
     else setRefreshing(true);
     try {
-      const [guestsRes, logsRes] = await Promise.all([
+      const [guestsRes, logsRes, companionLinksRes] = await Promise.all([
         fetch('/api/guests'),
-        fetch('/api/access-logs')
+        fetch('/api/access-logs'),
+        fetch('/api/companion-links'),
       ]);
-      if (guestsRes.ok && logsRes.ok) {
+      if (guestsRes.ok && logsRes.ok && companionLinksRes.ok) {
         const guestsData = await guestsRes.json();
         const logsData = await logsRes.json();
         setGuests(guestsData);
         setAccessLogs(logsData);
+        setCompanionLinks(await companionLinksRes.json());
       }
     } catch (err) {
       console.error("Erro ao buscar dados do painel:", err);
@@ -66,6 +74,38 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
   useEffect(() => {
     fetchAdminData();
   }, []);
+
+  const getCompanionLinkUrl = (hash: string) =>
+    window.location.origin + '/acompanhantes/' + hash;
+
+  const handleCreateCompanionLink = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setCompanionError('');
+    setCreatingCompanionLink(true);
+    try {
+      const response = await fetch('/api/companion-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acompanhantes_limite: companionLimit }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'N\u00e3o foi poss\u00edvel gerar o link.');
+
+      const url = getCompanionLinkUrl(data.hash);
+      setGeneratedCompanionLink(url);
+      setCompanionLinks(current => [data, ...current]);
+    } catch (requestError) {
+      setCompanionError(requestError instanceof Error ? requestError.message : 'N\u00e3o foi poss\u00edvel gerar o link.');
+    } finally {
+      setCreatingCompanionLink(false);
+    }
+  };
+
+  const copyCompanionLink = async (url: string) => {
+    await navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    window.setTimeout(() => setCopiedLink(false), 2000);
+  };
 
   const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,7 +303,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-stone-850 gap-2 mb-8">
+        <div className="flex gap-2 overflow-x-auto border-b border-stone-850 mb-8">
           <button
             onClick={() => setActiveTab('convidados')}
             className={`px-5 py-3 text-xs uppercase tracking-wider font-semibold cursor-pointer border-b-2 transition-all ${
@@ -275,6 +315,20 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
             <div className="flex items-center gap-2">
               <Users size={14} />
               Convidados ({guests.length})
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('acompanhantes')}
+            className={'px-5 py-3 text-xs uppercase tracking-wider font-semibold cursor-pointer border-b-2 transition-all ' + (
+              activeTab === 'acompanhantes'
+                ? 'border-gold-400 text-gold-300'
+                : 'border-transparent text-stone-500 hover:text-stone-300'
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <UserPlus size={14} />
+              Acompanhantes ({companionLinks.length})
             </div>
           </button>
 
@@ -310,6 +364,124 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
         {/* Tab Contents */}
         <AnimatePresence mode="wait">
           
+          {activeTab === 'acompanhantes' && (
+            <motion.div
+              key="acompanhantes"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="grid gap-8 lg:grid-cols-3"
+            >
+              <section className="h-fit rounded-3xl border border-stone-800 bg-stone-900/30 p-6">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="rounded-xl bg-gold-400/10 p-2 text-gold-300">
+                    <Link2 size={18} />
+                  </div>
+                  <div>
+                    <h2 className="font-serif text-lg text-stone-100">Link com acompanhantes</h2>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500">Acesso exclusivo</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleCreateCompanionLink} className="space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                      Adicionar acompanhante
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={companionLimit}
+                      onChange={(event) => setCompanionLimit(Math.min(20, Math.max(1, Number(event.target.value) || 1)))}
+                      className="w-full rounded-xl border border-stone-800 bg-stone-950 px-3.5 py-3 text-sm text-stone-200 focus:border-gold-300 focus:outline-none"
+                    />
+                    <p className="mt-2 text-[10px] leading-relaxed text-stone-500">
+                      Defina quantos acompanhantes a pessoa poder&#225; incluir ao abrir o link.
+                    </p>
+                  </div>
+
+                  {companionError && (
+                    <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-200">
+                      {companionError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={creatingCompanionLink}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-400 px-4 py-3 text-xs font-bold uppercase tracking-wider text-stone-950 transition-colors hover:bg-gold-300 disabled:opacity-60"
+                  >
+                    <Link2 size={14} />
+                    {creatingCompanionLink ? 'Gerando...' : 'Gerar link'}
+                  </button>
+                </form>
+
+                {generatedCompanionLink && (
+                  <div className="mt-5 rounded-2xl border border-green-500/20 bg-green-500/10 p-4">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-green-300">Link gerado</p>
+                    <p className="break-all text-xs text-stone-300">{generatedCompanionLink}</p>
+                    <button
+                      type="button"
+                      onClick={() => copyCompanionLink(generatedCompanionLink)}
+                      className="mt-3 flex items-center gap-2 rounded-lg bg-stone-950 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-gold-300"
+                    >
+                      {copiedLink ? <Check size={13} /> : <Copy size={13} />}
+                      {copiedLink ? 'Copiado' : 'Copiar link'}
+                    </button>
+                  </div>
+                )}
+              </section>
+
+              <section className="space-y-3 lg:col-span-2">
+                <div className="mb-4">
+                  <h2 className="font-serif text-xl text-stone-100">Links gerados</h2>
+                  <p className="mt-1 text-xs text-stone-500">Cada link pode ser utilizado uma &#250;nica vez.</p>
+                </div>
+
+                {companionLinks.length === 0 ? (
+                  <div className="rounded-3xl border border-stone-800 bg-stone-900/20 py-16 text-center">
+                    <Link2 size={30} className="mx-auto mb-3 text-stone-700" />
+                    <p className="text-sm text-stone-400">Nenhum link com acompanhantes foi gerado.</p>
+                  </div>
+                ) : companionLinks.map(link => {
+                  const url = getCompanionLinkUrl(link.hash);
+                  return (
+                    <div key={link.hash} className="rounded-2xl border border-stone-800 bg-stone-900/30 p-5">
+                      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-serif text-base text-stone-200">
+                              At&#233; {link.acompanhantes_limite} {link.acompanhantes_limite === 1 ? 'acompanhante' : 'acompanhantes'}
+                            </span>
+                            <span className={link.used_at
+                              ? 'rounded-full bg-green-500/10 px-2 py-1 text-[9px] font-bold uppercase text-green-300'
+                              : 'rounded-full bg-gold-400/10 px-2 py-1 text-[9px] font-bold uppercase text-gold-300'}
+                            >
+                              {link.used_at ? 'Utilizado' : 'Dispon\u00edvel'}
+                            </span>
+                          </div>
+                          {link.guest_nome && (
+                            <p className="mt-1 text-xs text-stone-400">Cadastro: {link.guest_nome}</p>
+                          )}
+                          <p className="mt-2 break-all font-mono text-[10px] text-stone-600">{url}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => copyCompanionLink(url)}
+                          className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-700 bg-stone-950 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-stone-300 hover:text-gold-300"
+                        >
+                          <Copy size={13} />
+                          Copiar
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </section>
+            </motion.div>
+          )}
+
           {/* TAB 1: GUEST REGISTRATION & DIRECTORY */}
           {activeTab === 'convidados' && (
             <motion.div
