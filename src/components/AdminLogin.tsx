@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import Logo from './Logo';
 
 interface AdminLoginProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (role: 'root' | 'admin' | 'recepcao') => void;
   onClose: () => void;
   isRecepcao?: boolean;
 }
@@ -40,7 +40,8 @@ export default function AdminLogin({ onLoginSuccess, onClose, isRecepcao = false
       });
 
       if (response.ok) {
-        onLoginSuccess();
+        const data = await response.json();
+        onLoginSuccess(data.role);
       } else {
         const data = await response.json().catch(() => ({}));
         setError(data.error || 'Usuário ou senha incorretos.');

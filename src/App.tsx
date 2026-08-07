@@ -35,14 +35,14 @@ export default function App() {
   const [guest, setGuest] = useState<Guest | null>(null);
   const [rsvpSuccessGuest, setRsvpSuccessGuest] = useState<Guest | null>(null);
   const [rsvpCompletedLocally, setRsvpCompletedLocally] = useState(
-    () => typeof window !== 'undefined' && localStorage.getItem('wedding_rsvp_completed') === 'true',
+    () => typeof window !== 'undefined' && sessionStorage.getItem('wedding_rsvp_completed') === 'true',
   );
 
   const rememberRsvpDecision = (completedGuest: Guest) => {
     setGuest(completedGuest);
     setRsvpCompletedLocally(true);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('wedding_rsvp_completed', 'true');
+      sessionStorage.setItem('wedding_rsvp_completed', 'true');
     }
   };
   const [viewMode, setViewMode] = useState<'invite' | 'admin' | 'recepcao' | 'rsvp' | 'rsvp_success'>('invite');
@@ -53,6 +53,7 @@ export default function App() {
   });
   const [loadingGuest, setLoadingGuest] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminRole, setAdminRole] = useState<'root' | 'admin' | null>(null);
   const [isRecepcaoLoggedIn, setIsRecepcaoLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -60,15 +61,17 @@ export default function App() {
     fetch('/api/auth/session')
       .then(async response => response.ok ? response.json() : null)
       .then(session => {
-        if (session?.role === 'admin') {
+        if (session?.role === 'root' || session?.role === 'admin') {
           setIsAdminLoggedIn(true);
           setIsRecepcaoLoggedIn(true);
+          setAdminRole(session.role);
         } else if (session?.role === 'recepcao') {
           setIsRecepcaoLoggedIn(true);
         }
       })
       .catch(() => {
         setIsAdminLoggedIn(false);
+        setAdminRole(null);
         setIsRecepcaoLoggedIn(false);
       })
       .finally(() => setAuthChecked(true));
@@ -79,6 +82,7 @@ export default function App() {
       await fetch('/api/auth/logout', { method: 'POST' });
     } finally {
       setIsAdminLoggedIn(false);
+      setAdminRole(null);
       setIsRecepcaoLoggedIn(false);
       setViewMode('invite');
     }
@@ -137,17 +141,19 @@ export default function App() {
 
   useEffect(() => {
     let t1: NodeJS.Timeout;
+    if (showIntro) return;
+
     let t2: NodeJS.Timeout;
     let loopTimeout: NodeJS.Timeout;
 
-    // Phase 1: MusicPlayer is initially visible for 5s (0s-5s). Chatbot is hidden.
+    // Phase 1: MusicPlayer is initially visible for 2s (0s-2s). Chatbot is hidden.
 
-    // Phase 2: At 5s, MusicPlayer disappears, and VoiceChatbot appears in its place.
+    // Phase 2: At 2s, MusicPlayer disappears and the chatbot opens in its place.
     t1 = setTimeout(() => {
       setMusicState('hidden');
       setChatbotVisible(true);
 
-      // Phase 3: At 7s (after a 2s gap), MusicPlayer appears beside the Chatbot for 5s.
+      // Phase 3: At 4s (after a 2s gap), MusicPlayer appears beside the Chatbot for 5s.
       t2 = setTimeout(() => {
         setMusicState('beside');
         let isMusicCurrentlyVisible = true;
@@ -168,14 +174,14 @@ export default function App() {
         // Schedule next change (hide) in 5s
         loopTimeout = setTimeout(runLoop, 5000);
       }, 2000);
-    }, 5000);
+    }, 2000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(loopTimeout);
     };
-  }, []);
+  }, [showIntro]);
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
@@ -222,7 +228,11 @@ export default function App() {
     if (!isAdminLoggedIn) {
       return (
         <AdminLogin
-          onLoginSuccess={() => setIsAdminLoggedIn(true)}
+          onLoginSuccess={(role) => {
+            setIsAdminLoggedIn(true);
+            setIsRecepcaoLoggedIn(true);
+            setAdminRole(role === 'root' ? 'root' : 'admin');
+          }}
           onClose={() => setViewMode('invite')}
         />
       );
@@ -233,6 +243,7 @@ export default function App() {
         onLogout={() => {
           void handleLogout();
         }}
+        canDeleteGuests={adminRole === 'root'}
       />
     );
   }
