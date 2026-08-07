@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Users, Check, Search, ShieldCheck, MapPin, Smartphone, Calendar, Clock, ArrowLeft, RefreshCw, AlertTriangle, Sparkles, LogOut, Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -110,7 +110,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
 
   // Filter guests based on search query
   const filteredGuests = guests.filter(guest => {
-    return guest.nome.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return guest.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
            (guest.email && guest.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
            (guest.telefone && guest.telefone.includes(searchQuery));
   });
@@ -127,7 +127,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
   return (
     <div className="min-h-screen bg-stone-900 text-stone-100 py-12 px-4 sm:px-6 font-sans">
       <div className="max-w-5xl mx-auto">
-        
+
         {/* Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-6 mb-8">
           <div>
@@ -168,10 +168,10 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
 
         {/* Check-In Grid */}
         <div className="grid lg:grid-cols-12 gap-8">
-          
+
           {/* Left Column: Guest Search & Directory (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            
+
             {/* Interactive Simulated QR Reader */}
             <div className="bg-stone-950/40 border border-stone-800 p-5 rounded-3xl">
               <h3 className="font-serif text-sm text-stone-200 mb-3 flex items-center gap-1.5">
@@ -180,7 +180,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
               <p className="text-stone-400 text-xs leading-relaxed mb-4">
                 Cole a URL do convite ou o ID do convidado para simular o escaneamento do QR Code impresso no convite ou celular!
               </p>
-              
+
               <form onSubmit={handleSimulatedScanSubmit} className="flex gap-2">
                 <input
                   type="text"
@@ -203,7 +203,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
               <h3 className="font-serif text-sm text-stone-200">
                 🔍 Buscar por Nome na Lista
               </h3>
-              
+
               <div className="relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
                 <input
@@ -238,6 +238,11 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
                           {g.confirmado === true ? '✅ Confirmado' : g.confirmado === false ? '❌ Recusado' : '⏳ Pendente'}
                           {g.mesa ? ` • 📍 ${g.mesa}` : ''}
                         </p>
+                        {g.acompanhantes > 0 && (
+                          <p className="max-w-[260px] truncate text-[10px] text-gold-300/80">
+                            +{g.acompanhantes} {g.acompanhantes === 1 ? 'acompanhante' : 'acompanhantes'}: {g.acompanhantes_nomes.join(', ')}
+                          </p>
+                        )}
                       </div>
 
                       {g.check_in ? (
@@ -257,7 +262,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
 
           {/* Right Column: Active Check-In Console (7 cols) */}
           <div className="lg:col-span-7">
-            
+
             <AnimatePresence mode="wait">
               {selectedGuest ? (
                 <motion.div
@@ -267,7 +272,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="bg-stone-950/40 border border-stone-800 rounded-3xl p-6 sm:p-8 relative overflow-hidden h-full flex flex-col justify-between"
                 >
-                  
+
                   {/* Decorative ambient color spots */}
                   {selectedGuest.check_in ? (
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full filter blur-3xl" />
@@ -284,7 +289,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
                         <span className="text-stone-500 text-[10px] uppercase tracking-widest font-bold">Ficha de Portaria</span>
                         <h4 className="font-serif text-stone-100 text-xl font-bold mt-1">Status de Entrada</h4>
                       </div>
-                      
+
                       {selectedGuest.check_in ? (
                         <span className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold py-1.5 px-3.5 rounded-full uppercase tracking-wider">
                           <Check size={14} />
@@ -308,11 +313,29 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
 
                     {/* Guest Information card */}
                     <div className="space-y-6 font-sans">
-                      
+
                       <div>
                         <p className="text-stone-500 text-[10px] uppercase tracking-widest font-semibold">Nome do Convidado Titular</p>
                         <p className="text-2xl font-serif text-stone-100 font-bold mt-0.5">{selectedGuest.nome}</p>
                       </div>
+                      {selectedGuest.acompanhantes > 0 && (
+                        <div className="rounded-2xl border border-gold-400/20 bg-gold-400/5 p-4">
+                          <p className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gold-300">
+                            <Users size={14} />
+                            Acompanhantes autorizados ({selectedGuest.acompanhantes})
+                          </p>
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {selectedGuest.acompanhantes_nomes.map((companionName, index) => (
+                              <div
+                                key={index}
+                                className="rounded-xl border border-stone-800 bg-stone-900/70 px-3 py-2 text-xs font-semibold text-stone-200"
+                              >
+                                {index + 1}. {companionName}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Info Cards Grid */}
                       <div className="grid grid-cols-2 gap-4">
@@ -349,11 +372,11 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
 
                   {/* Actions Area */}
                   <div className="mt-12 pt-6 border-t border-stone-800/60 space-y-4">
-                    
+
                     {/* Success/Error States */}
                     <AnimatePresence>
                       {checkInSuccess && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="bg-green-500/10 border border-green-500/20 text-green-200 text-xs p-4 rounded-2xl text-center flex flex-col items-center gap-1"
@@ -367,7 +390,7 @@ export default function CheckInPortal({ onClose, onLogout }: CheckInPortalProps)
                       )}
 
                       {checkInError && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="bg-red-500/10 border border-red-500/20 text-red-200 text-xs p-4 rounded-2xl text-center flex flex-col items-center gap-1"
