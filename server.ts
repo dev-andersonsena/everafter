@@ -46,8 +46,8 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME?.trim() || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || String();
 const ROOT_USERNAME = "root";
 const ROOT_PASSWORD = process.env.ROOT_PASSWORD || String();
-const RECEPTION_USERNAME = process.env.RECEPTION_USERNAME?.trim() || ADMIN_USERNAME;
-const RECEPTION_PASSWORD = process.env.RECEPTION_PASSWORD || ADMIN_PASSWORD;
+const RECEPCAO_USERNAME = "recepcao";
+const RECEPCAO_PASSWORD = process.env.RECEPCAO_PASSWORD || String();
 const SESSION_SECRET = process.env.SESSION_SECRET || randomBytes(32).toString("hex");
 const loginAttempts = new Map<string, { failures: number; resetAt: number }>();
 
@@ -113,8 +113,12 @@ function getSession(cookieHeader?: string): AuthSession | null {
     if (!session.username) {
       session.username = session.role === "root"
         ? ROOT_USERNAME
-        : session.role === "admin" ? ADMIN_USERNAME : RECEPTION_USERNAME;
+        : session.role === "admin" ? ADMIN_USERNAME : RECEPCAO_USERNAME;
     }
+    const expectedUsername = session.role === "root"
+      ? ROOT_USERNAME
+      : session.role === "admin" ? ADMIN_USERNAME : RECEPCAO_USERNAME;
+    if (!safeEqual(session.username, expectedUsername)) return null;
     return session;
   } catch {
     return null;
@@ -152,18 +156,20 @@ app.post("/api/auth/login", (req, res) => {
   const username = typeof req.body?.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body?.password === "string" ? req.body.password : "";
   const requestedRole = req.body?.role === "recepcao" ? "recepcao" : "admin";
-  const role: AuthRole = requestedRole === "admin" && username === ROOT_USERNAME ? "root" : requestedRole;
-  const expectedUsername = role === "root"
-    ? ROOT_USERNAME
-    : role === "recepcao" ? RECEPTION_USERNAME : ADMIN_USERNAME;
-  const expectedPassword = role === "root"
-    ? ROOT_PASSWORD
-    : role === "recepcao" ? RECEPTION_PASSWORD : ADMIN_PASSWORD;
-  const authenticated = Boolean(expectedPassword) &&
-    safeEqual(username, expectedUsername) &&
-    safeEqual(password, expectedPassword);
+  const adminAccounts: Array<{ role: AuthRole; username: string; password: string }> = [
+    { role: "root", username: ROOT_USERNAME, password: ROOT_PASSWORD },
+    { role: "admin", username: ADMIN_USERNAME, password: ADMIN_PASSWORD },
+  ];
+  const allowedAccounts = requestedRole === "recepcao"
+    ? [...adminAccounts, { role: "recepcao" as AuthRole, username: RECEPCAO_USERNAME, password: RECEPCAO_PASSWORD }]
+    : adminAccounts;
+  const authenticatedAccount = allowedAccounts.find(account =>
+    Boolean(account.password) &&
+    safeEqual(username, account.username) &&
+    safeEqual(password, account.password)
+  );
 
-  if (!authenticated) {
+  if (!authenticatedAccount) {
     const attempt = loginAttempts.get(ip);
     loginAttempts.set(ip, {
       failures: (attempt?.failures || 0) + 1,
@@ -173,6 +179,7 @@ app.post("/api/auth/login", (req, res) => {
   }
 
   loginAttempts.delete(ip);
+  const { role } = authenticatedAccount;
   res.setHeader("Set-Cookie", serializeSessionCookie(createSessionToken(role, username)));
   return res.json({ authenticated: true, role, username });
 });
