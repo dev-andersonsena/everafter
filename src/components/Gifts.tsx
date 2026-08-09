@@ -27,9 +27,9 @@ export default function Gifts() {
     return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
-  const getWhatsAppLink = (giftName: string, price: number) => {
+  const getWhatsAppLink = (phone: string, giftName: string, price: number) => {
     const text = `Olá Henderson e Alana! Gostaria de presentear vocês com o item: "${giftName}" no valor de ${formatPrice(price)}. Acabei de fazer a transferência do Pix e estou enviando o comprovante!`;
-    return `https://wa.me/5586995315622?text=${encodeURIComponent(text)}`; // número de whatsapp dos noivos
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -254,20 +254,38 @@ export default function Gifts() {
                   {/* Confirmation / WhatsApp instructions */}
                   <div className="space-y-4">
                     <p className="text-xs text-gold-600 font-sans font-semibold text-center">
-                      * Após fazer a transferência do Pix, você pode clicar no botão abaixo para nos enviar o comprovante via WhatsApp e nos dar a alegria de comemorar!
+                      * Após fazer a transferência do Pix, escolha abaixo para quem deseja enviar o comprovante pelo WhatsApp.
                     </p>
 
-                    <motion.a
-                      href={getWhatsAppLink(activeGift.name, activeGift.price)}
-                      target="_blank"
-                      rel="noreferrer"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full py-3.5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-sans text-xs sm:text-sm font-semibold uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-green-500/10 text-center"
-                    >
-                      <MessageSquare size={16} fill="currentColor" />
-                      Enviar Comprovante por WhatsApp
-                    </motion.a>
+                    <p className="text-sm font-semibold text-gold-900 text-center">
+                      Envie para quem você conhece:
+                    </p>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <motion.a
+                        href={getWhatsAppLink('5586995315622', activeGift.name, activeGift.price)}
+                        target="_blank"
+                        rel="noreferrer"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full py-3.5 px-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-sans text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-green-500/10 text-center"
+                      >
+                        <MessageSquare size={16} fill="currentColor" className="shrink-0" />
+                        Enviar para Henderson
+                      </motion.a>
+
+                      <motion.a
+                        href={getWhatsAppLink('5586994492944', activeGift.name, activeGift.price)}
+                        target="_blank"
+                        rel="noreferrer"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full py-3.5 px-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-sans text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-green-500/10 text-center"
+                      >
+                        <MessageSquare size={16} fill="currentColor" className="shrink-0" />
+                        Enviar para Alana
+                      </motion.a>
+                    </div>
                   </div>
 
                 </div>
