@@ -243,32 +243,48 @@ export default function StandaloneRSVP({
 
               {companionHash && companionLimit > 0 && (
                 <div className="space-y-4 rounded-2xl border border-gold-200/80 bg-gold-50/70 p-4">
-                  <div>
-                    <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gold-800">
+                  <div
+                    role="note"
+                    className="rounded-xl border border-gold-300/70 bg-white/90 px-4 py-3 shadow-sm"
+                  >
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-gold-600">
                       <Users size={14} className="text-gold-500" />
-                      Adicionar acompanhantes
-                    </label>
+                      Limite do seu convite
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gold-900">
+                      Você pode escolher até{' '}
+                      <strong className="text-base text-gold-700">{companionLimit}</strong>{' '}
+                      {companionLimit === 1 ? 'acompanhante' : 'acompanhantes'}.
+                    </p>
                     <p className="mt-1 text-[11px] text-gold-600">
-                      Este link permite incluir at&#233; {companionLimit} {companionLimit === 1 ? 'acompanhante' : 'acompanhantes'}.
+                      Selecione abaixo quantas pessoas irão acompanhar você.
                     </p>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-gold-700">
-                      Quantidade de acompanhantes
+                    <label
+                      htmlFor="companion-count"
+                      className="mb-2 block text-[10px] font-semibold uppercase tracking-wider text-gold-700"
+                    >
+                      Quantos acompanhantes você deseja incluir?
                     </label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={companionLimit}
+                    <select
+                      id="companion-count"
                       value={companionCount}
                       onChange={(event) => {
-                        const value = Number.parseInt(event.target.value || '0', 10);
-                        handleCompanionCountChange(Math.min(companionLimit, Math.max(0, value)));
+                        handleCompanionCountChange(Number.parseInt(event.target.value, 10));
                       }}
                       disabled={loading}
-                      className="w-full rounded-xl border border-gold-200/80 bg-white/90 px-4 py-3 text-sm font-medium text-gold-950 focus:border-gold-500 focus:outline-none"
-                    />
+                      className="w-full cursor-pointer rounded-xl border border-gold-300 bg-white px-4 py-3.5 text-base font-semibold text-gold-950 shadow-sm focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {Array.from({ length: companionLimit + 1 }, (_, count) => (
+                        <option key={count} value={count}>
+                          {count === 0
+                            ? '0 — Não levarei acompanhantes'
+                            : `${count} ${count === 1 ? 'acompanhante' : 'acompanhantes'}`}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <AnimatePresence initial={false}>
