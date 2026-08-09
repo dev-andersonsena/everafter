@@ -296,7 +296,7 @@ export default function StandaloneRSVP({
                         exit={{ opacity: 0, height: 0 }}
                       >
                         <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-gold-700">
-                          Nome do acompanhante {index + 1} *
+                          NOME DO ACOMPANANTE {index + 1}º
                         </label>
                         <input
                           type="text"
