@@ -279,7 +279,7 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
         </div>
 
         {/* Quick Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-stone-900/45 border border-stone-800 rounded-2xl p-4">
             <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold">Total de Convites</p>
             <p className="text-2xl font-serif text-stone-100 mt-1">{totalGuests}</p>
@@ -289,7 +289,15 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
           <div className="bg-stone-900/45 border border-stone-800 rounded-2xl p-4">
             <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold">Total de Confirmados</p>
             <p className="text-2xl font-serif text-green-400 mt-1">{confirmedAttending.length}</p>
-            <p className="text-[10px] text-stone-400 mt-1">Convidados confirmados</p>
+            <p className="text-[10px] text-stone-400 mt-1">Convites confirmados</p>
+          </div>
+
+          <div className="bg-stone-900/45 border border-emerald-500/20 rounded-2xl p-4">
+            <p className="text-stone-500 text-[10px] uppercase tracking-wider font-semibold">Total + Acompanhantes</p>
+            <p className="text-2xl font-serif text-emerald-300 mt-1">{totalConfirmedPeople}</p>
+            <p className="text-[10px] text-stone-400 mt-1">
+              {confirmedAttending.length} confirmados + {totalCompanionsConfirmed} acompanhantes
+            </p>
           </div>
 
           <div className="bg-stone-900/45 border border-stone-800 rounded-2xl p-4">
