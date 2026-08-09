@@ -982,8 +982,9 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                         <th className="py-4 px-6 font-semibold">Data / Hora</th>
                         <th className="py-4 px-6 font-semibold">Dispositivo</th>
                         <th className="py-4 px-6 font-semibold">Navegador</th>
-                        <th className="py-4 px-6 font-semibold">IP</th>
-                        <th className="py-4 px-6 font-semibold">📍 Cidade</th>
+                        <th className="py-4 px-6 font-semibold" title="Localização aproximada obtida pelo endereço IP">
+                          📍 Cidade aproximada
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-850 bg-stone-950/20">
@@ -1011,9 +1012,6 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
                             </td>
                             <td className="py-4 px-6 text-stone-400 text-xs">
                               {log.navegador}
-                            </td>
-                            <td className="py-4 px-6 font-mono text-xs text-stone-500">
-                              {log.ip}
                             </td>
                             <td className="py-4 px-6 text-stone-300 font-medium">
                               📍 {log.cidade}

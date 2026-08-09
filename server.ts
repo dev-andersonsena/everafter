@@ -232,6 +232,16 @@ interface AccessLog {
   celular: string;
   cidade: string;
 }
+
+type IpLocation = {
+  success?: boolean;
+  city?: string;
+  region_code?: string;
+  country_code?: string;
+};
+
+const ipLocationCache = new Map<string, { city: string; expiresAt: number }>();
+const IP_LOCATION_CACHE_TTL = 24 * 60 * 60 * 1000;
 interface CompanionLink {
   hash: string;
   acompanhantes_limite: number;
@@ -643,7 +653,58 @@ async function checkInGuest(id: string): Promise<Guest | null> {
   }
 }
 
-async function addAccessLog(guest_id: string, ip: string, userAgent: string): Promise<void> {
+function normalizeClientIp(rawIp: string): string {
+  return rawIp.split(",")[0].trim().replace(/^::ffff:/, "");
+}
+
+function isPrivateOrLocalIp(ip: string): boolean {
+  if (!ip || ip === "::1" || ip === "localhost") return true;
+  if (/^127\./.test(ip) || /^10\./.test(ip) || /^192\.168\./.test(ip)) return true;
+  const match172 = ip.match(/^172\.(\d{1,3})\./);
+  if (match172 && Number(match172[1]) >= 16 && Number(match172[1]) <= 31) return true;
+  return /^fc|^fd|^fe80:/i.test(ip);
+}
+
+async function getApproximateCityByIp(rawIp: string): Promise<string> {
+  const ip = normalizeClientIp(rawIp);
+  if (isPrivateOrLocalIp(ip)) return "Rede local";
+
+  const cached = ipLocationCache.get(ip);
+  if (cached && cached.expiresAt > Date.now()) return cached.city;
+
+  try {
+    const response = await fetch(
+      `https://ipwho.is/${encodeURIComponent(ip)}?fields=success,city,region_code,country_code`,
+      {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(3000),
+      },
+    );
+    if (!response.ok) throw new Error(`IP geolocation HTTP ${response.status}`);
+
+    const location = await response.json() as IpLocation;
+    if (!location.success || !location.city) throw new Error("IP geolocation unavailable");
+
+    const region = location.region_code?.trim();
+    const country = location.country_code?.trim();
+    const city = location.city.trim();
+    const formatted = country === "BR"
+      ? [city, region].filter(Boolean).join(", ")
+      : [city, region, country].filter(Boolean).join(", ");
+
+    ipLocationCache.set(ip, {
+      city: formatted,
+      expiresAt: Date.now() + IP_LOCATION_CACHE_TTL,
+    });
+    return formatted;
+  } catch (error) {
+    console.warn(`Não foi possível localizar aproximadamente o IP ${ip}:`, error);
+    return "Localização indisponível";
+  }
+}
+
+async function addAccessLog(guest_id: string, rawIp: string, userAgent: string): Promise<void> {
+  const ip = normalizeClientIp(rawIp);
   let navegador = "Outro";
   if (userAgent.includes("Chrome")) navegador = "Chrome";
   else if (userAgent.includes("Safari")) navegador = "Safari";
@@ -658,14 +719,7 @@ async function addAccessLog(guest_id: string, ip: string, userAgent: string): Pr
 
   const celular = /Mobi|Android|iPhone|iPad/i.test(userAgent) ? "Sim" : "Não";
   
-  let cidade = "Gramado, RS";
-  if (ip.startsWith("127.") || ip.startsWith("::")) {
-    cidade = "Localhost";
-  } else {
-    const cities = ["São Paulo, SP", "Porto Alegre, RS", "Rio de Janeiro, RJ", "Curitiba, PR", "Belo Horizonte, MG"];
-    const charCodeSum = ip.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    cidade = cities[charCodeSum % cities.length];
-  }
+  const cidade = await getApproximateCityByIp(ip);
 
   const logDate = new Date().toISOString();
 
@@ -673,7 +727,7 @@ async function addAccessLog(guest_id: string, ip: string, userAgent: string): Pr
     await pool.query(`
       INSERT INTO dados.invitation_access (guest_id, ip, navegador, celular, cidade)
       VALUES ($1, $2, $3, $4, $5)
-    `, [guest_id, ip, navegador, celular, cityReplacer(cidade)]);
+    `, [guest_id, ip, navegador, celular, cidade]);
   } else {
     memoryAccessLogs.push({
       id: memoryAccessLogs.length + 1,
@@ -685,10 +739,6 @@ async function addAccessLog(guest_id: string, ip: string, userAgent: string): Pr
       cidade
     });
   }
-}
-
-function cityReplacer(city: string): string {
-  return city;
 }
 
 async function getAccessLogs(): Promise<AccessLog[]> {
@@ -1077,7 +1127,7 @@ app.get("/api/guests/:id", async (req, res) => {
     }
     
     // Log access
-    const ip = (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress || "127.0.0.1";
+    const ip = req.ip || req.socket.remoteAddress || "127.0.0.1";
     const userAgent = req.headers["user-agent"] || "Desconhecido";
     await addAccessLog(guest.id, ip, userAgent);
 
