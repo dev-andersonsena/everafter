@@ -927,34 +927,6 @@ export default function AdminDashboard({ onClose, onLogout }: AdminDashboardProp
 
               </div>
 
-              {/* Attendance dietary restrictions dashboard */}
-              <div className="bg-stone-900/30 border border-stone-800 rounded-3xl p-6">
-                <h3 className="font-serif text-lg text-stone-100 mb-4 flex items-center gap-2">
-                  <ShieldCheck size={18} className="text-gold-400" />
-                  Avisos de Alergias & Restrições Alimentares
-                </h3>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  {guests.filter(g => g.confirmado && g.restricao_alimentar).length === 0 ? (
-                    <p className="text-stone-500 text-xs italic py-4 col-span-2 text-center">Nenhum convidado confirmado registrou alergia ou restrição alimentar até o momento.</p>
-                  ) : (
-                    guests
-                      .filter(g => g.confirmado && g.restricao_alimentar)
-                      .map(guest => (
-                        <div key={guest.id} className="bg-stone-950/60 border border-stone-850 p-3.5 rounded-xl flex justify-between items-start gap-4">
-                          <div>
-                            <p className="font-serif text-sm text-stone-200 font-semibold">{guest.nome}</p>
-                            <p className="text-xs text-stone-400 mt-0.5">📞 {guest.telefone || 'S/ Tel'}</p>
-                          </div>
-                          <span className="bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs px-3 py-1.5 rounded-xl font-medium font-serif shrink-0">
-                            ⚠️ {guest.restricao_alimentar}
-                          </span>
-                        </div>
-                      ))
-                  )}
-                </div>
-              </div>
-
             </motion.div>
           )}
 
